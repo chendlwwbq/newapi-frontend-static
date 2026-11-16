@@ -99,14 +99,18 @@ export function CheckinCard({ siteKey }: { siteKey?: string }) {
           </div>
           <div className="settings-row">
             <span>{t('Total check-ins')}</span>
-            <strong>{query.data.stats.total_checkins}</strong>
+            <strong className="tabular-nums font-mono">{query.data.stats.total_checkins}</strong>
           </div>
           <div className="settings-row">
             <span>{t('Total rewards')}</span>
-            <strong>{money(query.data.stats.total_quota)}</strong>
+            <strong className="tabular-nums font-mono">{money(query.data.stats.total_quota)}</strong>
           </div>
           {siteKey && !query.data.stats.checked_in_today && <Turnstile key={widget} siteKey={siteKey} onToken={setToken} />}
-          <Button disabled={mutation.isPending || query.data.stats.checked_in_today || (!!siteKey && !token)} onClick={() => mutation.mutate()}>
+          <Button
+            className="w-full transition-all active:scale-[0.98]"
+            disabled={mutation.isPending || query.data.stats.checked_in_today || (!!siteKey && !token)}
+            onClick={() => mutation.mutate()}
+          >
             {t(query.data.stats.checked_in_today ? 'Already checked in today' : 'Check in')}
           </Button>
         </>

@@ -70,7 +70,9 @@ export function LogDetails(props: { log: UsageLog; admin: boolean; onClose: () =
         {log.content && (
           <section>
             <h3>{t('Content')}</h3>
-            <pre className="log-json">{log.content}</pre>
+            <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
+              {log.content}
+            </pre>
           </section>
         )}
         {target && (
@@ -84,7 +86,9 @@ export function LogDetails(props: { log: UsageLog; admin: boolean; onClose: () =
         {log.other && (
           <details>
             <summary>{t('Additional data')}</summary>
-            <pre className="log-json">{Object.keys(other).length ? JSON.stringify(other, null, 2) : log.other}</pre>
+            <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
+              {Object.keys(other).length ? JSON.stringify(other, null, 2) : log.other}
+            </pre>
           </details>
         )}
       </DialogContent>

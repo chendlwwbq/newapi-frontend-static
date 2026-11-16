@@ -260,10 +260,10 @@ export function RedemptionsPage() {
                         )}
                       </span>
                     </td>
-                    <td>{format(item.quota)}</td>
-                    <td className="small-note">{date(item.created_time)}</td>
-                    <td className="small-note">{item.expired_time ? date(item.expired_time) : t('Never expires')}</td>
-                    <td>{item.used_user_id ? `#${item.used_user_id}` : '—'}</td>
+                    <td className="tabular-nums font-mono">{format(item.quota)}</td>
+                    <td className="small-note tabular-nums font-mono">{date(item.created_time)}</td>
+                    <td className="small-note tabular-nums font-mono">{item.expired_time ? date(item.expired_time) : t('Never expires')}</td>
+                    <td className="tabular-nums font-mono">{item.used_user_id ? `#${item.used_user_id}` : '—'}</td>
                     <td>
                       <div className="action-buttons">
                         {item.status !== 3 && (

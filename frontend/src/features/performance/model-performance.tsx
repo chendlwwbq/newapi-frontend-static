@@ -42,9 +42,12 @@ export function ModelPerformance(props: { model: string }) {
       <>
         <div className="stat-grid">
           {(['avg_latency_ms', 'success_rate', 'avg_tps'] as const).map((key) => (
-            <div className="stat-card" key={key}>
+            <div
+              className="stat-card rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10"
+              key={key}
+            >
               <div>{t(performanceLabels[key])}</div>
-              <strong>
+              <strong className="tabular-nums font-mono">
                 {key === 'avg_tps' && summary?.has_tps === false ? t('No measurements yet') : formatNumber(summary?.[key], locale)}
                 {key === 'success_rate' && '%'}
               </strong>

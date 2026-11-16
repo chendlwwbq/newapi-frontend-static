@@ -128,9 +128,9 @@ export function OrderHistory() {
                     </div>
                   </td>
                   {all && <td>{order.user_id}</td>}
-                  <td>{date(order.create_time)}</td>
-                  <td>{amount(order)}</td>
-                  <td>{formatNumber(order.money, currency.locale)}</td>
+                  <td className="small-note tabular-nums font-mono">{date(order.create_time)}</td>
+                  <td className="tabular-nums font-mono">{amount(order)}</td>
+                  <td className="tabular-nums font-mono">{formatNumber(order.money, currency.locale)}</td>
                   <td>
                     {t(
                       (
@@ -146,11 +146,20 @@ export function OrderHistory() {
                     )}
                   </td>
                   <td>
-                    <span className="security-status" data-enabled={order.status === 'success'}>
+                    <span
+                      className={`status-badge ${
+                        order.status === 'success'
+                          ? 'success'
+                          : order.status === 'pending'
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                            : 'bg-muted text-muted-foreground'
+                      }`}
+                      data-enabled={order.status === 'success'}
+                    >
                       {t(({ success: 'Success', pending: 'Pending', expired: 'Expired' } as Record<string, string>)[order.status] || order.status)}
                     </span>
                   </td>
-                  <td>{date(order.complete_time)}</td>
+                  <td className="small-note tabular-nums font-mono">{date(order.complete_time)}</td>
                   {all && (
                     <td>
                       {order.status === 'pending' && (

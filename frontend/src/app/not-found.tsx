@@ -13,7 +13,7 @@ export default function NotFound() {
       <header>
         <Brand />
       </header>
-      <div className="not-found-content">
+      <div className="not-found-content rounded-2xl border border-border/60 bg-card/75 p-8 shadow-2xl shadow-black/20 backdrop-blur-xl">
         <Mascot />
         <span className="not-found-status">
           status = <strong>404</strong>

@@ -112,9 +112,12 @@ export function OpsOverview() {
             ['Disk usage', percent(disk.used_percent)],
             ['Disk cache', bytes(cache.current_disk_usage_bytes)],
           ].map(([label, value]) => (
-            <section className="console-panel" key={label}>
+            <section
+              className="console-panel rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10"
+              key={label}
+            >
               <span className="small-note">{t(label)}</span>
-              <strong>{value}</strong>
+              <strong className="text-2xl md:text-3xl font-semibold tracking-tight tabular-nums font-mono">{value}</strong>
             </section>
           ))}
         </div>
@@ -161,15 +164,21 @@ export function OpsOverview() {
                   </td>
                   <td>
                     <span className={`status-badge ${instance.status === 'online' ? 'success' : ''}`}>
+                      {instance.status === 'online' && (
+                        <span className="relative flex size-2" aria-hidden="true">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                        </span>
+                      )}
                       {t(instance.status === 'online' ? 'Online' : 'Stale')}
                     </span>
                   </td>
-                  <td>{instance.info?.runtime?.version || '—'}</td>
-                  <td>{percent(instance.info?.resources?.cpu?.usage_percent)}</td>
-                  <td>{percent(instance.info?.resources?.memory?.usage_percent)}</td>
-                  <td>{percent(instance.info?.resources?.storage?.used_percent)}</td>
-                  <td className="small-note">{date(instance.started_at)}</td>
-                  <td className="small-note">{date(instance.last_seen_at)}</td>
+                  <td className="tabular-nums font-mono">{instance.info?.runtime?.version || '—'}</td>
+                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.cpu?.usage_percent)}</td>
+                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.memory?.usage_percent)}</td>
+                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.storage?.used_percent)}</td>
+                  <td className="small-note tabular-nums font-mono">{date(instance.started_at)}</td>
+                  <td className="small-note tabular-nums font-mono">{date(instance.last_seen_at)}</td>
                   <td>
                     <div className="action-buttons">
                       <Button variant="ghost" size="sm" onClick={() => setSelected(instance)}>

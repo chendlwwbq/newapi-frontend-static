@@ -39,6 +39,7 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
   const [baseline, setBaseline] = useState(initial)
   const [draft, setDraft] = useState(initial)
   const [busy, setBusy] = useState(false)
+  const [justSaved, setJustSaved] = useState(false)
   const [resetVersion, setResetVersion] = useState(0)
   const [cleared, setCleared] = useState<Set<string>>(() => new Set())
   const dirty = fields.filter((field) => cleared.has(field.key) || draft[field.key] !== baseline[field.key])
@@ -62,6 +63,7 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
         })
         setBaseline(result.options)
         setDraft(result.options)
+        setJustSaved(true)
         toast.success(t('Saved'))
         return
       }
@@ -79,6 +81,7 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
           return next
         })
       }
+      setJustSaved(true)
       toast.success(t('Saved'))
     } catch (error) {
       toast.error(t((error as Error).message))
@@ -230,7 +233,15 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
         })}
         <div className="settings-save">
           <span className="small-note">
-            {t('Changed fields')}: {dirty.length}
+            {dirty.length > 0 ? (
+              <span className="font-medium text-amber-600 dark:text-amber-400">
+                {t('Changed fields')}: {dirty.length}
+              </span>
+            ) : justSaved ? (
+              <span className="font-medium text-emerald-600 dark:text-emerald-400">{t('Saved')}</span>
+            ) : (
+              `${t('Changed fields')}: 0`
+            )}
           </span>
           <Button
             type="button"

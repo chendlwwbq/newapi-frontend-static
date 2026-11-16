@@ -2,6 +2,7 @@
 @layer reset, base, astryx-base, astryx-theme, theme, components, utilities;
 @import './security.css';
 @import 'tailwindcss';
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @import './ui-enhancements.css';
 @import './global-enhancements.css';
 @import './tokens.css';
@@ -263,10 +264,13 @@ pre {
   align-items: center;
   gap: 45px;
   padding: 0 38px;
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 30;
-  background: linear-gradient(var(--background), transparent);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: color-mix(in srgb, var(--background) 80%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 .brand {
   display: inline-flex;
@@ -834,10 +838,25 @@ pre {
   gap: 20px;
 }
 .benefit-card {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: 1rem;
   padding: 28px;
   overflow: hidden;
+  background: color-mix(in srgb, var(--card) 65%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+.benefit-card:hover {
+  border-color: rgb(168 85 247 / 0.5);
+  box-shadow:
+    0 12px 32px -12px rgb(168 85 247 / 0.16),
+    0 4px 12px -4px rgb(0 0 0 / 0.08);
+  transform: translateY(-2px);
 }
 .benefit-card > svg {
   margin-bottom: 22px;
@@ -1104,18 +1123,32 @@ pre {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: color-mix(in srgb, var(--background) 80%, transparent);
 }
 .data-table th {
-  font-weight: 400;
+  font-weight: 500;
   color: var(--muted-foreground);
-  font-size: 11px;
-  padding: 14px 12px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 }
 .data-table td {
-  padding: 22px 12px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--foreground) 90%, transparent);
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
@@ -1492,25 +1525,25 @@ pre {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 18px 0;
+  gap: 0.5rem;
+  margin: 1rem 0;
 }
 .field > span,
 .field > label {
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 .field input:not([type='checkbox']),
 .field select,
 .field textarea {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
   background: var(--background);
   color: var(--foreground);
   width: 100%;
-  min-height: 40px;
-  font-size: 13px;
+  min-height: 2.5rem;
+  font-size: 0.875rem;
 }
 .field-row {
   display: flex;
@@ -1678,8 +1711,8 @@ pre {
   font-size: 10px;
 }
 .console-content {
-  max-width: 1500px;
-  padding: 33px;
+  max-width: 80rem;
+  padding: 2rem;
   margin: 0 auto;
 }
 .console-page-heading {
@@ -1690,29 +1723,34 @@ pre {
   margin-bottom: 27px;
 }
 .console-page-heading h1 {
-  font-size: 25px;
-  font-weight: 500;
-  letter-spacing: -0.7px;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 .console-page-heading p {
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--muted-foreground);
   margin-top: 7px;
 }
 .console-panel {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 1rem;
   padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .console-panel h2 {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
   margin-bottom: 10px;
 }
 .console-panel p {
   color: var(--muted-foreground);
-  font-size: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 .onboarding {
   display: flex;
@@ -1740,26 +1778,27 @@ pre {
   margin: 24px 0;
 }
 .stat-card {
-  padding: 23px;
+  padding: 1.5rem;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .stat-card > div {
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--muted-foreground);
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .stat-card strong {
-  font-size: 28px;
-  font-weight: 500;
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  font-weight: 600;
   display: block;
-  margin: 16px 0 8px;
-  letter-spacing: -0.7px;
+  margin: 14px 0 8px;
+  letter-spacing: -0.025em;
 }
 .stat-card small {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
 }
 .console-columns {
@@ -1799,7 +1838,7 @@ pre {
   padding-top: 5px;
 }
 .console-content .data-table td {
-  padding: 16px 12px;
+  padding: 0.75rem 1rem;
 }
 .action-buttons {
   display: flex;
@@ -2511,7 +2550,7 @@ pre {
     display: none;
   }
   .console-content {
-    padding: 24px 18px;
+    padding: 1.5rem 1rem;
   }
   .console-page-heading {
     gap: 12px;
@@ -2566,7 +2605,7 @@ pre {
     min-width: 170px;
   }
   .console-content .data-table td {
-    padding: 15px 8px;
+    padding: 0.75rem 0.5rem;
   }
   .docs-layout {
     display: block;

@@ -1,11 +1,10 @@
 import 'server-only'
 import { connection } from 'next/server'
 import type { ApiEnvelope } from './types'
-import { handleMock } from '@/mock/handler'
 
 async function requestPublicData<T>(path: string, absentStatuses: number[] = []): Promise<T | null> {
   await connection()
-  const response = await handleMock(new Request(`http://127.0.0.1:3031${path}`))
+  const response = await fetch(`${process.env.NEW_API_ORIGIN || 'http://127.0.0.1:3016'}${path}`, { cache: 'no-store' })
   if (absentStatuses.includes(response.status)) return null
   const result: ApiEnvelope<T> = await response.json()
   if (!response.ok || !result.success) throw new Error(result.message || 'New API is unavailable')

@@ -2862,17 +2862,5 @@
   "Provider link only": "仅返回已有链接",
   "Save to bucket": "存入桶",
   "Return original link": "直接返回链接",
-  "Store videos for channel {{name}}": "渠道 {{name}} 自动存桶",
-  "Mock workspace": "Mock 工作区",
-  "Local sample data. Changes reset when the server restarts.": "仅本地示例数据，重启服务后恢复初始数据。",
-  "Preview role": "预览身份",
-  "Data scenario": "数据场景",
-  "Normal data": "正常数据",
-  "Empty data": "空数据",
-  "Error response": "接口异常",
-  "Slow response": "慢速加载",
-  "Reset mock data": "重置 Mock 数据",
-  "Unimplemented mock endpoints": "尚未实现的 Mock 接口",
-  "Mock update failed": "Mock 设置失败",
-  "Guest": "访客"
+  "Store videos for channel {{name}}": "渠道 {{name}} 自动存桶"
 }

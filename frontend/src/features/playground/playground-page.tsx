@@ -672,9 +672,11 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
                       message.content
                     )
                   ) : message.status === 'streaming' ? (
-                    <span className="streaming-dots" aria-label={t('Generating')}>
-                      •••
-                    </span>
+                    <div className="space-y-2 py-1" role="status" aria-label={t('Generating')}>
+                      <div className="h-3.5 w-3/4 animate-pulse rounded-md bg-muted" />
+                      <div className="h-3.5 w-5/6 animate-pulse rounded-md bg-muted" />
+                      <div className="h-3.5 w-2/3 animate-pulse rounded-md bg-muted" />
+                    </div>
                   ) : null}
                 </div>
                 {!!message.images?.length && (

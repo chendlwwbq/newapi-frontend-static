@@ -62,9 +62,9 @@
   margin-inline: auto;
   font-family: var(--home-display);
   font-size: clamp(42px, 6.3vw, 100px);
-  font-weight: 600;
-  line-height: 1.07;
-  letter-spacing: -.055em;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.035em;
   white-space: normal;
   text-wrap: balance;
 }

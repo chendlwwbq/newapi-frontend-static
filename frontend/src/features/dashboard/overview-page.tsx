@@ -59,6 +59,8 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
   const supported = new Set(model?.offerings.flatMap((offering) => offering.access.flatMap((access) => access.protocols)))
   const protocol = apiProtocols.find((item) => supported.has(item.id))
   const code = model && protocol && gateway.address ? apiExample(protocol.id, gateway.address, model.configured_model_id, false, 'curl') : ''
+  const firstKey = keys.data?.items?.[0]
+  const copyableKey = firstKey?.key ? (firstKey.key.startsWith('sk-') ? firstKey.key : `sk-${firstKey.key}`) : ''
   const cost = recent.data?.reduce((total, row) => total + row.quota, 0) ?? 0
   const steps = [
     {
@@ -235,12 +237,22 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
         </div>
         <aside>
           <span className="small-note">{t('Account balance')}</span>
-          <strong>{money(user.quota)}</strong>
+          <strong className="text-2xl md:text-3xl font-semibold tracking-tight">{money(user.quota)}</strong>
           <span className={`status-badge ${user.quota > 0 ? 'success' : ''}`}>{t(user.quota > 0 ? 'Available' : 'Insufficient balance')}</span>
-          <Link className="pill-button" href="/wallet">
-            {t('Wallet')}
-            <ArrowRight size={15} />
-          </Link>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Link className="pill-button" href="/wallet">
+              {t('Wallet')}
+              <ArrowRight size={15} />
+            </Link>
+            {copyableKey ? (
+              <CopyButton value={copyableKey} label={t('Copy API key')} />
+            ) : (
+              <Link className="pill-button secondary" href="/keys">
+                <KeyRound size={14} />
+                {t('API keys')}
+              </Link>
+            )}
+          </div>
         </aside>
       </section>
       <ConfiguredPanels />

@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Tabs } from '@base-ui/react/tabs'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -29,8 +30,16 @@ export function WalletPage() {
   const { t, i18n } = useTranslation(),
     auth = useAuth(),
     format = useQuotaFormatter(),
-    queries = useQueryClient()
-  const [tab, setTab] = useState<Tab>('recharge')
+    queries = useQueryClient(),
+    searchParams = useSearchParams()
+  const requestedTab = searchParams?.get('tab')
+  const initialTab: Tab = requestedTab && tabs.some(([value]) => value === requestedTab) ? (requestedTab as Tab) : 'recharge'
+  const [tab, setTab] = useState<Tab>(initialTab)
+  useEffect(() => {
+    if (requestedTab && tabs.some(([value]) => value === requestedTab)) {
+      setTab(requestedTab as Tab)
+    }
+  }, [requestedTab])
   const userId = auth.bundle!.user.id
   const self = useQuery({ queryKey: ['self', userId], queryFn: () => api<UserWalletData>('/api/user/self'), refetchOnWindowFocus: true })
   const info = useQuery({ queryKey: ['topup-info', userId], queryFn: async () => normalizeTopupInfo(await api<TopupInfo>('/api/user/topup/info')) })

@@ -311,25 +311,28 @@
 .overview-stats article {
   position: relative;
   min-width: 0;
-  border-radius: 18px;
-  padding: 16px;
+  border-radius: 1rem;
+  padding: 1.5rem;
   background: var(--muted);
-  min-height: 130px;
+  min-height: 144px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   overflow: hidden;
 }
 .overview-stats article > span {
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
 }
 .overview-stats article > strong {
   display: block;
-  font-size: 28px;
-  letter-spacing: -1px;
-  font-weight: 500;
-  margin-top: 18px;
+  font-size: clamp(1.5rem, 2.2vw, 1.875rem);
+  letter-spacing: -0.025em;
+  font-weight: 600;
+  margin-top: 16px;
   overflow-wrap: anywhere;
 }
 .overview-stats article > i {

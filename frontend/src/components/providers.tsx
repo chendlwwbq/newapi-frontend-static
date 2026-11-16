@@ -8,8 +8,6 @@ import { MotionConfig } from 'motion/react'
 import { Toaster } from 'sonner'
 import { bootstrapSession } from '@/lib/auth/session'
 import { SetupGuard } from '@/features/auth/setup-guard'
-import { MockControlPanel } from '@/mock/control-panel'
-import '@/styles/mock.css'
 import { loadInterfaceLanguage, persistInterfaceLanguage } from '@/i18n/load-language'
 
 export function Providers({ children, initialLanguage, initialTranslations }: {
@@ -50,7 +48,6 @@ export function Providers({ children, initialLanguage, initialTranslations }: {
         <MotionConfig reducedMotion="user">
           <SetupGuard>{children}</SetupGuard>
           <Toaster richColors position="bottom-right" />
-          <MockControlPanel />
         </MotionConfig>
       </QueryClientProvider>
     </I18nextProvider>

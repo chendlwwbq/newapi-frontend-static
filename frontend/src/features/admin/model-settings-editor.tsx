@@ -34,7 +34,7 @@ function ModelMapping(props: { value: Record<string, unknown>; onChange: (next: 
       {rows.map(({ name, value, id }, index) => {
         const duplicate = names.indexOf(name) !== names.lastIndexOf(name)
         return (
-          <section className="model-setting-row" key={id}>
+          <section className="model-setting-row grid grid-cols-1 gap-4 rounded-xl border border-border/60 p-4 md:grid-cols-2" key={id}>
             <div className="model-setting-item">
               <label className="field">
                 {t(nameLabel)}

@@ -241,10 +241,35 @@ export function ChannelsPage() {
                         </td>
                         <td>{t(CHANNEL_TYPES[channel.type as keyof typeof CHANNEL_TYPES] || 'Unknown')}</td>
                         <td>
-                          <span className={`status-badge ${channel.status === 1 ? 'success' : ''}`}>
+                          <span
+                            className={`status-badge ${
+                              channel.status === 1
+                                ? 'success'
+                                : channel.status === 3
+                                  ? 'bg-destructive/10 text-destructive'
+                                  : ''
+                            }`}
+                          >
+                            {channel.status === 1 ? (
+                              <span className="relative flex size-2" aria-hidden="true">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                                <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+                              </span>
+                            ) : (
+                              <span
+                                className={`inline-block size-2 rounded-full ${channel.status === 3 ? 'bg-red-500' : 'bg-muted-foreground/60'}`}
+                                aria-hidden="true"
+                              />
+                            )}
                             {t(channel.status === 1 ? 'Enabled' : channel.status === 3 ? 'Auto disabled' : 'Disabled')}
                           </span>
-                          <div className="small-note">{channel.test_time ? `${channel.response_time} ms` : '—'}</div>
+                          <div
+                            className={`small-note mt-1 ${
+                              channel.test_time && channel.response_time > 5000 ? 'text-amber-600 dark:text-amber-400' : ''
+                            }`}
+                          >
+                            {channel.test_time ? `${channel.response_time} ms` : '—'}
+                          </div>
                         </td>
                         <td>
                           <span className="admin-models" title={channel.models}>

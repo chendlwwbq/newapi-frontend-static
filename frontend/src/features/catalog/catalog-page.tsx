@@ -204,8 +204,8 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
     <main className="page-container catalog-page" id="content">
       <div className="page-heading">
         <div>
-          <h1 className="page-title">{t('Model catalog')}</h1>
-          <p className="page-description">{t('Compare models, prices and routes in one place.')}</p>
+          <h1 className="page-title text-3xl font-bold tracking-tight">{t('Model catalog')}</h1>
+          <p className="page-description text-sm text-muted-foreground">{t('Compare models, prices and routes in one place.')}</p>
         </div>
         <div className="catalog-heading-actions">
           <CatalogPerformanceBadge
@@ -213,6 +213,36 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
             successRate={performance.isError ? null : (performance.data?.summary?.success_rate ?? null)}
           />
         </div>
+      </div>
+      <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-2" aria-label={t('Billing modes')}>
+        <Link
+          href="/wallet?tab=recharge"
+          className="group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card/70 p-4 shadow-sm transition-all hover:border-purple-500/40 hover:shadow-md"
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold">{t('Pay-as-you-go')}</span>
+              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{t('Recharge')}</span>
+            </div>
+            <p className="text-xs text-muted-foreground">{t('Top up account balance and pay per request based on model rates.')}</p>
+          </div>
+          <ArrowRight size={16} className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
+        <Link
+          href="/wallet?tab=subscriptions"
+          className="group flex items-center justify-between gap-4 rounded-xl border border-border/70 bg-card/70 p-4 shadow-sm transition-all hover:border-purple-500/40 hover:shadow-md"
+        >
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold">{t('Subscriptions')}</span>
+              <span className="rounded-full bg-purple-500/10 px-2 py-0.5 text-xs font-medium text-purple-600 dark:text-purple-300">
+                {t('Quota plan')}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">{t('Fixed periodic quota allowances with dedicated subscription billing.')}</p>
+          </div>
+          <ArrowRight size={16} className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+        </Link>
       </div>
       <CatalogSkill />
       {!catalogStatus && models && <CatalogNotices models={filtered} groups={filters.groups} />}

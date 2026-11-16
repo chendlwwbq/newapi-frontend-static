@@ -117,8 +117,13 @@ export function HomePage({
         />
         <div className="hero-content">
           <div className="hero-heading">
-            <h1 lang="en">All models, one place.</h1>
-            <p>{t('Intelligence together. Creativity ahead.')}</p>
+            <h1
+              lang="en"
+              className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent"
+            >
+              All models, one place.
+            </h1>
+            <p className="text-foreground/80">{t('Intelligence together. Creativity ahead.')}</p>
           </div>
           <div className="hero-model">
             <Mascot />
@@ -143,6 +148,9 @@ export function HomePage({
           <div className="hero-cta">
             <Link href="/keys" className="pill-button">
               {t('Get your API Key')}
+            </Link>
+            <Link href="/playground" className="pill-button secondary">
+              {t('Playground')}
             </Link>
             <Link href="/pricing" className="pill-button secondary">
               {t('Browse all models')}

@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useState } from 'react'
+import { memo, useState, type ComponentProps } from 'react'
 import Markdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -41,15 +41,14 @@ const MessageImage: NonNullable<Components['img']> = ({ src, alt }) => {
   )
 }
 
+const REMARK_PLUGINS = [remarkGfm, remarkMath]
+const REHYPE_PLUGINS: NonNullable<ComponentProps<typeof Markdown>['rehypePlugins']> = [[rehypeKatex, { throwOnError: false, trust: false }]]
+const MARKDOWN_COMPONENTS: Components = { pre: CodeBlock, img: MessageImage }
+
 export const MessageMarkdown = memo(function MessageMarkdown({ content }: { content: string }) {
   return (
     <div className="chat-markdown">
-      <Markdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[[rehypeKatex, { throwOnError: false, trust: false }]]}
-        skipHtml
-        components={{ pre: CodeBlock, img: MessageImage }}
-      >
+      <Markdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} skipHtml components={MARKDOWN_COMPONENTS}>
         {content}
       </Markdown>
     </div>

@@ -32,7 +32,7 @@ export function Turnstile({ siteKey, onToken }: { siteKey: string; onToken: (tok
   return (
     <>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" onReady={() => setReady(true)} />
-      <div ref={container} className="auth-captcha" />
+      <div ref={container} className="auth-captcha flex min-h-[65px] items-center justify-center" />
     </>
   )
 }

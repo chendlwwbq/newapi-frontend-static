@@ -247,3 +247,54 @@ it('opens the export dialog and streams every applied filter instead of the curr
   expect(params.has('page_size')).toBe(false)
   await waitFor(() => expect(createObjectURL).toHaveBeenCalledOnce())
 })
+
+it('renders error and refund log types and opens the log details dialog', async () => {
+  mockLogsApi({
+    items: [
+      {
+        id: 101,
+        user_id: 1,
+        created_at: 1700000000,
+        type: 5,
+        content: 'upstream error',
+        username: 'alice',
+        token_name: 'key-a',
+        model_name: 'gpt-4o',
+        quota: 0,
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        use_time: 1,
+        is_stream: false,
+        channel: 1,
+        group: 'default',
+        request_id: 'req-err-101',
+      },
+      {
+        id: 102,
+        user_id: 1,
+        created_at: 1700000010,
+        type: 6,
+        content: 'refunded',
+        username: 'alice',
+        token_name: 'key-a',
+        model_name: 'gpt-4o',
+        quota: 500,
+        prompt_tokens: 0,
+        completion_tokens: 0,
+        use_time: 0,
+        is_stream: false,
+        channel: 1,
+        group: 'default',
+      },
+    ],
+  })
+  await renderLogs('scope=self')
+  const table = await screen.findByRole('table')
+  expect(within(table).getByText('Error')).toBeTruthy()
+  expect(within(table).getByText('Refund')).toBeTruthy()
+  const detailsButtons = within(table).getAllByRole('button', { name: 'Details' })
+  fireEvent.click(detailsButtons[0])
+  const dialog = await screen.findByRole('dialog')
+  expect(within(dialog).getByText('Details #101')).toBeTruthy()
+  expect(within(dialog).getByText('upstream error')).toBeTruthy()
+})

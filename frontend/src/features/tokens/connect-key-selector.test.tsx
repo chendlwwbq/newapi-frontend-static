@@ -124,3 +124,30 @@ it('shows the authorized route label while matching keys by group ID', async () 
   expect((screen.getByRole('button', { name: 'Select' }) as HTMLButtonElement).disabled).toBe(false)
   expect(screen.queryByText(/Group: xlsx-g-123/)).toBeNull()
 })
+
+it('disables selection for disabled, expired, or exhausted keys even when the group matches', async () => {
+  vi.mocked(api).mockResolvedValue({
+    items: [
+      { id: 10, name: 'disabled-key', status: 2, group: 'vip', expired_time: -1, unlimited_quota: true, remain_quota: 0 },
+      { id: 11, name: 'expired-key', status: 1, group: 'vip', expired_time: 1000, unlimited_quota: true, remain_quota: 0 },
+      { id: 12, name: 'exhausted-key', status: 1, group: 'vip', expired_time: -1, unlimited_quota: false, remain_quota: 0 },
+    ],
+    total: 3,
+  })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const i18n = createInstance()
+  await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+  render(
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={client}>
+        <ConnectKeySelector userId={7} sessionId="session" group="vip" />
+      </QueryClientProvider>
+    </I18nextProvider>
+  )
+  fireEvent.click(screen.getByRole('button', { name: 'Choose an API key' }))
+  await screen.findByText('disabled-key')
+  for (const name of ['disabled-key', 'expired-key', 'exhausted-key']) {
+    const row = screen.getByText(name).closest('.settings-collection-row') as HTMLElement
+    expect((within(row).getByRole('button', { name: 'Select' }) as HTMLButtonElement).disabled).toBe(true)
+  }
+})

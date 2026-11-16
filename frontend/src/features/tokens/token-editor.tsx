@@ -16,11 +16,13 @@ export function TokenEditor({
   initial,
   status,
   requestedGroup,
+  onCreated,
   onClose,
 }: {
   initial?: Token
   status: QuotaStatus
   requestedGroup?: string
+  onCreated?: () => void
   onClose: () => void
 }) {
   const { t } = useTranslation()
@@ -50,9 +52,10 @@ export function TokenEditor({
 
   const save = useMutation({
     mutationFn: (body: Partial<Token>) => api('/api/token/', { method: body.id ? 'PUT' : 'POST', body }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queries.invalidateQueries({ queryKey: ['tokens'] })
       toast.success(t('Saved'))
+      if (!variables.id) onCreated?.()
       onClose()
     },
     onError: (error) => toast.error(t(error.message)),

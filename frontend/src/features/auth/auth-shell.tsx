@@ -54,7 +54,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           </ul>
           <small className="auth-attribution">Powered by New API / QuantumNous</small>
         </section>
-        <section className="auth-form-panel">
+        <section className="auth-form-panel p-6 sm:p-8">
           <div className="auth-card-tools">
             <LanguageSwitcher />
             <Link href="/" className="auth-close" aria-label={t('Close')}>
@@ -64,7 +64,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
           <div className="auth-mobile-brand">
             <Brand />
           </div>
-          <div className="auth-form">{children}</div>
+          <div className="auth-form mx-auto w-full max-w-[420px]">{children}</div>
           <small className="auth-mobile-attribution">New API / QuantumNous</small>
         </section>
       </div>

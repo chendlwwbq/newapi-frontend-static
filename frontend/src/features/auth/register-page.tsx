@@ -8,9 +8,10 @@ import { AuthShell } from './auth-shell'
 import { Turnstile } from './turnstile'
 import { useAuthStatus } from './use-auth-status'
 
-export function RegisterPage({ affiliate = '' }: { affiliate?: string }) {
+export function RegisterPage({ affiliate = '', returnTo }: { affiliate?: string; returnTo?: string }) {
   const { t } = useTranslation(),
     status = useAuthStatus()
+  const signInHref = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? `/sign-in?redirect=${encodeURIComponent(returnTo)}` : '/sign-in'
   const [username, setUsername] = useState(''),
     [password, setPassword] = useState(''),
     [confirm, setConfirm] = useState('')
@@ -74,7 +75,7 @@ export function RegisterPage({ affiliate = '' }: { affiliate?: string }) {
       {done ? (
         <>
           <p role="status">{t('Your account is ready. Sign in to continue.')}</p>
-          <Link href="/sign-in" className="pill-button">
+          <Link href={signInHref} className="pill-button">
             {t('Sign in')}
           </Link>
         </>
@@ -190,7 +191,7 @@ export function RegisterPage({ affiliate = '' }: { affiliate?: string }) {
             </>
           )}
           <p className="auth-switch">
-            {t('Already have an account?')} <Link href="/sign-in">{t('Sign in')}</Link>
+            {t('Already have an account?')} <Link href={signInHref}>{t('Sign in')}</Link>
           </p>
         </form>
       )}

@@ -44,7 +44,7 @@
   margin-top: 12px;
 }
 .news-article {
-  max-width: 800px;
+  max-width: 48rem;
   margin: auto;
 }
 .news-article > time {
@@ -60,6 +60,7 @@
 }
 .news-body {
   margin-top: 45px;
+  line-height: 1.75;
 }
 .api-reference {
   margin-top: 28px;

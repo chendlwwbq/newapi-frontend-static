@@ -822,7 +822,12 @@ pre {
   overflow: hidden;
 }
 .code-preview > div {
-  position: sticky;`r`n  top: 0;`r`n  z-index: 10;`r`n  backdrop-filter: blur(12px);`r`n  -webkit-backdrop-filter: blur(12px);`r`n  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 7px 12px;

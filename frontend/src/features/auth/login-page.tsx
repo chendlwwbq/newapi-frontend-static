@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Eye, EyeOff, KeyRound, UserRound, LockKeyhole, Building2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { AuthShell } from './auth-shell'
 import { Turnstile } from './turnstile'
 import { useAuthStatus } from './use-auth-status'
@@ -148,14 +149,43 @@ export function LoginPage({ returnTo = '/dashboard/overview', initialChallenge =
         )}
         {!challenge && !!providers.length && (
           <>
-            <div className="oauth-buttons">
-              {providers.map((provider) => (
-                <Button key={provider.slug} type="button" variant="outline" disabled={busy} onClick={() => oauth(provider.slug)}>
-                  {provider.slug === 'github' ? <img src="/orbis/home/github.svg" width={18} height={18} alt="" /> : <Building2 size={17} />}
-                  <span>{provider.name}</span>
-                </Button>
-              ))}
-            </div>
+            {providers.length > 3 ? (
+              <TooltipProvider>
+                <div className="oauth-buttons grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                  {providers.map((provider) => (
+                    <Tooltip key={provider.slug}>
+                      <TooltipTrigger
+                        render={
+                          <Button
+                            type="button"
+                            variant="outline"
+                            disabled={busy}
+                            aria-label={provider.name}
+                            onClick={() => oauth(provider.slug)}
+                          />
+                        }
+                      >
+                        {provider.slug === 'github' ? (
+                          <img src="/orbis/home/github.svg" width={18} height={18} alt="" />
+                        ) : (
+                          <Building2 size={17} />
+                        )}
+                      </TooltipTrigger>
+                      <TooltipContent>{provider.name}</TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
+            ) : (
+              <div className="oauth-buttons">
+                {providers.map((provider) => (
+                  <Button key={provider.slug} type="button" variant="outline" disabled={busy} onClick={() => oauth(provider.slug)}>
+                    {provider.slug === 'github' ? <img src="/orbis/home/github.svg" width={18} height={18} alt="" /> : <Building2 size={17} />}
+                    <span>{provider.name}</span>
+                  </Button>
+                ))}
+              </div>
+            )}
             {canUsePassword && <div className="auth-divider">{t('Or sign in with username')}</div>}
           </>
         )}
@@ -263,7 +293,9 @@ export function LoginPage({ returnTo = '/dashboard/overview', initialChallenge =
         ) : (
           <p className="auth-switch">
             {t('No account yet?')}
-            <Link href="/sign-up">{t('Sign up')}</Link>
+            <Link href={returnTo && returnTo !== '/dashboard/overview' ? `/sign-up?redirect=${encodeURIComponent(returnTo)}` : '/sign-up'}>
+              {t('Sign up')}
+            </Link>
           </p>
         )}
       </form>

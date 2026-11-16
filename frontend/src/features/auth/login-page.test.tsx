@@ -132,4 +132,12 @@ describe('LoginPage submission state', () => {
     expect(screen.getByRole('button', { name: 'Continue' })).toHaveProperty('disabled', false)
     expect(apiMock).not.toHaveBeenCalledWith('/api/user/login/verify', expect.anything())
   })
+
+  it('forwards custom returnTo to the sign-up link', () => {
+    const queryClient = client()
+    render(wrapper(queryClient, <LoginPage returnTo="/pricing/gpt-4o/connect?group=vip" />))
+    expect(screen.getByRole('link', { name: 'Sign up' }).getAttribute('href')).toBe(
+      '/sign-up?redirect=%2Fpricing%2Fgpt-4o%2Fconnect%3Fgroup%3Dvip'
+    )
+  })
 })

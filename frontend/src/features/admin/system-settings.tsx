@@ -109,7 +109,7 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
   return (
     <TooltipProvider>
       <form onSubmit={save} autoComplete="off">
-      <SettingsDraftGuard active={['site', 'content', 'news'].includes(section) && dirty.length > 0} busy={busy} />
+      <SettingsDraftGuard active={dirty.length > 0} busy={busy} />
       <fieldset className="admin-pricing-fields settings-fields" disabled={busy || disabled}>
         {fields.map((field) => {
           const id = `setting-${field.key}`

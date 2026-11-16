@@ -5,15 +5,17 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, Download, RefreshCw, Search } from 'lucide-react'
 import { api } from '@/lib/api/client'
-import type { PageResult } from '@/lib/api/types'
+import type { PageResult, UsageLog } from '@/lib/api/types'
 import { useAuth } from '@/lib/auth/session'
 import { useQuotaFormatter, formatNumber } from '@/lib/format'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { FilterSelect } from '@/components/ui/filter-select'
 import { CopyButton } from '@/components/shared/copy-button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { toIntlLocale } from '@/i18n/languages'
-import { buildLogParams, initialLogFilters, logLink, logParams, readLogLink, LOG_TYPES, type LogFilters, type LogRow } from './contracts'
+import { buildLogParams, initialLogFilters, logLink, logParams, logTypeLabels, readLogLink, LOG_TYPES, type LogFilters, type LogRow } from './contracts'
+import { LogDetails } from './log-details'
 import { LogExportDialog } from './export-dialog'
 
 interface LogStats {
@@ -50,6 +52,7 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
   const [restored, setRestored] = useState(false)
   const [advancedOpen, setAdvancedOpen] = useState(false)
   const [exportParams, setExportParams] = useState<string | null>(null)
+  const [activeLog, setActiveLog] = useState<LogRow | null>(null)
   const all = admin && scope === 'all'
 
   useEffect(() => {
@@ -127,7 +130,7 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
   const exportMaxRange = statusQuery.data?.log_export_max_range ?? statusQuery.data?.log_max_range_days ?? 7
 
   const date = (seconds: number) => new Date(seconds * 1000).toLocaleString(locale, { hour12: false })
-  const typeLabel = (type: number) => t(LOG_TYPES.find((item) => item.value === String(type))?.label || 'Unknown')
+  const typeLabel = (type: number) => t(logTypeLabels[type] || 'Unknown')
 
   return (
     <>
@@ -285,7 +288,18 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                   <tr key={row.id}>
                     <td className="small-note tabular-nums font-mono">{date(row.created_at)}</td>
                     {all && <td>{row.username || row.user_id}</td>}
-                    <td>{typeLabel(row.type)}</td>
+                    <td>
+                      <Badge
+                        variant={row.type === 5 ? 'destructive' : row.type === 6 || row.type === 1 ? 'outline' : 'secondary'}
+                        className={
+                          row.type === 6 || row.type === 1
+                            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                            : undefined
+                        }
+                      >
+                        {typeLabel(row.type)}
+                      </Badge>
+                    </td>
                     <td>
                       <code>{row.model_name || '—'}</code>
                     </td>
@@ -297,14 +311,19 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                     <td className="text-right tabular-nums font-mono">{money(row.quota)}</td>
                     <td className="text-right tabular-nums font-mono">{row.use_time ? `${row.use_time}s` : '—'}</td>
                     <td>
-                      {row.request_id ? (
-                        <span className="task-id">
-                          <code title={row.request_id}>{row.request_id}</code>
-                          <CopyButton value={row.request_id} />
-                        </span>
-                      ) : (
-                        <span className="small-note">{row.content}</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {row.request_id ? (
+                          <span className="task-id">
+                            <code title={row.request_id}>{row.request_id}</code>
+                            <CopyButton value={row.request_id} />
+                          </span>
+                        ) : (
+                          row.content && <span className="small-note">{row.content}</span>
+                        )}
+                        <Button type="button" size="sm" variant="ghost" onClick={() => setActiveLog(row)}>
+                          {t('Details')}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -355,6 +374,7 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
       {exportParams !== null && (
         <LogExportDialog params={exportParams} admin={all} maxRangeDays={exportMaxRange} onClose={() => setExportParams(null)} />
       )}
+      {activeLog && <LogDetails log={activeLog as UsageLog} admin={all} onClose={() => setActiveLog(null)} />}
     </>
   )
 }

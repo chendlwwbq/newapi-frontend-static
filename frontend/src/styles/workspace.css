@@ -408,6 +408,10 @@
     flex-direction: column;
     gap: 15px;
   }
+  .playground-workspace .chat-layout {
+    width: 100%;
+    min-width: 0;
+  }
   .chat-history {
     height: auto;
     min-height: 0;

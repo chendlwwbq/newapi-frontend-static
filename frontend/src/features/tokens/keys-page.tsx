@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import Link from 'next/link'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Plus, Search, Eye, Trash2, Pencil, Power, ChevronLeft, ChevronRight, ArrowDownUp, SlidersHorizontal } from 'lucide-react'
@@ -25,6 +26,7 @@ import { CopyButton } from '@/components/shared/copy-button'
 import { MascotMark } from '@/components/motion/mascot'
 import { TokenEditor } from './token-editor'
 import { SecurityDialog } from '@/features/auth/secure-verification/security-dialog'
+import { safeInternalPath } from '@/features/auth/console-return'
 import { tokenStatus, type QuotaStatus } from './token-form'
 
 const columns = [
@@ -40,13 +42,15 @@ const columns = [
   ['expiry', 'Expiry'],
 ] as const
 type Sort = 'name' | 'status' | 'quota' | 'created' | 'accessed' | 'expiry'
-export function KeysPage({ create = false, group }: { create?: boolean; group?: string }) {
+export function KeysPage({ create = false, group, returnTo }: { create?: boolean; group?: string; returnTo?: string }) {
   const { t, i18n } = useTranslation(),
     queries = useQueryClient(),
     auth = useAuth(),
     money = useQuotaFormatter(),
     userId = auth.bundle?.user.id,
-    locale = toIntlLocale(i18n.language)
+    locale = toIntlLocale(i18n.language),
+    safeReturnTo = safeInternalPath(returnTo)
+  const [readyToReturn, setReadyToReturn] = useState(false)
   const [page, setPage] = useState(1),
     [size, setSize] = useState(20),
     [search, setSearch] = useState(''),
@@ -190,6 +194,14 @@ export function KeysPage({ create = false, group }: { create?: boolean; group?: 
           {t('Create API key')}
         </Button>
       </div>
+      {readyToReturn && safeReturnTo && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm">
+          <span>{t('API key created. You can now continue connecting this model.')}</span>
+          <Link className="pill-button" href={safeReturnTo}>
+            {t('Continue connecting this model')} →
+          </Link>
+        </div>
+      )}
       <form className="keys-toolbar" onSubmit={submit}>
         <label className="search-field">
           <Search size={14} />
@@ -476,6 +488,9 @@ export function KeysPage({ create = false, group }: { create?: boolean; group?: 
             initial={editor === 'new' ? undefined : editor}
             status={status.data}
             requestedGroup={group}
+            onCreated={() => {
+              if (safeReturnTo) setReadyToReturn(true)
+            }}
             onClose={() => setEditor(null)}
           />
         )}{' '}

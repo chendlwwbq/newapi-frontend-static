@@ -107,7 +107,10 @@ export function ConnectPage({
           <p>
             {t('Group')}: <strong>{catalogGroupLabel(route.name, t, route.public_description)}</strong>
           </p>
-          <Link className="pill-button" href={`/keys?create=1&group=${encodeURIComponent(route.name)}`}>
+          <Link
+            className="pill-button"
+            href={`/keys?create=1&group=${encodeURIComponent(route.name)}&returnTo=${encodeURIComponent(connectReturnPath(model, group, catalogKey, offeringKey, currency))}`}
+          >
             {t('Create Key for this route')}
           </Link>
           {auth.bundle && (

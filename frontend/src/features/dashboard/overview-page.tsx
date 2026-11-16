@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { ArrowUpRight, ArrowRight, KeyRound, Wallet, FileText, Coins, ArrowLeftRight, Check, Terminal, ChevronUp, ChevronDown } from 'lucide-react'
 import { api } from '@/lib/api/client'
 import type { User, Catalog, PageResult, Token, QuotaData } from '@/lib/api/types'
@@ -10,8 +11,10 @@ import { useAuth } from '@/lib/auth/session'
 import { useQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { EmptyState, ErrorState } from '@/components/shared/states'
 import { CopyButton } from '@/components/shared/copy-button'
+import { SecurityDialog } from '@/features/auth/secure-verification/security-dialog'
 import { AnalyticsPanel } from './analytics-panel'
 import { ConfiguredPanels } from './configured-panels'
 import { apiExample, apiProtocols } from '@/features/docs/api-examples'
@@ -25,6 +28,8 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
     gateway = useGatewayAddress(),
     id = auth.bundle?.user.id
   const [collapsed, setCollapsed] = useState(false)
+  const [copyTarget, setCopyTarget] = useState<Token | null>(null)
+  const [revealedKey, setRevealedKey] = useState<string | null>(null)
   useEffect(() => {
     setCollapsed(id ? localStorage.getItem(`eva:onboarding:${id}`) === 'hidden' : false)
   }, [id])
@@ -60,7 +65,6 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
   const protocol = apiProtocols.find((item) => supported.has(item.id))
   const code = model && protocol && gateway.address ? apiExample(protocol.id, gateway.address, model.configured_model_id, false, 'curl') : ''
   const firstKey = keys.data?.items?.[0]
-  const copyableKey = firstKey?.key ? (firstKey.key.startsWith('sk-') ? firstKey.key : `sk-${firstKey.key}`) : ''
   const cost = recent.data?.reduce((total, row) => total + row.quota, 0) ?? 0
   const steps = [
     {
@@ -244,8 +248,11 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
               {t('Wallet')}
               <ArrowRight size={15} />
             </Link>
-            {copyableKey ? (
-              <CopyButton value={copyableKey} label={t('Copy API key')} />
+            {firstKey ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => setCopyTarget(firstKey)}>
+                <KeyRound size={14} />
+                {t('Copy API key')}
+              </Button>
             ) : (
               <Link className="pill-button secondary" href="/keys">
                 <KeyRound size={14} />
@@ -266,6 +273,49 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
           </Link>
         </section>
       </div>
+      {copyTarget && (
+        <SecurityDialog
+          operation={{ scope: 'api_key.read_secret', context: { token_ids: [copyTarget.id] } }}
+          title="View keys"
+          onClose={() => setCopyTarget(null)}
+          onAuthorized={async (proof, signal) => {
+            const result = await api<{ key: string }>(`/api/token/${copyTarget.id}/key`, {
+              method: 'POST',
+              headers: { 'X-Security-Proof': proof },
+              signal,
+            })
+            signal.throwIfAborted()
+            if (!result.key) throw new Error('Invalid server response')
+            const plaintext = result.key.startsWith('sk-') ? result.key : `sk-${result.key}`
+            try {
+              await navigator.clipboard.writeText(plaintext)
+              toast.success(t('Copied'))
+            } catch {
+              setRevealedKey(plaintext)
+            }
+          }}
+        />
+      )}
+      <Dialog
+        open={!!revealedKey}
+        onOpenChange={(open) => {
+          if (!open) setRevealedKey(null)
+        }}
+      >
+        <DialogContent className="token-reveal">
+          <DialogHeader>
+            <DialogTitle>{t('API keys')}</DialogTitle>
+            <DialogDescription>{t('Keep API keys secret. Close this dialog when finished.')}</DialogDescription>
+          </DialogHeader>
+          <div className="code-preview">
+            <div>
+              <span>API KEY</span>
+              {revealedKey && <CopyButton value={revealedKey} />}
+            </div>
+            <pre>{revealedKey}</pre>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

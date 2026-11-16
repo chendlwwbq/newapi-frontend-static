@@ -49,12 +49,21 @@ export interface LogRow {
   other?: string
 }
 
-export const LOG_TYPES: { value: string; label: string }[] = [
-  { value: '2', label: 'Consume' },
-  { value: '1', label: 'Top up' },
-  { value: '3', label: 'Manage' },
-  { value: '4', label: 'System' },
-]
+
+
+export const logTypeLabels: Record<number, string> = {
+  1: 'Top up',
+  2: 'Consume',
+  3: 'Manage',
+  4: 'System',
+  5: 'Error',
+  6: 'Refund',
+}
+
+export const LOG_TYPES: { value: string; label: string }[] = [2, 1, 3, 4, 5, 6].map((type) => ({
+  value: String(type),
+  label: logTypeLabels[type],
+}))
 
 export function toLocalInput(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, '0')
@@ -124,14 +133,7 @@ export function buildLogParams(filters: LogFilters, admin: boolean, stats = fals
   return params
 }
 
-export const logTypeLabels: Record<number, string> = {
-  1: 'Top up',
-  2: 'Consume',
-  3: 'Manage',
-  4: 'System',
-  5: 'Error',
-  6: 'Refund',
-}
+
 
 export function logOther(log: UsageLog): Record<string, unknown> {
   try {

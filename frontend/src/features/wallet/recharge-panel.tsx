@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { toIntlLocale } from '@/i18n/languages'
 import { useAuth } from '@/lib/auth/session'
-import { useQuotaFormatter } from '@/lib/format'
+import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/shared/states'
@@ -19,7 +19,8 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
   const { t, i18n } = useTranslation(),
     auth = useAuth(),
     queries = useQueryClient(),
-    formatQuota = useQuotaFormatter()
+    formatQuota = useQuotaFormatter(),
+    currency = useCurrencyFormatter()
   const methods = availablePaymentMethods(info),
     [selected, setSelected] = useState(''),
     [input, setInput] = useState(''),
@@ -153,7 +154,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                       disabled={busy}
                     />
                     <small className="small-note">
-                      {t('Minimum')}: {minimum}
+                      {t('Minimum')}: {currency.ready ? `${currency.formatter.formatCurrencyFromUSD(minimum, { locale: currency.locale, abbreviate: false })} (${minimum} USD)` : minimum}
                     </small>
                   </label>
                   <Button type="submit" disabled={busy || !method || !Number.isInteger(amount) || amount < minimum}>
@@ -231,11 +232,25 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
             </div>
             <div>
               <dt>{t('Topup Amount')}</dt>
-              <dd>{product ? formatQuota(product.quota, { abbreviate: false }) : amount}</dd>
+              <dd className="tabular-nums font-mono">
+                {product
+                  ? formatQuota(product.quota, { abbreviate: false })
+                  : currency.ready
+                    ? currency.formatter.formatCurrencyFromUSD(amount, { locale: currency.locale, abbreviate: false })
+                    : amount}
+              </dd>
             </div>
             <div>
               <dt>{t('You Pay')}</dt>
-              <dd>{product ? `${product.currency} ${product.price}` : quote.isFetching ? t('Loading') : quote.data || '—'}</dd>
+              <dd className="tabular-nums font-mono">
+                {product
+                  ? `${new Intl.NumberFormat(toIntlLocale(i18n.language), { style: 'currency', currency: product.currency }).format(product.price)} ${product.currency}`
+                  : quote.isFetching
+                    ? t('Loading')
+                    : quote.data
+                      ? `${quote.data} ${currency.ready ? currency.formatter.getCurrencyLabel() : ''}`
+                      : '—'}
+              </dd>
             </div>
           </dl>
           {quote.error && !product && <ErrorState error={quote.error} />}

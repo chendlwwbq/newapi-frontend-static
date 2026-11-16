@@ -13,6 +13,13 @@ import { api } from '@/lib/api/client'
 import type { PageResult, Token } from '@/lib/api/types'
 import { tokenStatus } from './token-form'
 
+export function getKeyUnavailableReason(token: Token, requiredGroup: string, userGroup?: string): string | null {
+  if ((token.group || userGroup) !== requiredGroup) return 'Group mismatch'
+  const status = tokenStatus(token)
+  if (status !== 'Enabled') return status
+  return null
+}
+
 export function ConnectKeySelector({
   userId,
   sessionId,
@@ -41,7 +48,6 @@ export function ConnectKeySelector({
     staleTime: 0,
     gcTime: 0,
   })
-  const matchesGroup = (token: Token) => (token.group || userGroup) === group
   return (
     <section className="connect-keys">
       <Button type="button" variant="outline" onClick={() => setOpen(true)}>
@@ -74,29 +80,40 @@ export function ConnectKeySelector({
           ) : (
             <>
               <div className="client-key-list">
-                {tokens.data.items.map((token) => (
-                  <div className="settings-collection-row" key={token.id}>
-                    <span>
-                      <strong>{token.name}</strong>
-                      <small className="small-note">
-                        {' '}
-                        #{token.id} · {t('Group')}: {matchesGroup(token) ? groupLabel || group : token.group || userGroup || '—'} ·{' '}
-                        {t(tokenStatus(token))}
-                      </small>
-                    </span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!matchesGroup(token)}
-                      onClick={() => {
-                        if (matchesGroup(token)) setTarget(token)
-                      }}
-                    >
-                      {t('Select')}
-                    </Button>
-                  </div>
-                ))}
+                {tokens.data.items.map((token) => {
+                  const unavailableReason = getKeyUnavailableReason(token, group, userGroup)
+                  const groupMatched = (token.group || userGroup) === group
+                  return (
+                    <div className="settings-collection-row" key={token.id}>
+                      <span>
+                        <strong>{token.name}</strong>
+                        <small className="small-note">
+                          {' '}
+                          #{token.id} · {t('Group')}: {groupMatched ? groupLabel || group : token.group || userGroup || '—'} ·{' '}
+                          {t(tokenStatus(token))}
+                        </small>
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {unavailableReason && unavailableReason !== 'Group mismatch' && (
+                          <Link href="/keys" className="text-link text-xs">
+                            {t(unavailableReason === 'Exhausted' ? 'Adjust quota' : 'Manage API keys')}
+                          </Link>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={!!unavailableReason}
+                          onClick={() => {
+                            if (!unavailableReason) setTarget(token)
+                          }}
+                        >
+                          {t('Select')}
+                        </Button>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
               {!tokens.data.items.length && <EmptyState title={t('No data yet')} />}
               <AdminPagination page={page} total={tokens.data.total} onPage={setPage} />
@@ -113,7 +130,7 @@ export function ConnectKeySelector({
           title="View keys"
           onClose={() => setTarget(null)}
           onAuthorized={async (proof, signal) => {
-            if (!matchesGroup(target)) throw new Error('Invalid parameters')
+            if (getKeyUnavailableReason(target, group, userGroup)) throw new Error('Invalid parameters')
             const result = await api<{ key: string }>(`/api/token/${target.id}/key`, {
               method: 'POST',
               headers: { 'X-Security-Proof': proof },

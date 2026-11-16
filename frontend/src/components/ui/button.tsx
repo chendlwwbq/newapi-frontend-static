@@ -49,7 +49,7 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-10 gap-2 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5',
+        default: 'h-9 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
         xs: [
           'h-6 gap-1 rounded-md px-2 text-xs in-data-[slot=button-group]:rounded-lg',
           'has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5',

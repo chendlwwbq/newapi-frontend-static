@@ -123,7 +123,7 @@ export function HomePage({
           <div className="hero-heading">
             <h1
               lang="en"
-              className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent"
+              className="text-4xl md:text-5xl font-bold tracking-normal leading-[1.25] bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent"
             >
               All models, one place.
             </h1>

@@ -312,9 +312,9 @@
   position: relative;
   min-width: 0;
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: var(--muted);
-  min-height: 144px;
+  min-height: 136px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -323,16 +323,18 @@
 .overview-stats article > span {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.75rem;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
   color: var(--muted-foreground);
 }
 .overview-stats article > strong {
   display: block;
   font-size: clamp(1.5rem, 2.2vw, 1.875rem);
   letter-spacing: -0.025em;
-  font-weight: 600;
-  margin-top: 16px;
+  font-weight: 700;
+  margin-top: 12px;
   overflow-wrap: anywhere;
 }
 .overview-stats article > i {

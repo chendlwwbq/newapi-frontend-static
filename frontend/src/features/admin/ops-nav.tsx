@@ -15,7 +15,7 @@ export function OpsNav() {
         ['/ops/tasks', 'System tasks'],
         ['/ops/maintenance', 'Maintenance'],
       ].map(([href, label]) => (
-        <Link href={href} key={href} aria-current={path === href ? 'page' : undefined}>
+        <Link className="min-w-[4.5rem] px-3.5 text-center" href={href} key={href} aria-current={path === href ? 'page' : undefined}>
           {t(label)}
         </Link>
       ))}

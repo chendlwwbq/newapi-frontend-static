@@ -218,7 +218,9 @@ export function RedemptionsPage() {
                     />
                   </th>
                   {['Name', 'Redemption code', 'Status', 'Quota', 'Created', 'Expiry', 'Used by', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Quota' ? 'text-right' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -260,7 +262,7 @@ export function RedemptionsPage() {
                         )}
                       </span>
                     </td>
-                    <td className="tabular-nums font-mono">{format(item.quota)}</td>
+                    <td className="text-right tabular-nums font-mono">{format(item.quota)}</td>
                     <td className="small-note tabular-nums font-mono">{date(item.created_time)}</td>
                     <td className="small-note tabular-nums font-mono">{item.expired_time ? date(item.expired_time) : t('Never expires')}</td>
                     <td className="tabular-nums font-mono">{item.used_user_id ? `#${item.used_user_id}` : '—'}</td>

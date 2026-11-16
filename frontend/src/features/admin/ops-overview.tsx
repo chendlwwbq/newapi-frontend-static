@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { RefreshCw, Trash2 } from 'lucide-react'
+import { Activity, Cpu, Database, HardDrive, RefreshCw, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
@@ -107,19 +107,27 @@ export function OpsOverview() {
       <>
         <div className="ops-stat-grid">
           {[
-            ['Allocated memory', bytes(memory.alloc)],
-            ['Goroutines', formatNumber(memory.num_goroutine, locale)],
-            ['Disk usage', percent(disk.used_percent)],
-            ['Disk cache', bytes(cache.current_disk_usage_bytes)],
-          ].map(([label, value]) => (
-            <section
-              className="console-panel rounded-2xl border border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10"
-              key={label}
-            >
-              <span className="small-note">{t(label)}</span>
-              <strong className="text-2xl md:text-3xl font-semibold tracking-tight tabular-nums font-mono">{value}</strong>
-            </section>
-          ))}
+            ['Allocated memory', bytes(memory.alloc), Cpu],
+            ['Goroutines', formatNumber(memory.num_goroutine, locale), Activity],
+            ['Disk usage', percent(disk.used_percent), HardDrive],
+            ['Disk cache', bytes(cache.current_disk_usage_bytes), Database],
+          ].map(([label, value, Icon]) => {
+            const StatIcon = Icon as typeof Cpu
+            return (
+              <section
+                className="console-panel space-y-2.5 rounded-2xl border border-border/60 bg-card/70 p-5 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10"
+                key={label as string}
+              >
+                <div className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+                  <span>{t(label as string)}</span>
+                  <StatIcon className="size-4 shrink-0 text-primary/70" aria-hidden="true" />
+                </div>
+                <strong className="block text-2xl sm:text-3xl font-bold font-mono tabular-nums tracking-tight text-foreground">
+                  {value as string}
+                </strong>
+              </section>
+            )
+          })}
         </div>
         {groups.map(([title, rows]) => (
           <section className="console-panel" key={title}>
@@ -148,7 +156,9 @@ export function OpsOverview() {
           <thead>
             <tr>
               {['Instance', 'Status', 'Version', 'CPU', 'Memory', 'Disk usage', 'Started at', 'Last seen', 'Actions'].map((label) => (
-                <th key={label}>{t(label)}</th>
+                <th key={label} className={['CPU', 'Memory', 'Disk usage'].includes(label) ? 'text-right' : undefined}>
+                  {t(label)}
+                </th>
               ))}
             </tr>
           </thead>
@@ -174,9 +184,9 @@ export function OpsOverview() {
                     </span>
                   </td>
                   <td className="tabular-nums font-mono">{instance.info?.runtime?.version || '—'}</td>
-                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.cpu?.usage_percent)}</td>
-                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.memory?.usage_percent)}</td>
-                  <td className="tabular-nums font-mono">{percent(instance.info?.resources?.storage?.used_percent)}</td>
+                  <td className="text-right tabular-nums font-mono">{percent(instance.info?.resources?.cpu?.usage_percent)}</td>
+                  <td className="text-right tabular-nums font-mono">{percent(instance.info?.resources?.memory?.usage_percent)}</td>
+                  <td className="text-right tabular-nums font-mono">{percent(instance.info?.resources?.storage?.used_percent)}</td>
                   <td className="small-note tabular-nums font-mono">{date(instance.started_at)}</td>
                   <td className="small-note tabular-nums font-mono">{date(instance.last_seen_at)}</td>
                   <td>

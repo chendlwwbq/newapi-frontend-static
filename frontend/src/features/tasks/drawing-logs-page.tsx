@@ -191,7 +191,9 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
               <thead>
                 <tr>
                   {['Task ID', ...(all ? ['User', 'Channel'] : []), 'Action', 'Status', 'Progress', 'Cost', 'Time', 'Details'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={['Progress', 'Cost'].includes(label) ? 'text-right' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -216,8 +218,8 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
                         {t(labels[task.status] || task.status)}
                       </span>
                     </td>
-                    <td>{task.progress || '—'}</td>
-                    <td className="tabular-nums font-mono">{money(task.quota)}</td>
+                    <td className="text-right tabular-nums font-mono">{task.progress || '—'}</td>
+                    <td className="text-right tabular-nums font-mono">{money(task.quota)}</td>
                     <td className="small-note tabular-nums font-mono">{date(task.submit_time)}</td>
                     <td>
                       <Button variant="ghost" size="sm" onClick={() => setSelected(task)}>

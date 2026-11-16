@@ -114,7 +114,9 @@ export function OrderHistory() {
                   'Finished',
                   ...(all ? ['Actions'] : []),
                 ].map((label) => (
-                  <th key={label}>{t(label)}</th>
+                  <th key={label} className={['Topup Amount', 'Payment amount'].includes(label) ? 'text-right' : undefined}>
+                    {t(label)}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -129,8 +131,8 @@ export function OrderHistory() {
                   </td>
                   {all && <td>{order.user_id}</td>}
                   <td className="small-note tabular-nums font-mono">{date(order.create_time)}</td>
-                  <td className="tabular-nums font-mono">{amount(order)}</td>
-                  <td className="tabular-nums font-mono">{formatNumber(order.money, currency.locale)}</td>
+                  <td className="text-right tabular-nums font-mono">{amount(order)}</td>
+                  <td className="text-right tabular-nums font-mono">{formatNumber(order.money, currency.locale)}</td>
                   <td>
                     {t(
                       (

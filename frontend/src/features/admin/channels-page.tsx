@@ -206,7 +206,9 @@ export function ChannelsPage() {
                         />
                       </th>
                       {['Name', 'Type', 'Status', 'Models', 'Group', 'Priority', 'Total usage', 'Actions'].map((label) => (
-                        <th key={label}>{t(label)}</th>
+                        <th key={label} className={['Priority', 'Total usage'].includes(label) ? 'text-right' : undefined}>
+                          {t(label)}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -277,11 +279,11 @@ export function ChannelsPage() {
                           </span>
                         </td>
                         <td>{channel.group}</td>
-                        <td>
+                        <td className="text-right tabular-nums font-mono">
                           {channel.priority ?? 0}
                           <span className="small-note"> / {channel.weight ?? 0}</span>
                         </td>
-                        <td className="tabular-nums font-mono">{format(channel.used_quota)}</td>
+                        <td className="text-right tabular-nums font-mono">{format(channel.used_quota)}</td>
                         <td>
                           <div className="action-buttons">
                             {write && (channel.type !== 61 || pluginBind || !sensitive) && (

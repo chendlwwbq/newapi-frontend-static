@@ -286,10 +286,11 @@ export function KeysPage({ create = false, group }: { create?: boolean; group?: 
                     let direction: 'ascending' | 'descending' | 'none' = 'none'
                     if (sort?.key === key) direction = sort.direction === 1 ? 'ascending' : 'descending'
                     return (
-                      <th key={key} aria-sort={sortable ? direction : undefined}>
+                      <th key={key} aria-sort={sortable ? direction : undefined} className={key === 'quota' ? 'text-right' : undefined}>
                         {sortable ? (
                           <button
                             type="button"
+                            className={key === 'quota' ? 'ml-auto' : undefined}
                             onClick={() => setSort((previous) => ({ key: key as Sort, direction: previous?.key === key ? -previous.direction : 1 }))}
                           >
                             {t(label)}
@@ -345,7 +346,7 @@ export function KeysPage({ create = false, group }: { create?: boolean; group?: 
                           break
                         case 'quota':
                           content = (
-                            <div className="tabular-nums font-mono">
+                            <div className="text-right tabular-nums font-mono">
                               {token.unlimited_quota ? '∞' : money(token.remain_quota)}
                               <small className="tabular-nums font-mono">
                                 {t('Total usage')} {money(token.used_quota)}

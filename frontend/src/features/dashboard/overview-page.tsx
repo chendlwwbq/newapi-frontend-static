@@ -216,11 +216,11 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
               const Graphic = Icon as typeof Wallet
               return (
                 <article key={label as string}>
-                  <span>
-                    <Graphic size={13} />
-                    {label as string}
+                  <span className="flex items-center justify-between text-sm font-medium text-muted-foreground">
+                    <span>{label as string}</span>
+                    <Graphic className="size-4 shrink-0 text-primary/70" aria-hidden="true" />
                   </span>
-                  <strong className="tabular-nums font-mono">{value as string}</strong>
+                  <strong className="text-2xl sm:text-3xl font-bold font-mono tabular-nums tracking-tight text-foreground">{value as string}</strong>
                   <i aria-hidden="true" />
                 </article>
               )

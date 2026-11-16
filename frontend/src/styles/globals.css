@@ -154,20 +154,29 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 90px;
 }
+:root {
+  --font-family-base: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', 'Source Han Sans SC', system-ui, sans-serif;
+  --font-family-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
 body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    'Microsoft YaHei',
-    sans-serif;
+  font-family: var(--font-family-base);
   font-size: 14px;
   line-height: 1.6;
+  letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+code,
+pre,
+kbd,
+samp,
+.font-mono {
+  font-family: var(--font-family-code);
+  font-variant-numeric: tabular-nums;
 }
 button,
 a,
@@ -295,13 +304,14 @@ pre {
 .public-nav {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 2rem;
   color: var(--muted-foreground);
 }
 .public-nav a {
   display: flex;
   gap: 6px;
   align-items: center;
+  padding: 0.25rem 0.5rem;
   font-size: 14px;
   transition: color 0.2s;
 }
@@ -1608,7 +1618,7 @@ pre {
   background: var(--background);
 }
 .console-sidebar {
-  width: 235px;
+  width: 224px;
   border-right: 1px solid var(--border);
   position: fixed;
   inset: 0 auto 0 0;
@@ -1629,7 +1639,7 @@ pre {
 }
 .sidebar-group > span {
   display: block;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted-foreground);
   padding: 0 12px;
   margin-bottom: 9px;
@@ -1637,9 +1647,9 @@ pre {
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 11px;
-  font-size: 12px;
-  padding: 9px 11px;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  padding: 0.625rem 0.875rem;
   border-radius: 7px;
   color: var(--muted-foreground);
   margin: 3px 0;
@@ -1672,7 +1682,7 @@ pre {
   font-weight: 500;
 }
 .console-main {
-  margin-left: 235px;
+  margin-left: 224px;
   min-width: 0;
   flex: 1;
 }
@@ -1707,8 +1717,8 @@ pre {
   font-size: 10px;
 }
 .console-content {
-  max-width: 80rem;
-  padding: 2rem;
+  max-width: 90rem;
+  padding: 1.5rem 2rem;
   margin: 0 auto;
 }
 .console-page-heading {
@@ -1822,15 +1832,17 @@ pre {
 }
 .console-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 .console-toolbar .search-field {
-  height: 2.5rem;
+  min-width: 220px;
+  height: 2.25rem;
 }
 .console-toolbar .plain-select {
-  height: 2.5rem;
+  height: 2.25rem;
   padding-top: 5px;
 }
 .console-content .data-table td {
@@ -3478,3 +3490,52 @@ h3 {
   }
 }
 
+
+/* ==========================================================
+   中文环境（zh / zh-CN / zh-TW）专属排版与布局自动修正规则
+   ========================================================== */
+html[lang^="zh"] h1,
+html[lang^="zh"] h2,
+html[lang^="zh"] h3,
+html[lang^="zh"] h4,
+html[lang^="zh"] .tracking-tight,
+html[lang^="zh"] .tracking-tighter {
+  letter-spacing: 0.015em !important;
+  text-wrap: balance;
+}
+
+html[lang^="zh"] h1 {
+  line-height: 1.28 !important;
+}
+
+html[lang^="zh"] h2,
+html[lang^="zh"] h3 {
+  line-height: 1.38 !important;
+}
+
+html[lang^="zh"] table th {
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+
+html[lang^="zh"] table td {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+html[lang^="zh"] button,
+html[lang^="zh"] a[role="button"],
+html[lang^="zh"] .btn {
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+html[lang^="zh"] label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+}

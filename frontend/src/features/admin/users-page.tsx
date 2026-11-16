@@ -208,7 +208,9 @@ export function UsersPage() {
               <thead>
                 <tr>
                   {['Username', 'Role', 'Status', 'Group', 'Account balance', 'Total usage', 'Requests', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={['Account balance', 'Total usage', 'Requests'].includes(label) ? 'text-right' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -230,9 +232,9 @@ export function UsersPage() {
                         </span>
                       </td>
                       <td>{user.group}</td>
-                      <td className="tabular-nums font-mono">{format(user.quota)}</td>
-                      <td>
-                        <div className="min-w-[110px] space-y-1.5">
+                      <td className="text-right tabular-nums font-mono">{format(user.quota)}</td>
+                      <td className="text-right">
+                        <div className="ml-auto min-w-[110px] space-y-1.5">
                           <span className="tabular-nums font-mono">{format(user.used_quota)}</span>
                           <ProgressIndicator
                             value={user.used_quota}
@@ -242,7 +244,7 @@ export function UsersPage() {
                           />
                         </div>
                       </td>
-                      <td className="tabular-nums font-mono">{user.request_count}</td>
+                      <td className="text-right tabular-nums font-mono">{user.request_count}</td>
                       <td>
                         {manageable && (
                           <div className="action-buttons">

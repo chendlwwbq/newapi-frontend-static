@@ -273,7 +273,9 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                 <tr>
                   {['Time', ...(all ? ['Username'] : []), 'Type', 'Model', 'Token', 'Channel', 'Tokens', 'Cost', 'Duration', 'Details'].map(
                     (label) => (
-                      <th key={label}>{t(label)}</th>
+                      <th key={label} className={['Tokens', 'Cost', 'Duration'].includes(label) ? 'text-right' : undefined}>
+                        {t(label)}
+                      </th>
                     )
                   )}
                 </tr>
@@ -289,11 +291,11 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                     </td>
                     <td>{row.token_name || '—'}</td>
                     <td>{row.channel ? `#${row.channel}${row.channel_name ? ` ${row.channel_name}` : ''}` : '—'}</td>
-                    <td className="small-note tabular-nums font-mono">
+                    <td className="small-note text-right tabular-nums font-mono">
                       {formatNumber(row.prompt_tokens, locale)} / {formatNumber(row.completion_tokens, locale)}
                     </td>
-                    <td className="tabular-nums font-mono">{money(row.quota)}</td>
-                    <td className="tabular-nums font-mono">{row.use_time ? `${row.use_time}s` : '—'}</td>
+                    <td className="text-right tabular-nums font-mono">{money(row.quota)}</td>
+                    <td className="text-right tabular-nums font-mono">{row.use_time ? `${row.use_time}s` : '—'}</td>
                     <td>
                       {row.request_id ? (
                         <span className="task-id">

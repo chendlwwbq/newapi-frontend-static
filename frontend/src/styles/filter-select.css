@@ -30,8 +30,8 @@
 }
 
 .filter-select .filter-select-control {
-  min-height: 2.5rem;
-  height: 2.5rem;
+  min-height: 2.25rem;
+  height: 2.25rem;
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   background: var(--card);

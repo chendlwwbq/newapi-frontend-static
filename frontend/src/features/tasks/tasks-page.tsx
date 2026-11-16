@@ -178,7 +178,9 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                     'Duration',
                     'Details',
                   ].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={['Progress', 'Cost', 'Duration'].includes(label) ? 'text-right' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -207,13 +209,13 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                         {t(statusLabels[task.status] || task.status)}
                       </span>
                     </td>
-                    <td>
+                    <td className="text-right tabular-nums font-mono">
                       {task.progress || '—'}
                       {task.progress_message_en && <small className="small-note">{t(task.progress_message_en)}</small>}
                     </td>
-                    <td className="tabular-nums font-mono">{money(task.quota)}</td>
+                    <td className="text-right tabular-nums font-mono">{money(task.quota)}</td>
                     <td className="small-note tabular-nums font-mono">{date(task.submit_time)}</td>
-                    <td className="tabular-nums font-mono">
+                    <td className="text-right tabular-nums font-mono">
                       {task.finish_time && task.start_time ? `${formatNumber(Math.max(0, task.finish_time - task.start_time), locale)}s` : '—'}
                     </td>
                     <td>

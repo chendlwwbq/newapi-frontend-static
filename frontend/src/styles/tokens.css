@@ -1,0 +1,18 @@
+:root {
+  color-scheme: light;
+  --radius: 1rem;
+  --background: #fff; --foreground: #0a0a0a;
+  --primary: #070707; --primary-foreground: #fafafa;
+  --muted: #f5f5f5; --muted-foreground: #606060;
+  --destructive: #e40014; --success: #009767;
+  --border: #e8e8e8; --ring: #a1a1a1;
+  --chart-1: #f05100; --chart-2: #009588;
+  --card: #fff; --accent: #7778f7;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #09090b; --foreground: #f5f5f5;
+  --primary: #f5f5f5; --primary-foreground: #0a0a0a;
+  --muted: #151518; --muted-foreground: #a2a2ab;
+  --border: #25252b; --card: #111114;
+}

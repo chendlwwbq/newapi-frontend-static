@@ -1,0 +1,100 @@
+@layer reset, base, astryx-base, astryx-theme, theme, components, utilities;
+@import '@astryxdesign/core/astryx.css';
+@import '@astryxdesign/theme-neutral/theme.css';
+
+/* Only these filters opt into Astryx. Keep the app's existing reset and theme owner. */
+.filter-select {
+  --color-accent: var(--primary);
+  --color-on-accent: var(--primary-foreground);
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--muted-foreground);
+  --color-icon-primary: var(--foreground);
+  --color-icon-secondary: var(--muted-foreground);
+  --color-background-surface: var(--card);
+  --color-background-popover: var(--card);
+  --color-background-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-emphasized: var(--ring);
+  --color-overlay-hover: color-mix(in srgb, var(--foreground) 6%, transparent);
+  --color-overlay-pressed: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --focus-outline-color: var(--ring);
+  --font-family-body: Inter, 'Microsoft YaHei', sans-serif;
+  --radius-element: 10px;
+  --radius-container: 12px;
+  min-width: 0;
+  color-scheme: light;
+}
+
+[data-theme='dark'] .filter-select {
+  color-scheme: dark;
+}
+
+.filter-select .filter-select-control {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: none;
+}
+
+.filter-select [role='combobox'] {
+  font-size: 13px;
+}
+
+.filter-select [role='option'] {
+  min-height: 36px;
+  font-size: 13px;
+}
+
+.filter-select [role='option'][aria-selected='true'] {
+  background: var(--muted);
+  font-weight: 600;
+}
+
+.catalog-sort-select {
+  flex: 0 1 190px;
+}
+
+.catalog-route-select {
+  margin-bottom: 20px;
+}
+
+.catalog-page .filter-select label {
+  margin: 0;
+}
+
+.logs-filter-select {
+  min-width: 100px;
+}
+
+.toolbar-filter-select {
+  min-width: 140px;
+}
+
+.logs-filter-select label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.log-page-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-page-size .filter-select {
+  width: 80px;
+}
+
+@media (pointer: coarse) {
+  .filter-select [role='option'] {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 540px) {
+  .catalog-sort-select {
+    flex-basis: 140px;
+  }
+}

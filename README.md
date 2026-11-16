@@ -1,0 +1,33 @@
+# new-api 前端源码评审与修改
+
+本仓库提供 EVA 前端的可编辑 React、TypeScript、Next.js 源码，供协作者评审页面、提出建议及提交修改。项目基于 **new-api / QuantumNous**，保留原有版权及署名。
+
+## 仓库内容
+
+源码统一放在 `frontend/src/`，没有编译混淆后的 HTML。图片、字体、`public/`、`assets/`、`.next/`、依赖目录和 `bun.lock` 不在本仓库中。
+
+| 修改内容 | 目录 |
+| --- | --- |
+| 模型广场和模型详情 | `frontend/src/features/catalog/` |
+| 使用日志和任务日志 | `frontend/src/features/logs/`、`frontend/src/features/tasks/` |
+| 审计日志 | `frontend/src/features/audit/` |
+| 渠道列表、模型管理 | `frontend/src/features/admin/` |
+| 性能页面 | `frontend/src/features/performance/` |
+| 公共控件和导航布局 | `frontend/src/components/` |
+| 样式与响应式布局 | `frontend/src/styles/` |
+| 页面路由 | `frontend/src/app/` |
+| 国际化工具 | `frontend/src/i18n/` |
+
+## 如何参与
+
+- **提出建议**：在 Issues 中注明页面、当前问题、期望效果及相关源码路径。可附截图说明。
+- **修改代码**：Fork 本仓库，修改 `frontend/src/` 下的文件，再提交 Pull Request。说明改了什么、原因和影响范围。
+- 页面调整请优先复用现有组件，保留业务功能、翻译和移动端适配。不要提交密钥、真实用户数据、依赖或构建产物。
+
+这是源码评审仓库，不是可独立运行的完整工程。直接克隆后不能运行 `bun run dev`；部分源码引用的配置、语言包、字体和图片保留在完整本地工程。需要运行验证时由项目维护者将修改合并到完整工程。
+
+`frontend/src/mock/` 保留了独立预览版本的示例数据与适配代码，不代表生产接口。协作者的修改经维护者评审后合并，不会自动部署线上。
+
+## 许可证与来源
+
+基于 new-api，原作者与组织为 QuantumNous；保留各文件版权声明，许可证见 [LICENSE](LICENSE)。源码提取、独立预览适配与整理使用了 AI 辅助。

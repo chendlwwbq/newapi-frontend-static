@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+dist/
+public/
+assets/
+bun.lock
+bun.lockb
+*.tsbuildinfo
+.env
+.env.*
+*.log

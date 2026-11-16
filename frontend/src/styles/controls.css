@@ -1,0 +1,138 @@
+/* Preserve native values, form events and keyboard navigation for all selectors. */
+select:not([multiple]):not([size]) {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: var(--card);
+  color: var(--foreground);
+  padding-inline: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 0.16s,
+    background-color 0.16s,
+    box-shadow 0.16s;
+}
+
+@media (hover: hover) {
+  select:not([multiple]):not([size]):hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--foreground) 25%, var(--border));
+    background-color: color-mix(in srgb, var(--muted) 45%, var(--card));
+  }
+}
+
+select:not([multiple]):not([size]):focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+  border-color: var(--foreground);
+}
+
+select:not([multiple]):not([size]):disabled {
+  cursor: not-allowed;
+  background-color: var(--muted);
+  opacity: 0.5;
+}
+
+select:not([multiple]):not([size])[aria-invalid='true'] {
+  border-color: var(--destructive);
+  outline-color: var(--destructive);
+}
+
+/* Unsupported browsers keep the operating system picker; touch keeps its native sheet. */
+@supports (appearance: base-select) {
+  @media (pointer: fine) {
+    select:not([multiple]):not([size]),
+    select:not([multiple]):not([size])::picker(select) {
+      appearance: base-select;
+    }
+
+    select:not([multiple]):not([size]) {
+      align-items: center;
+      gap: 10px;
+    }
+
+    select:not([multiple]):not([size])::picker-icon {
+      flex-shrink: 0;
+      margin-inline-start: auto;
+      color: var(--muted-foreground);
+      transition: rotate 0.16s;
+    }
+
+    select:not([multiple]):not([size]):open::picker-icon {
+      rotate: 180deg;
+    }
+
+    select:not([multiple]):not([size]):open {
+      border-color: var(--foreground);
+      background-color: var(--card);
+    }
+
+    select:not([multiple]):not([size])::picker(select) {
+      padding: 6px;
+      margin-block: 6px;
+      max-inline-size: min(420px, calc(100vw - 24px));
+      max-block-size: min(360px, 60svh);
+      overflow: auto;
+      overscroll-behavior: contain;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--foreground);
+      box-shadow:
+        0 4px 8px #00000008,
+        0 16px 40px #00000018;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    select:not([multiple]):not([size]) option {
+      min-block-size: 36px;
+      padding: 8px 10px;
+      gap: 10px;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--foreground);
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    select:not([multiple]):not([size]) option:checked {
+      background: var(--muted);
+      font-weight: 600;
+    }
+
+    select:not([multiple]):not([size]) option:hover:not(:disabled),
+    select:not([multiple]):not([size]) option:focus-visible {
+      background: color-mix(in srgb, var(--foreground) 9%, var(--card));
+      outline: 2px solid var(--ring);
+      outline-offset: -2px;
+    }
+
+    select:not([multiple]):not([size]) option:disabled {
+      color: var(--muted-foreground);
+      cursor: not-allowed;
+    }
+
+    select:not([multiple]):not([size]) option::checkmark {
+      color: var(--foreground);
+    }
+  }
+}
+
+@media (pointer: coarse) {
+  select:not([multiple]):not([size]),
+  .icon-button,
+  .public-nav-toggle {
+    min-height: 44px;
+  }
+  .icon-button,
+  .public-nav-toggle {
+    min-width: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  select:not([multiple]):not([size]),
+  select:not([multiple]):not([size])::picker-icon {
+    transition: none;
+  }
+}

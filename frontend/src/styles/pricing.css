@@ -1,0 +1,23 @@
+.price-simulation { margin: 1rem 0; }
+.price-simulation-form { display: grid; gap: 1rem; margin-top: 1rem; padding: 1rem; background: var(--muted); border-radius: var(--radius); min-width: 0; }
+.price-simulation-form > button { justify-self: start; }
+.price-simulation-form .field { margin: 0; }
+.price-simulation-form select,.pricing-rules select { border: 1px solid var(--border); border-radius: .5rem; padding: .4rem .6rem; background: var(--background); min-width: 0; }
+.price-simulation-result { padding: 1rem; border: 1px solid var(--border); border-radius: .75rem; background: var(--background); overflow-wrap: anywhere; }
+.price-simulation-result p { margin: .5rem 0; }
+.pricing-rules { display: grid; gap: .75rem; }
+.pricing-rules > button { justify-self: start; }
+.pricing-rules .pricing-condition-row { margin-bottom: .75rem; align-items: end; }
+.pricing-rules .pricing-condition-row .field { flex: 1; min-width: 8rem; }
+.pricing-rules .pricing-group-row { align-items: end; }
+.public-price-tier { padding: 1rem 0; }
+.public-price-tier h4 { font-size: .85rem; margin-bottom: 1rem; }
+.public-price-tier h4 small,.price-grid dt small { color: var(--muted-foreground); display: block; font-size: .72rem; font-weight: 400; margin-top: .35rem; }
+.public-price-branch { border-left: 1px solid var(--border); padding-left: 1rem; margin-top: 1rem; }
+.public-price-provider { border-top: 1px solid var(--border); margin-top: 1rem; padding-top: 1rem; }
+.public-price-provider > h4 { font-size: .9rem; }
+.public-price-breakdown code,.public-expression-prices code { overflow-wrap: anywhere; }
+.price-expression-source { margin: 1rem 0; }
+.price-expression-source summary { cursor: pointer; font-size: .8rem; color: var(--muted-foreground); }
+.price-expression-source pre { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--muted); border-radius: .5rem; padding: .75rem; margin-top: .75rem; font-size: .75rem; }
+@media(max-width:640px) { .price-simulation-form { padding: .75rem; } .pricing-rules .pricing-condition-row > .field { flex-basis: 40%; } .public-price-branch { padding-left: .65rem; } }

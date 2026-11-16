@@ -120,7 +120,15 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                 </label>
                 <div className="amount-options">
                   {presets.map((value) => (
-                    <button key={value} disabled={busy || value < minimum} data-active={amount === value} onClick={() => setInput(String(value))}>
+                    <button
+                      key={value}
+                      disabled={busy || value < minimum}
+                      data-active={amount === value}
+                      className={`tabular-nums font-mono transition-all ${
+                        amount === value ? 'ring-2 ring-primary border-transparent shadow-sm' : ''
+                      }`}
+                      onClick={() => setInput(String(value))}
+                    >
                       {value}
                       {info.discount[value] && info.discount[value] !== 1 ? <small>× {info.discount[value]}</small> : null}
                     </button>

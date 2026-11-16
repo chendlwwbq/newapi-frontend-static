@@ -10,6 +10,7 @@ import type { PageResult } from '@/lib/api/types'
 import { useQuotaFormatter } from '@/lib/format'
 import { quotaInput, type QuotaStatus } from '@/features/tokens/token-form'
 import { Button } from '@/components/ui/button'
+import { ProgressIndicator } from '@/components/ui/progress-indicator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { ErrorState, EmptyState, LoadingState } from '@/components/shared/states'
 import { SecurityDialog } from '@/features/auth/secure-verification/security-dialog'
@@ -229,9 +230,19 @@ export function UsersPage() {
                         </span>
                       </td>
                       <td>{user.group}</td>
-                      <td>{format(user.quota)}</td>
-                      <td>{format(user.used_quota)}</td>
-                      <td>{user.request_count}</td>
+                      <td className="tabular-nums font-mono">{format(user.quota)}</td>
+                      <td>
+                        <div className="min-w-[110px] space-y-1.5">
+                          <span className="tabular-nums font-mono">{format(user.used_quota)}</span>
+                          <ProgressIndicator
+                            value={user.used_quota}
+                            max={Math.max(user.quota + user.used_quota, 1)}
+                            showPercentage={false}
+                            size="sm"
+                          />
+                        </div>
+                      </td>
+                      <td className="tabular-nums font-mono">{user.request_count}</td>
                       <td>
                         {manageable && (
                           <div className="action-buttons">

@@ -243,15 +243,15 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
           <div className="log-stats">
             <div className="log-stat">
               <span>{t('Quota')}</span>
-              <strong>{statsQuery.data ? money(statsQuery.data.quota) : '—'}</strong>
+              <strong className="tabular-nums font-mono">{statsQuery.data ? money(statsQuery.data.quota) : '—'}</strong>
             </div>
             <div className="log-stat">
               <span>RPM</span>
-              <strong>{statsQuery.data ? formatNumber(statsQuery.data.rpm, locale) : '—'}</strong>
+              <strong className="tabular-nums font-mono">{statsQuery.data ? formatNumber(statsQuery.data.rpm, locale) : '—'}</strong>
             </div>
             <div className="log-stat">
               <span>TPM</span>
-              <strong>{statsQuery.data ? formatNumber(statsQuery.data.tpm, locale) : '—'}</strong>
+              <strong className="tabular-nums font-mono">{statsQuery.data ? formatNumber(statsQuery.data.tpm, locale) : '—'}</strong>
             </div>
           </div>
           <p className="small-note">
@@ -281,7 +281,7 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
               <tbody>
                 {query.data.items.map((row) => (
                   <tr key={row.id}>
-                    <td className="small-note">{date(row.created_at)}</td>
+                    <td className="small-note tabular-nums font-mono">{date(row.created_at)}</td>
                     {all && <td>{row.username || row.user_id}</td>}
                     <td>{typeLabel(row.type)}</td>
                     <td>
@@ -289,11 +289,11 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                     </td>
                     <td>{row.token_name || '—'}</td>
                     <td>{row.channel ? `#${row.channel}${row.channel_name ? ` ${row.channel_name}` : ''}` : '—'}</td>
-                    <td className="small-note">
+                    <td className="small-note tabular-nums font-mono">
                       {formatNumber(row.prompt_tokens, locale)} / {formatNumber(row.completion_tokens, locale)}
                     </td>
-                    <td>{money(row.quota)}</td>
-                    <td>{row.use_time ? `${row.use_time}s` : '—'}</td>
+                    <td className="tabular-nums font-mono">{money(row.quota)}</td>
+                    <td className="tabular-nums font-mono">{row.use_time ? `${row.use_time}s` : '—'}</td>
                     <td>
                       {row.request_id ? (
                         <span className="task-id">

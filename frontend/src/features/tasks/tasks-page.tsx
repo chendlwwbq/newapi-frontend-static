@@ -211,9 +211,11 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                       {task.progress || '—'}
                       {task.progress_message_en && <small className="small-note">{t(task.progress_message_en)}</small>}
                     </td>
-                    <td>{money(task.quota)}</td>
-                    <td className="small-note">{date(task.submit_time)}</td>
-                    <td>{task.finish_time && task.start_time ? `${formatNumber(Math.max(0, task.finish_time - task.start_time), locale)}s` : '—'}</td>
+                    <td className="tabular-nums font-mono">{money(task.quota)}</td>
+                    <td className="small-note tabular-nums font-mono">{date(task.submit_time)}</td>
+                    <td className="tabular-nums font-mono">
+                      {task.finish_time && task.start_time ? `${formatNumber(Math.max(0, task.finish_time - task.start_time), locale)}s` : '—'}
+                    </td>
                     <td>
                       <Button variant="ghost" size="sm" onClick={() => setSelected(task)}>
                         {t('Details')}

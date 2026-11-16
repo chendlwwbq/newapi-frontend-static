@@ -812,7 +812,7 @@ pre {
   overflow: hidden;
 }
 .code-preview > div {
-  display: flex;
+  position: sticky;`r`n  top: 0;`r`n  z-index: 10;`r`n  backdrop-filter: blur(12px);`r`n  -webkit-backdrop-filter: blur(12px);`r`n  display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 7px 12px;

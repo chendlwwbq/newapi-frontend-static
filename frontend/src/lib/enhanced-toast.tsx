@@ -35,7 +35,7 @@ export const toast = {
   success: (message: string, options?: ToastOptions) => {
     sonnerToast.success(message, {
       ...options,
-      className: 'glass-enhanced border-success/20',
+      className: 'rounded-xl border border-success/25 bg-card/85 backdrop-blur-xl shadow-lg',
       duration: options?.duration || 4000,
     })
   },
@@ -43,7 +43,7 @@ export const toast = {
   error: (message: string, options?: ToastOptions) => {
     sonnerToast.error(message, {
       ...options,
-      className: 'glass-enhanced border-destructive/20',
+      className: 'rounded-xl border border-destructive/25 bg-card/85 backdrop-blur-xl shadow-lg',
       duration: options?.duration || 5000,
     })
   },
@@ -51,7 +51,7 @@ export const toast = {
   warning: (message: string, options?: ToastOptions) => {
     sonnerToast.warning(message, {
       ...options,
-      className: 'glass-enhanced border-warning/20',
+      className: 'rounded-xl border border-amber-500/25 bg-card/85 backdrop-blur-xl shadow-lg',
       duration: options?.duration || 4500,
     })
   },
@@ -59,7 +59,7 @@ export const toast = {
   info: (message: string, options?: ToastOptions) => {
     sonnerToast.info(message, {
       ...options,
-      className: 'glass-enhanced border-info/20',
+      className: 'rounded-xl border border-border/70 bg-card/85 backdrop-blur-xl shadow-lg',
       duration: options?.duration || 4000,
     })
   },
@@ -67,7 +67,7 @@ export const toast = {
   loading: (message: string, options?: ToastOptions) => {
     return sonnerToast.loading(message, {
       ...options,
-      className: 'glass-enhanced',
+      className: 'rounded-xl border border-border/70 bg-card/85 backdrop-blur-xl shadow-lg',
     })
   },
 
@@ -83,14 +83,14 @@ export const toast = {
     return sonnerToast.promise(promise, {
       ...options,
       ...messages,
-      className: 'glass-enhanced',
+      className: 'rounded-xl border border-border/70 bg-card/85 backdrop-blur-xl shadow-lg',
     })
   },
 
   custom: (message: React.ReactNode, options?: ToastOptions) => {
     return sonnerToast.custom(() => <>{message}</>, {
       ...options,
-      className: 'glass-enhanced',
+      className: 'rounded-xl border border-border/70 bg-card/85 backdrop-blur-xl shadow-lg',
     })
   },
 

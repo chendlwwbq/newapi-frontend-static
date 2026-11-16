@@ -242,14 +242,14 @@ export function ModelCard({ model }: { model: CatalogModel }) {
   const summary = catalogQuoteSummary(model, []),
     route = model.offerings.find((item) => item.offering_key === summary?.offering_key)
   return (
-    <Link href={modelHref(model)} className="model-card">
+    <Link href={modelHref(model)} className="model-card flex flex-col">
       <div className="model-card-title">
         <ProviderIcon provider={model.provider} modelName={model.configured_model_id} icon={model.icon} />
         <ArrowUpRight size={16} />
       </div>
-      <h3>{model.name}</h3>
-      <code>{model.configured_model_id}</code>
-      <div className="model-card-price">
+      <h3 className="line-clamp-1">{model.name}</h3>
+      <code className="truncate">{model.configured_model_id}</code>
+      <div className="model-card-price line-clamp-2 min-h-[2.5rem] flex-1">
         <PriceDisplay quote={summary?.quote} />
         <small>
           {t(quoteUnitLabel(summary?.quote))}
@@ -261,7 +261,7 @@ export function ModelCard({ model }: { model: CatalogModel }) {
           )}
         </small>
       </div>
-      <div className="model-card-bottom">
+      <div className="model-card-bottom mt-auto tabular-nums font-mono">
         <span>
           {t('Routes')} <b>{model.offerings_count}</b>
         </span>

@@ -11,6 +11,7 @@ import type { TaskArtifactsResponse, TaskLog } from './types'
 
 function TaskMedia({ type, url, label }: { type: 'image' | 'video' | 'audio'; url: string; label: string }) {
   const [failed, setFailed] = useState(false),
+    [loaded, setLoaded] = useState(false),
     [revision, setRevision] = useState(0)
   if (failed)
     return (
@@ -18,13 +19,40 @@ function TaskMedia({ type, url, label }: { type: 'image' | 'video' | 'audio'; ur
         error={new Error('Media preview failed. Please try again.')}
         retry={() => {
           setFailed(false)
+          setLoaded(false)
           setRevision((value) => value + 1)
         }}
       />
     )
   if (type === 'image')
-    return <img key={revision} src={url} alt={label} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
-  if (type === 'video') return <video key={revision} src={url} aria-label={label} controls preload="metadata" onError={() => setFailed(true)} />
+    return (
+      <div className={`aspect-square w-full overflow-hidden rounded-xl bg-muted/60 ${loaded ? '' : 'animate-pulse'}`}>
+        <img
+          key={revision}
+          src={url}
+          alt={label}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          className="h-full w-full object-cover"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+        />
+      </div>
+    )
+  if (type === 'video')
+    return (
+      <div className="aspect-video w-full overflow-hidden rounded-xl bg-muted/60">
+        <video
+          key={revision}
+          src={url}
+          aria-label={label}
+          controls
+          preload="metadata"
+          className="h-full w-full object-cover"
+          onError={() => setFailed(true)}
+        />
+      </div>
+    )
   return <audio key={revision} src={url} aria-label={label} controls preload="none" onError={() => setFailed(true)} />
 }
 

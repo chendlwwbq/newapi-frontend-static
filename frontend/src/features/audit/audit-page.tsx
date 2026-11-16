@@ -188,7 +188,7 @@ export function AuditPage() {
               <tbody>
                 {query.data.items.map((record) => (
                   <tr key={record.event_id}>
-                    <td className="small-note">{date(record.created_at)}</td>
+                    <td className="small-note tabular-nums font-mono">{date(record.created_at)}</td>
                     <td>{record.username || `#${record.user_id}`}</td>
                     <td>{t(categories[record.category as keyof typeof categories] || record.category)}</td>
                     <td>
@@ -200,7 +200,7 @@ export function AuditPage() {
                       <span className="admin-models" title={`${record.method} ${record.route}`}>
                         {record.method} {record.route}
                       </span>
-                      <span className="small-note">{record.status || '—'}</span>
+                      <span className="small-note tabular-nums font-mono">{record.status || '—'}</span>
                     </td>
                     <td>
                       <span className={`status-badge ${record.success ? 'success' : ''}`}>{t(record.success ? 'Success' : 'Failed')}</span>

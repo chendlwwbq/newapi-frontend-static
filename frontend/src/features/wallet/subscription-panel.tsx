@@ -158,12 +158,17 @@ export function SubscriptionPanel({ info, quota }: { info: TopupInfo; quota: num
           <EmptyState />
         ) : (
           <div className="subscription-plans">
-            {plans.data.map(({ plan }) => (
-              <article key={plan.id} className="subscription-plan">
+            {plans.data.map(({ plan }, index) => (
+              <article
+                key={plan.id}
+                className={`subscription-plan rounded-2xl transition-all duration-300 ${
+                  index === 0 ? 'border-purple-500/50 shadow-lg shadow-purple-500/10 ring-1 ring-purple-500/20' : ''
+                }`}
+              >
                 <span className="plan-eyebrow">{t('Subscription')}</span>
                 <h3>{plan.title}</h3>
                 <p>{plan.subtitle}</p>
-                <div className="plan-price">
+                <div className="plan-price text-3xl font-bold tracking-tight tabular-nums font-mono">
                   {price(plan)}
                   <small>/ {duration(plan)}</small>
                 </div>

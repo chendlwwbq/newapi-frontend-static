@@ -217,8 +217,8 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
                       </span>
                     </td>
                     <td>{task.progress || '—'}</td>
-                    <td>{money(task.quota)}</td>
-                    <td>{date(task.submit_time)}</td>
+                    <td className="tabular-nums font-mono">{money(task.quota)}</td>
+                    <td className="small-note tabular-nums font-mono">{date(task.submit_time)}</td>
                     <td>
                       <Button variant="ghost" size="sm" onClick={() => setSelected(task)}>
                         {t('Details')}
@@ -323,7 +323,14 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
               )}
               {mediaURL(current.image_url) && (
                 <div className="task-artifacts">
-                  <img src={mediaURL(current.image_url)} alt={t('Image')} referrerPolicy="no-referrer" />
+                  <div className="aspect-square w-full overflow-hidden rounded-xl bg-muted/60">
+                    <img
+                      src={mediaURL(current.image_url)}
+                      alt={t('Image')}
+                      referrerPolicy="no-referrer"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
                   <a href={mediaURL(current.image_url)} target="_blank" rel="noreferrer" className="text-link">
                     {t('Image')} ↗
                   </a>
@@ -331,7 +338,9 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
               )}
               {videoURLs(current).map((url) => (
                 <div className="task-artifacts" key={url}>
-                  <video src={url} controls preload="metadata" />
+                  <div className="aspect-video w-full overflow-hidden rounded-xl bg-muted/60">
+                    <video src={url} controls preload="metadata" className="h-full w-full object-cover" />
+                  </div>
                   <a href={url} target="_blank" rel="noreferrer" className="text-link">
                     {t('Video')} ↗
                   </a>

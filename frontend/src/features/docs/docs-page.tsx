@@ -67,10 +67,10 @@ export function DocsPage({ slug = 'getting-started' }: { slug?: string }) {
               ))}
           </details>
         </aside>
-        <article className="docs-article">
+        <article className="docs-article max-w-3xl">
           <div className="docs-eyebrow">eva · {t('New API documentation')}</div>
           <h1>{tool || t(guide.title)}</h1>
-          <p>{t(guide.intro)}</p>
+          <p className="mb-4 leading-7">{t(guide.intro)}</p>
           {'source' in guide && guide.source && (
             <p>
               <a className="text-link" href={guide.source} target="_blank" rel="noreferrer">
@@ -89,7 +89,7 @@ export function DocsPage({ slug = 'getting-started' }: { slug?: string }) {
           {guide.sections.map((section, index) => (
             <section id={`section-${index}`} key={section.title}>
               <h2>{t(section.title)}</h2>
-              <p>{t(section.text)}</p>
+              <p className="mb-4 leading-7">{t(section.text)}</p>
               {section.metrics && (
                 <table className="docs-endpoints">
                   <thead>

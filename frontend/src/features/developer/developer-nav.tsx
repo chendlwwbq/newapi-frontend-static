@@ -11,7 +11,7 @@ export function DeveloperNav() {
         ['/rest-apis', 'REST API definitions'],
         ['/developer-docs', 'Developer documentation'],
       ].map(([href, label]) => (
-        <Link key={href} href={href} aria-current={path === href ? 'page' : undefined}>
+        <Link className="min-w-[4.5rem] px-3.5 text-center" key={href} href={href} aria-current={path === href ? 'page' : undefined}>
           {t(label)}
         </Link>
       ))}

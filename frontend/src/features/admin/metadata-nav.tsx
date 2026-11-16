@@ -19,6 +19,7 @@ export function MetadataNav() {
       ].map(([href, label]) => (
         <Link
           key={href}
+          className="min-w-[4.5rem] px-3.5 text-center"
           href={href}
           aria-current={path === href ? 'page' : undefined}
           onFocus={(event) => event.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' })}

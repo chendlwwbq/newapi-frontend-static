@@ -112,7 +112,7 @@ export function PublicHeader() {
       <nav
         ref={nav}
         id="public-navigation"
-        className={menu ? 'public-nav open' : 'public-nav'}
+        className={menu ? 'public-nav open' : 'public-nav gap-7 lg:gap-8'}
         aria-label={t('Main navigation')}
         onBlur={(event) => {
           if (!event.currentTarget.contains(event.relatedTarget)) setExpanded('')
@@ -135,6 +135,7 @@ export function PublicHeader() {
             <div className="public-nav-item" key={href}>
               <div className="public-nav-label">
                 <Link
+                  className="min-w-[4rem] justify-center px-3 py-1"
                   href={destination(href, module)}
                   aria-current={(href === '/' ? path === '/' : path.startsWith(href)) ? 'page' : undefined}
                   onClick={close}

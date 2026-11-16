@@ -277,7 +277,7 @@ function ConsoleSidebarContent({ groups, user, onNavigate }: { groups: typeof se
             return (
               <Link
                 key={href as string}
-                className="sidebar-link"
+                className="sidebar-link gap-3 px-3.5 py-2.5 text-sm font-medium transition-colors duration-150"
                 data-active={matchesSection(href as string, path)}
                 aria-current={matchesSection(href as string, path) ? 'page' : undefined}
                 href={href as string}
@@ -285,8 +285,8 @@ function ConsoleSidebarContent({ groups, user, onNavigate }: { groups: typeof se
                 title={t(label as string)}
                 onClick={onNavigate}
               >
-                <Graphic />
-                <span className="sidebar-label">{t(label as string)}</span>
+                <Graphic className="shrink-0" />
+                <span className="sidebar-label truncate">{t(label as string)}</span>
               </Link>
             )
           })}

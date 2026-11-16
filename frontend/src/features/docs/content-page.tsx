@@ -8,9 +8,9 @@ export function ContentPage({ title, content, children }: { title: string; conte
 
   return (
     <main className="page-container" id="content">
-      <article className="docs-article" style={{ maxWidth: 800, margin: 'auto' }}>
+      <article className="docs-article mx-auto max-w-3xl">
         <h1>{t(title)}</h1>
-        {content ? <div style={{ lineHeight: 2, marginTop: 35 }}>{children || content}</div> : <EmptyState />}
+        {content ? <div className="mt-8 space-y-4 leading-7 text-foreground/90">{children || content}</div> : <EmptyState />}
       </article>
     </main>
   )

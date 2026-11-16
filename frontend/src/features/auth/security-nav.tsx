@@ -12,7 +12,7 @@ export function SecurityNav() {
         ['/security/bindings', 'Account Bindings'],
         ['/security/access-tokens', 'Access Tokens'],
       ].map(([href, label]) => (
-        <Link href={href} key={href} aria-current={path === href ? 'page' : undefined}>
+        <Link className="min-w-[4.5rem] px-3.5 text-center" href={href} key={href} aria-current={path === href ? 'page' : undefined}>
           {t(label)}
         </Link>
       ))}

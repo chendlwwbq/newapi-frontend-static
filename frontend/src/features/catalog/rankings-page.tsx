@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { EmptyState, LoadingState } from '@/components/shared/states'
 import { Reveal } from '@/components/motion/reveal'
-import { RankingsHistoryChart } from './rankings-history-chart'
+const RankingsHistoryChart = dynamic(() => import('./rankings-history-chart').then((module) => module.RankingsHistoryChart), {
+  ssr: false,
+  loading: () => <div className="h-[240px] w-full animate-pulse rounded-xl bg-muted/60" aria-hidden="true" />,
+})
 import { ProviderIcon } from './model-card'
 import { ModuleAccessError } from './module-access-error'
 import { UNKNOWN_PROVIDER } from './catalog-state'

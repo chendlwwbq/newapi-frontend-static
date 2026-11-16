@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/format'
@@ -15,7 +16,10 @@ import { ErrorState, LoadingState } from '@/components/shared/states'
 import { ModuleAccessError } from '@/features/catalog/module-access-error'
 import { Reveal } from '@/components/motion/reveal'
 import { Mascot } from '@/components/motion/mascot'
-import { Globe } from './globe'
+const Globe = dynamic(() => import('./globe').then((module) => module.Globe), {
+  ssr: false,
+  loading: () => <div className="hero-globe" aria-hidden="true" />,
+})
 import { ModelCard } from '@/features/catalog/model-card'
 import { filterCatalog, readCatalogFilters } from '@/features/catalog/catalog-state'
 import { CopyButton } from '@/components/shared/copy-button'

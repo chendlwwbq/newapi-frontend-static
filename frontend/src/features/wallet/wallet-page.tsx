@@ -78,7 +78,7 @@ export function WalletPage() {
       <section className="wallet-stats">
         <div className="wallet-balance">
           <span>{t('Available balance')}</span>
-          <strong>{self.data ? format(self.data.quota) : '—'}</strong>
+          <strong className="tabular-nums font-mono">{self.data ? format(self.data.quota) : '—'}</strong>
         </div>
         <Button className="wallet-orders" variant="outline" onClick={() => setTab('orders')}>
           <ReceiptText size={14} />
@@ -87,11 +87,11 @@ export function WalletPage() {
         <div className="wallet-summary">
           <div>
             <span>{t('Total usage')}</span>
-            <strong>{self.data ? format(self.data.used_quota) : '—'}</strong>
+            <strong className="tabular-nums font-mono">{self.data ? format(self.data.used_quota) : '—'}</strong>
           </div>
           <div>
             <span>{t('Requests')}</span>
-            <strong>
+            <strong className="tabular-nums font-mono">
               {self.data && Number.isFinite(self.data.request_count)
                 ? formatNumber(self.data.request_count, toIntlLocale(i18n.resolvedLanguage || i18n.language))
                 : '—'}
@@ -99,7 +99,7 @@ export function WalletPage() {
           </div>
           <div>
             <span>{t('Available rewards')}</span>
-            <strong>{self.data ? format(self.data.aff_quota) : '—'}</strong>
+            <strong className="tabular-nums font-mono">{self.data ? format(self.data.aff_quota) : '—'}</strong>
           </div>
         </div>
       </section>

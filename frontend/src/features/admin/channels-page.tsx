@@ -264,7 +264,7 @@ export function ChannelsPage() {
                             {t(channel.status === 1 ? 'Enabled' : channel.status === 3 ? 'Auto disabled' : 'Disabled')}
                           </span>
                           <div
-                            className={`small-note mt-1 ${
+                            className={`small-note mt-1 tabular-nums font-mono ${
                               channel.test_time && channel.response_time > 5000 ? 'text-amber-600 dark:text-amber-400' : ''
                             }`}
                           >
@@ -281,7 +281,7 @@ export function ChannelsPage() {
                           {channel.priority ?? 0}
                           <span className="small-note"> / {channel.weight ?? 0}</span>
                         </td>
-                        <td>{format(channel.used_quota)}</td>
+                        <td className="tabular-nums font-mono">{format(channel.used_quota)}</td>
                         <td>
                           <div className="action-buttons">
                             {write && (channel.type !== 61 || pluginBind || !sensitive) && (

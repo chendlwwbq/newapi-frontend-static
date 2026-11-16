@@ -1,11 +1,15 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useTranslation } from 'react-i18next'
 import { toIntlLocale } from '@/i18n/languages'
 import type { QuotaData } from '@/lib/api/types'
 import { aggregateUsage, type UsageGranularity } from './lib/analytics'
-import { UsageChart } from './usage-chart'
+const UsageChart = dynamic(() => import('./usage-chart').then((module) => module.UsageChart), {
+  ssr: false,
+  loading: () => <div className="h-[220px] w-full animate-pulse rounded-xl bg-muted/60" aria-hidden="true" />,
+})
 import { UserAnalytics } from './user-analytics'
 
 export function ModelAnalytics({

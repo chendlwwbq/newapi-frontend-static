@@ -19,16 +19,38 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import * as React from 'react'
+import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'
 
-function Card({ className, size = 'default', ...props }: React.ComponentProps<'div'> & { size?: 'default' | 'sm' }) {
+const cardVariants = cva('group/card flex flex-col gap-4 overflow-hidden rounded-xl py-4 text-sm transition-all duration-300', {
+  variants: {
+    variant: {
+      default: 'bg-card text-card-foreground ring-foreground/10 ring-1 shadow-sm',
+      glass: 'border border-border/60 bg-card/65 text-card-foreground backdrop-blur-xl shadow-sm hover:shadow-lg',
+      glow: 'border border-border/60 bg-card/70 text-card-foreground backdrop-blur-xl shadow-sm hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10',
+      elevated: 'bg-card text-card-foreground border border-border shadow-md hover:shadow-xl',
+      flat: 'bg-card text-card-foreground border border-border',
+      gradient: 'bg-gradient-to-br from-card to-card/80 text-card-foreground border border-border/50 shadow-sm',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+})
+
+function Card({
+  className,
+  size = 'default',
+  variant = 'default',
+  ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof cardVariants> & { size?: 'default' | 'sm' }) {
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
-        'group/card bg-card text-card-foreground ring-foreground/10 flex flex-col gap-4 overflow-hidden rounded-xl py-4 text-sm ring-1 shadow-sm',
+        cardVariants({ variant }),
         'has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3',
         'data-[size=sm]:has-data-[slot=card-footer]:pb-0',
         '*:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl',

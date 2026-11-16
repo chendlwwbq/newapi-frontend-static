@@ -64,13 +64,14 @@ export function ChannelEditor({
         if (!open && !save.isPending) onClose()
       }}
     >
-      <DialogContent className="admin-editor">
+      <DialogContent className="admin-editor flex max-h-[90vh] flex-col overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{t(draft.id ? 'Edit channel' : 'Add channel')}</DialogTitle>
           <DialogDescription>{t('Configure upstream models, routing and credentials.')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={submit}>
-          <div className="admin-form-grid">
+        <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
+          <div className="max-h-[70vh] overflow-y-auto pr-1">
+            <div className="admin-form-grid">
             <label className="field">
               <span>{t('Name')}</span>
               <input autoFocus required value={draft.name} onChange={(event) => patch({ name: event.target.value })} />
@@ -260,6 +261,7 @@ export function ChannelEditor({
               {t(error)}
             </p>
           )}
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" disabled={save.isPending} onClick={onClose}>
               {t('Cancel')}

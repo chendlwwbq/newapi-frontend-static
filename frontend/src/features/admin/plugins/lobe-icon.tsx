@@ -55,7 +55,7 @@ const LAZY_ICONS = new Map<string, LazyExoticComponent<ComponentType<Record<stri
 function renderLobeIconFallback(name: string, size: number | string): ReactNode {
   return (
     <div
-      className="bg-muted text-muted-foreground flex items-center justify-center rounded-full text-xs font-medium"
+      className="bg-muted text-muted-foreground flex shrink-0 items-center justify-center rounded-full text-xs font-medium"
       style={{ width: size, height: size }}
     >
       {name.charAt(0).toUpperCase() || '?'}
@@ -165,10 +165,13 @@ export function getLobeIcon(iconName: string | undefined | null, size: number = 
     props.size = size
   }
 
+  const resolvedSize = typeof props.size === 'number' || typeof props.size === 'string' ? props.size : size
   return (
-    <Suspense fallback={renderLobeIconFallback(baseKey, typeof props.size === 'number' || typeof props.size === 'string' ? props.size : size)}>
-      <IconComponent {...props} />
-    </Suspense>
+    <span className="inline-flex shrink-0 items-center justify-center" style={{ width: resolvedSize, height: resolvedSize }}>
+      <Suspense fallback={renderLobeIconFallback(baseKey, resolvedSize)}>
+        <IconComponent {...props} />
+      </Suspense>
+    </span>
   )
 }
 

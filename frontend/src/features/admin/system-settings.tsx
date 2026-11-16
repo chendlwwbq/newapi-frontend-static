@@ -3,12 +3,14 @@ import Link from 'next/link'
 import { Fragment, useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { HelpCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { createCurrencyFormatter, parseCurrencyDisplayType } from '@/lib/currency'
 import { toIntlLocale } from '@/i18n/languages'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -105,7 +107,8 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
     }
   }
   return (
-    <form onSubmit={save} autoComplete="off">
+    <TooltipProvider>
+      <form onSubmit={save} autoComplete="off">
       <SettingsDraftGuard active={['site', 'content', 'news'].includes(section) && dirty.length > 0} busy={busy} />
       <fieldset className="admin-pricing-fields settings-fields" disabled={busy || disabled}>
         {fields.map((field) => {
@@ -116,6 +119,22 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
               <div className={`field ${field.kind === 'boolean' ? 'settings-toggle' : ''}`}>
                 <label htmlFor={id}>
                   {t(field.label)}
+                  {field.hint && !field.hint.startsWith('[') && (
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <button
+                            type="button"
+                            className="ml-1.5 inline-flex align-middle text-muted-foreground transition-colors hover:text-foreground"
+                            aria-label={t(field.hint)}
+                          />
+                        }
+                      >
+                        <HelpCircle size={13} aria-hidden="true" />
+                      </TooltipTrigger>
+                      <TooltipContent>{t(field.hint)}</TooltipContent>
+                    </Tooltip>
+                  )}
                   {(cleared.has(field.key) || draft[field.key] !== baseline[field.key]) && (
                     <span className="settings-dirty" aria-label={t('Unsaved changes')}>
                       {' '}
@@ -215,7 +234,6 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
                     </label>
                   </>
                 )}
-                {field.hint && !field.hint.startsWith('[') && <small className="small-note">{t(field.hint)}</small>}
                 {section === 'site' && field.kind === 'textarea' && (
                   <ContentPreview source={draft[field.key]} allowFrameURL={field.key === 'HomePageContent'} />
                 )}
@@ -261,6 +279,7 @@ function SettingsForm({ section, initial, disabled = false }: { section: string;
         </div>
       </fieldset>
     </form>
+    </TooltipProvider>
   )
 }
 export function SystemSettings({ section }: { section: string }) {

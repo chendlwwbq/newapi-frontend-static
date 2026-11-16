@@ -220,7 +220,7 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
                     <Graphic size={13} />
                     {label as string}
                   </span>
-                  <strong>{value as string}</strong>
+                  <strong className="tabular-nums font-mono">{value as string}</strong>
                   <i aria-hidden="true" />
                 </article>
               )
@@ -237,7 +237,7 @@ export function OverviewPage({ noticeContent }: { noticeContent?: ReactNode }) {
         </div>
         <aside>
           <span className="small-note">{t('Account balance')}</span>
-          <strong className="text-2xl md:text-3xl font-semibold tracking-tight">{money(user.quota)}</strong>
+          <strong className="text-2xl md:text-3xl font-semibold tracking-tight tabular-nums font-mono">{money(user.quota)}</strong>
           <span className={`status-badge ${user.quota > 0 ? 'success' : ''}`}>{t(user.quota > 0 ? 'Available' : 'Insufficient balance')}</span>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Link className="pill-button" href="/wallet">

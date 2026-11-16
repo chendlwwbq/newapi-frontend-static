@@ -345,12 +345,12 @@ export function KeysPage({ create = false, group }: { create?: boolean; group?: 
                           break
                         case 'quota':
                           content = (
-                            <>
+                            <div className="tabular-nums font-mono">
                               {token.unlimited_quota ? '∞' : money(token.remain_quota)}
-                              <small>
+                              <small className="tabular-nums font-mono">
                                 {t('Total usage')} {money(token.used_quota)}
                               </small>
-                            </>
+                            </div>
                           )
                           break
                         case 'group':

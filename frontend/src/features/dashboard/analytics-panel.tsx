@@ -12,7 +12,10 @@ import { formatNumber, useQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
-import { UsageChart } from './usage-chart'
+const UsageChart = dynamic(() => import('./usage-chart').then((module) => module.UsageChart), {
+  ssr: false,
+  loading: () => <div className="h-[220px] w-full animate-pulse rounded-xl bg-muted/60" aria-hidden="true" />,
+})
 import {
   aggregateUsage,
   aggregateUserUsage,

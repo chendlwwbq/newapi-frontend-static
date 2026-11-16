@@ -188,7 +188,7 @@ export function ModelPricingPage() {
           if (!open && !busy) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor pricing-dialog">
+        <DialogContent className="admin-editor pricing-dialog flex max-h-[90vh] flex-col overflow-hidden sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{t('Edit model pricing')}</DialogTitle>
             <DialogDescription>
@@ -196,8 +196,8 @@ export function ModelPricingPage() {
             </DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
-              <fieldset disabled={busy} className="admin-pricing-fields">
+            <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
+              <fieldset disabled={busy} className="admin-pricing-fields max-h-[70vh] overflow-y-auto pr-1">
                 <label className="field">
                   <span>{t('Model name')}</span>
                   <input
@@ -396,23 +396,23 @@ export function ModelPricingPage() {
                   </div>
                 )}
                 {save.error && <ErrorState error={save.error} />}
-                <DialogFooter>
-                  <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
-                    {t('Cancel')}
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={
-                      save.isPending ||
-                      !name.trim() ||
-                      !!invalidEditors.size ||
-                      Object.values(draft['billing_setting.group_billing_expr'] || {}).some((value) => !value.trim())
-                    }
-                  >
-                    {t('Save')}
-                  </Button>
-                </DialogFooter>
               </fieldset>
+              <DialogFooter>
+                <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
+                  {t('Cancel')}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={
+                    busy ||
+                    !name.trim() ||
+                    !!invalidEditors.size ||
+                    Object.values(draft['billing_setting.group_billing_expr'] || {}).some((value) => !value.trim())
+                  }
+                >
+                  {t('Save')}
+                </Button>
+              </DialogFooter>
             </form>
           )}
         </DialogContent>

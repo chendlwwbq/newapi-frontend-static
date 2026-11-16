@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ArrowUp, Square, Plus, Trash2, MessageSquare, Paperclip, PanelLeftClose, Pencil, Settings2, Image } from 'lucide-react'
@@ -11,7 +12,14 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { CopyButton } from '@/components/shared/copy-button'
 import { ErrorState, LoadingState } from '@/components/shared/states'
-import { MessageMarkdown } from './message-markdown'
+const MessageMarkdown = dynamic(() => import('./message-markdown').then((module) => module.MessageMarkdown), {
+  ssr: false,
+  loading: () => (
+    <div className="space-y-2 py-1">
+      <div className="h-3.5 w-3/4 animate-pulse rounded-md bg-muted" />
+    </div>
+  ),
+})
 import { RegenerateButton } from './regenerate-button'
 import { ImageAttachment } from './image-attachment'
 import { FaceProcessingTool } from './face-processing'
@@ -421,24 +429,46 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
       stream: config.stream,
       messages: playgroundMessages(history, system),
     }
+    let bufferedContent = ''
+    let bufferedReasoning = ''
+    let rafId: number | null = null
+    const flushBufferedChunks = () => {
+      rafId = null
+      if (!bufferedContent && !bufferedReasoning) return
+      const contentDelta = bufferedContent
+      const reasoningDelta = bufferedReasoning
+      bufferedContent = ''
+      bufferedReasoning = ''
+      changeMessages(id, (previous) =>
+        previous.map((message) =>
+          message.id === responseId
+            ? {
+                ...message,
+                ...(reasoningDelta ? { reasoning: (message.reasoning || '') + reasoningDelta } : {}),
+                ...(contentDelta ? { content: message.content + contentDelta } : {}),
+              }
+            : message
+        )
+      )
+    }
     await sendStreamRequest(
       payload,
-      (type, chunk) =>
-        changeMessages(id, (previous) =>
-          previous.map((message) =>
-            message.id === responseId
-              ? {
-                  ...message,
-                  ...(type === 'reasoning' ? { reasoning: (message.reasoning || '') + chunk } : { content: message.content + chunk }),
-                }
-              : message
-          )
-        ),
+      (type, chunk) => {
+        if (type === 'reasoning') bufferedReasoning += chunk
+        else bufferedContent += chunk
+        if (rafId === null) {
+          rafId = window.requestAnimationFrame(flushBufferedChunks)
+        }
+      },
       () => {
+        if (rafId !== null) window.cancelAnimationFrame(rafId)
+        flushBufferedChunks()
         setBusy(false)
         changeMessages(id, (previous) => previous.map((message) => (message.id === responseId ? { ...message, status: 'complete' } : message)))
       },
       (error) => {
+        if (rafId !== null) window.cancelAnimationFrame(rafId)
+        flushBufferedChunks()
         setBusy(false)
         changeMessages(id, (previous) => previous.map((message) => (message.id === responseId ? { ...message, status: 'error', error } : message)))
       }
@@ -656,7 +686,11 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
               </div>
             )}
             {messages.map((message, index) => (
-              <article className={`chat-message ${message.role}`} key={message.id}>
+              <article
+                className={`chat-message ${message.role}${message.status === 'streaming' ? ' transition-none' : ''}`}
+                data-streaming={message.status === 'streaming' ? 'true' : undefined}
+                key={message.id}
+              >
                 <div className="chat-message-label">{t(message.role === 'user' ? 'You' : 'Assistant')}</div>
                 {message.reasoning && (
                   <details className="chat-reasoning">

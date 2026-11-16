@@ -20,8 +20,8 @@ export function DocumentationLibrary({ docs }: { docs: PublishedDocSummary[] }) 
       <p className="page-description">{t('Published integration guides and API documentation.')}</p>
       {docs.length ? (
         <div className="news-grid">
-          {docs.map((doc, index) => (
-            <Reveal key={doc.id} delay={Math.min(index, 5) * 0.04}>
+          {docs.map((doc) => (
+            <Reveal key={doc.id} compact>
               <Link className="news-card" href={`/docs/published/${encodeURIComponent(doc.slug)}`} key={doc.id}>
                 <span>
                   {doc.language} · {t(doc.source_type === 'markdown' ? 'Markdown' : 'External link')}

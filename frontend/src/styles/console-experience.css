@@ -1537,3 +1537,222 @@
     padding-left: 0;
   }
 }
+/* ============================================
+   Console Experience Enhancements
+   控制台界面美化增强
+   ============================================ */
+
+/* 侧边栏导航项增强 */
+.sidebar-link {
+  transition: all 0.2s ease-out !important;
+  position: relative;
+}
+
+.sidebar-link:hover {
+  transform: translateX(4px);
+  background: color-mix(in srgb, var(--primary) 10%, transparent) !important;
+}
+
+.sidebar-link[data-active="true"] {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 侧边栏图标动画 */
+.sidebar-link svg {
+  transition: transform 0.2s ease-out;
+}
+
+.sidebar-link:hover svg {
+  transform: scale(1.1);
+}
+
+.sidebar-link[data-active="true"] svg {
+  transform: scale(1.15);
+}
+
+/* 余额显示增强 */
+.sidebar-balance {
+  transition: all 0.3s ease-out;
+}
+
+.sidebar-balance:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Console 面板卡片悬停 */
+.console-panel {
+  transition: all 0.3s ease-out;
+}
+
+.console-panel:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* 统计卡片增强 */
+.console-overview .console-overview-grid article {
+  transition: all 0.3s ease-out;
+  cursor: pointer;
+}
+
+.console-overview .console-overview-grid article:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary);
+}
+
+.console-overview .console-overview-grid article:hover strong {
+  color: var(--primary);
+}
+
+/* 表格行悬停增强 */
+.data-table tbody tr {
+  transition: all 0.15s ease-out;
+}
+
+.data-table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 5%, var(--background));
+  transform: scale(1.01);
+}
+
+/* 按钮组交互 */
+.console-topbar-actions button,
+.console-topbar-actions a {
+  transition: all 0.2s ease-out;
+}
+
+.console-topbar-actions button:hover,
+.console-topbar-actions a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 移动端抽屉滑入动画 */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.console-mobile-drawer[data-slot="dialog-content"] {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 文本链接悬停 */
+.text-link {
+  transition: all 0.2s ease-out;
+}
+
+.text-link:hover {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+
+/* 图标按钮增强 */
+.icon-button {
+  transition: background-color 0.16s ease-out, color 0.16s ease-out;
+}
+
+.icon-button:hover {
+  background: var(--muted);
+}
+
+/* 输入框统一美化 */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 12%, transparent),
+              0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 徽章美化 */
+.status-badge {
+  transition: all 0.2s ease-out;
+}
+
+.status-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 加载状态优化 */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    color-mix(in srgb, var(--foreground) 8%, var(--muted)) 50%,
+    var(--muted) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  /* 移动端增大触摸区域 */
+  .sidebar-link {
+    min-height: 44px;
+  }
+
+  .pill-button,
+  .icon-button,
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* 减少动画偏好支持 */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-link,
+  .pill-button,
+  .console-panel,
+  .console-overview .console-overview-grid article,
+  .data-table tbody tr,
+  .text-link,
+  .icon-button,
+  input,
+  textarea,
+  select,
+  .status-badge {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .sidebar-link:hover,
+  .pill-button:hover,
+  .console-panel:hover,
+  .console-overview .console-overview-grid article:hover,
+  .data-table tbody tr:hover,
+  .text-link:hover,
+  .icon-button:hover,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    transform: none !important;
+  }
+
+  .console-mobile-drawer[data-slot="dialog-content"] {
+    animation: none !important;
+  }
+}
+

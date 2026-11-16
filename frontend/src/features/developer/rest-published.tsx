@@ -44,8 +44,8 @@ export function RestPublishedCatalog() {
       {query.data && !items?.length && <EmptyState title={t('No published REST APIs yet')} />}
       {!!items?.length && (
         <div className="developer-rest-grid">
-          {items.map((item, index) => (
-            <Reveal key={item.id} delay={Math.min(index, 5) * 0.04}>
+          {items.map((item) => (
+            <Reveal key={item.id} compact>
               <Link className="developer-rest-card" href={`/api-hub/${encodeURIComponent(item.slug)}`}>
                 <div className="rest-card-heading">
                   <span className="rest-api-mark">

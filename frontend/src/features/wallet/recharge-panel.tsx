@@ -39,11 +39,18 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
   const unavailableMessage = info.payment_compliance_confirmed
     ? 'No payment provider is configured.'
     : 'Payment, redemption, subscription, and invitation reward features are disabled. The administrator must confirm compliance terms before enabling them.'
-  const minimum =
+  const configuredMinimum =
     Number(method?.min_topup) ||
     (method?.type === 'stripe' ? info.stripe_min_topup : method?.type === 'waffo_pancake' ? info.waffo_pancake_min_topup : info.min_topup) ||
     1
+  // Epay returns configuration units, but its TOKENS requests use raw quota.
+  // Other providers keep their existing minimum and request unit contracts.
+  const minimum =
+    method && isTokensMode && topupEndpoint(method.type, 'amount') === '/api/user/amount'
+      ? Math.round(configuredMinimum * currency.formatter.getCurrencyDisplay().config.quotaPerUnit)
+      : configuredMinimum
   const amount = input === '' ? minimum : Number(input)
+  const canReview = currency.ready && !!method && Number.isSafeInteger(amount) && amount >= minimum
   const presets = info.amount_options.length
     ? info.amount_options
     : generatePresetAmounts(minimum)
@@ -51,7 +58,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
         .map((item) => item.value)
   const quote = useQuery({
     queryKey: ['topup-quote', auth.bundle?.user.id, amount, method?.type],
-    enabled: confirm && !product && !!method && Number.isInteger(amount) && amount >= minimum,
+    enabled: confirm && !product && canReview,
     queryFn: ({ signal }) => api<string>(topupEndpoint(method!.type, 'amount'), { method: 'POST', signal, body: { amount } }),
     staleTime: 0,
     gcTime: 0,
@@ -143,6 +150,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                 <form
                   onSubmit={(event) => {
                     event.preventDefault()
+                    if (busy || !canReview) return
                     setError('')
                     setConfirm(true)
                   }}
@@ -167,7 +175,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                         : minimum}
                     </small>
                   </label>
-                  <Button type="submit" disabled={busy || !method || !Number.isInteger(amount) || amount < minimum}>
+                  <Button type="submit" disabled={busy || !canReview}>
                     {t('Review payment')}
                   </Button>
                 </form>

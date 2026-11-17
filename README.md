@@ -28,6 +28,8 @@
 
 当前源码对应的主工程使用 **Next.js 16.4.6**，已从 16.4.3 升级，以修复 [CVE-2026-119790 / GHSA-mfr8-8qww-v76h](https://github.com/vercel/next.js/security/advisories/GHSA-mfr8-8qww-v76h)。将本仓库源码用于其他工程时，也需安装已修复的 Next.js 版本；仅复制 `src/` 不会升级依赖。依赖声明及 Bun 锁文件由主项目维护。
 
+主工程同时将安全依赖更新为 **diff 8.0.3、KaTeX 0.19.1、happy-dom 21.0.4**。`package.json` 使用 `overrides: { "katex": "0.19.1" }` 统一 Markdown 插件的间接依赖，避免继续安装存在告警的旧版本。集成源码时需同步这些依赖设置并重新安装；本仓库不包含依赖声明或锁文件。
+
 `frontend/src/` 直接同步自主项目 `E:/back/newapi/web-next/src/`，对应当前 EVA 的真实前端实现；旧独立预览版本的 Mock 适配已移除。协作者的修改经维护者评审后合并，不会自动部署线上。
 
 ## 许可证与来源

@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CopyButton } from '@/components/shared/copy-button'
 import { ErrorState, LoadingState } from '@/components/shared/states'
@@ -211,7 +212,7 @@ export function SecurityPage() {
             {user.has_password && (
               <label className="field">
                 <span>{t('Current password')}</span>
-                <input
+                <Input
                   type="password"
                   autoComplete="current-password"
                   value={oldPassword}
@@ -222,7 +223,7 @@ export function SecurityPage() {
             )}
             <label className="field">
               <span>{t('New password')}</span>
-              <input
+              <Input
                 type="password"
                 autoComplete="new-password"
                 value={newPassword}
@@ -234,7 +235,7 @@ export function SecurityPage() {
             </label>
             <label className="field">
               <span>{t('Confirm password')}</span>
-              <input
+              <Input
                 type="password"
                 autoComplete="new-password"
                 value={confirm}

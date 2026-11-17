@@ -30,6 +30,11 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
     [busy, setBusy] = useState(false),
     [error, setError] = useState('')
   const method = methods.find((item) => item.type === selected) || methods[0]
+  const isTokensMode = currency.formatter.getCurrencyDisplay().meta.kind === 'tokens'
+  const formatRechargeQuota = (value: number) => {
+    const options = { locale: currency.locale, abbreviate: false }
+    return isTokensMode ? currency.formatter.formatQuotaWithCurrency(value, options) : currency.formatter.formatCurrencyFromUSD(value, options)
+  }
   const hasCreemProducts = !!(info.payment_compliance_confirmed && info.enable_creem_topup && info.creem_products?.length)
   const unavailableMessage = info.payment_compliance_confirmed
     ? 'No payment provider is configured.'
@@ -156,7 +161,9 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                     <small className="small-note">
                       {t('Minimum')}:{' '}
                       {currency.ready
-                        ? `${currency.formatter.formatCurrencyFromUSD(minimum, { locale: currency.locale, abbreviate: false })} (${minimum} USD)`
+                        ? isTokensMode
+                          ? `${formatRechargeQuota(minimum)} (${minimum} Tokens)`
+                          : `${formatRechargeQuota(minimum)} (${minimum} USD)`
                         : minimum}
                     </small>
                   </label>
@@ -197,10 +204,10 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
         <p className="small-note">{t('Enter your redemption code to add account credit.')}</p>
         <label className="field">
           <span>{t('Redemption code')}</span>
-          <input required value={code} onChange={(event) => setCode(event.target.value)} disabled={!info.enable_redemption || busy} />
+          <input required value={code} onChange={(event) => setCode(event.target.value.trim())} disabled={!info.enable_redemption || busy} />
         </label>
-        <Button type="submit" disabled={!info.enable_redemption || !code.trim() || busy}>
-          {t(busy ? 'Loading' : 'Redeem')}
+        <Button type="submit" loading={busy} disabled={!info.enable_redemption || !code.trim()}>
+          {t('Redeem')}
         </Button>
         {info.enable_redemption === false && (
           <p className="small-note" style={{ marginTop: 14 }}>
@@ -236,11 +243,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
             <div>
               <dt>{t('Topup Amount')}</dt>
               <dd className="tabular-nums font-mono">
-                {product
-                  ? formatQuota(product.quota, { abbreviate: false })
-                  : currency.ready
-                    ? currency.formatter.formatCurrencyFromUSD(amount, { locale: currency.locale, abbreviate: false })
-                    : amount}
+                {product ? formatQuota(product.quota, { abbreviate: false }) : currency.ready ? formatRechargeQuota(amount) : amount}
               </dd>
             </div>
             <div>
@@ -275,10 +278,11 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
               {t('Cancel')}
             </Button>
             <Button
-              disabled={busy || (!product && (quote.isFetching || !quote.data || !Number.isFinite(Number(quote.data)) || Number(quote.data) <= 0))}
+              loading={busy}
+              disabled={!product && (quote.isFetching || !quote.data || !Number.isFinite(Number(quote.data)) || Number(quote.data) <= 0)}
               onClick={pay}
             >
-              {t(busy ? 'Loading' : 'Continue to payment')}
+              {t('Continue to payment')}
             </Button>
           </div>
         </DialogContent>

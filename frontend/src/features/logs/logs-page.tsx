@@ -14,7 +14,17 @@ import { FilterSelect } from '@/components/ui/filter-select'
 import { CopyButton } from '@/components/shared/copy-button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { toIntlLocale } from '@/i18n/languages'
-import { buildLogParams, initialLogFilters, logLink, logParams, logTypeLabels, readLogLink, LOG_TYPES, type LogFilters, type LogRow } from './contracts'
+import {
+  buildLogParams,
+  initialLogFilters,
+  logLink,
+  logParams,
+  logTypeLabels,
+  readLogLink,
+  LOG_TYPES,
+  type LogFilters,
+  type LogRow,
+} from './contracts'
 import { LogDetails } from './log-details'
 import { LogExportDialog } from './export-dialog'
 
@@ -276,7 +286,12 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                 <tr>
                   {['Time', ...(all ? ['Username'] : []), 'Type', 'Model', 'Token', 'Channel', 'Tokens', 'Cost', 'Duration', 'Details'].map(
                     (label) => (
-                      <th key={label} className={['Tokens', 'Cost', 'Duration'].includes(label) ? 'text-right' : undefined}>
+                      <th
+                        key={label}
+                        className={
+                          label === 'Details' ? 'table-sticky-action' : ['Tokens', 'Cost', 'Duration'].includes(label) ? 'text-right' : undefined
+                        }
+                      >
                         {t(label)}
                       </th>
                     )
@@ -310,7 +325,7 @@ export function LogsPage({ initialQuery = '' }: { initialQuery?: string }) {
                     </td>
                     <td className="text-right tabular-nums font-mono">{money(row.quota)}</td>
                     <td className="text-right tabular-nums font-mono">{row.use_time ? `${row.use_time}s` : '—'}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="flex items-center gap-2">
                         {row.request_id ? (
                           <span className="task-id">

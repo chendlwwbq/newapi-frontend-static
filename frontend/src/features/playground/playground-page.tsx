@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ArrowUp, Square, Plus, Trash2, MessageSquare, Paperclip, PanelLeftClose, Pencil, Settings2, Image } from 'lucide-react'
+import { ArrowDown, ArrowUp, Square, Plus, Trash2, MessageSquare, Paperclip, PanelLeftClose, Pencil, Settings2, Image } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
@@ -98,6 +98,7 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
   const scroll = useRef<HTMLDivElement>(null)
   const drafts = useRef<Record<string, ConversationDraft>>({})
   const followMessages = useRef(true)
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false)
   const imageReadVersion = useRef(0)
   const historyMode = useRef<HistoryMode | null>(null)
   const historyRevision = useRef(0)
@@ -190,6 +191,7 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
   }, [config, enabled, system, settingsKey, restored, t])
   useEffect(() => {
     followMessages.current = true
+    setShowScrollToBottom(false)
   }, [activeId])
   useEffect(() => {
     const element = scroll.current
@@ -656,110 +658,132 @@ function Playground({ userId, userGroup }: { userId: number; userGroup: string }
             </p>
           )}
           {(historyConflict || historyError) && <p className="small-note">{t('The export contains your conversations, drafts and images.')}</p>}
-          <div
-            className="chat-messages"
-            ref={scroll}
-            role="log"
-            aria-label={t('Conversation')}
-            aria-live="off"
-            onScroll={(event) => {
-              const element = event.currentTarget
-              followMessages.current = followsLatestMessage(element.scrollHeight, element.clientHeight, element.scrollTop)
-            }}
-          >
-            {!messages.length && (
-              <div className="playground-empty">
-                <Mascot />
-                <h1>{selectedModel ? t('Chat with {{model}}', { model: selectedModel }) : t('What would you like to create?')}</h1>
-                <p>
-                  {availableGroup
-                    ? `${t('Current group')} · ${availableGroup}`
-                    : t('Choose a model and start a conversation with your New API gateway.')}
-                </p>
-                <div>
-                  {['Explain a concept', 'Help me write code', 'Brainstorm ideas'].map((label) => (
-                    <button key={label} onClick={() => setPrompt(t(label))}>
-                      {t(label)}
-                    </button>
-                  ))}
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            <div
+              className="chat-messages"
+              ref={scroll}
+              role="log"
+              aria-label={t('Conversation')}
+              aria-live="off"
+              onScroll={(event) => {
+                const element = event.currentTarget
+                const nearBottom = followsLatestMessage(element.scrollHeight, element.clientHeight, element.scrollTop)
+                followMessages.current = nearBottom
+                setShowScrollToBottom(!nearBottom && messages.length > 0)
+              }}
+            >
+              {!messages.length && (
+                <div className="playground-empty">
+                  <Mascot />
+                  <h1>{selectedModel ? t('Chat with {{model}}', { model: selectedModel }) : t('What would you like to create?')}</h1>
+                  <p>
+                    {availableGroup
+                      ? `${t('Current group')} · ${availableGroup}`
+                      : t('Choose a model and start a conversation with your New API gateway.')}
+                  </p>
+                  <div>
+                    {['Explain a concept', 'Help me write code', 'Brainstorm ideas'].map((label) => (
+                      <button key={label} onClick={() => setPrompt(t(label))}>
+                        {t(label)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              )}
+              {messages.map((message, index) => (
+                <article
+                  className={`chat-message ${message.role}${message.status === 'streaming' ? ' transition-none' : ''}`}
+                  data-streaming={message.status === 'streaming' ? 'true' : undefined}
+                  key={message.id}
+                >
+                  <div className="chat-message-label">{t(message.role === 'user' ? 'You' : 'Assistant')}</div>
+                  {message.reasoning && (
+                    <details className="chat-reasoning">
+                      <summary>{t('Reasoning')}</summary>
+                      <p>{message.reasoning}</p>
+                    </details>
+                  )}
+                  <div className="chat-message-content">
+                    {message.content ? (
+                      message.role === 'assistant' ? (
+                        <MessageMarkdown content={message.content} />
+                      ) : (
+                        message.content
+                      )
+                    ) : message.status === 'streaming' ? (
+                      <div className="space-y-2 py-1" role="status" aria-label={t('Generating')}>
+                        <div className="h-3.5 w-3/4 animate-pulse rounded-md bg-muted" />
+                        <div className="h-3.5 w-5/6 animate-pulse rounded-md bg-muted" />
+                        <div className="h-3.5 w-2/3 animate-pulse rounded-md bg-muted" />
+                      </div>
+                    ) : null}
+                  </div>
+                  {!!message.images?.length && (
+                    <ul className="chat-image-list">
+                      {message.images.map((url, imageIndex) => (
+                        <li key={`${url}:${imageIndex}`}>
+                          <span>
+                            {t('Image')} {imageIndex + 1}:{' '}
+                          </span>
+                          <ImageAttachment source={url} index={imageIndex} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {message.pdf && <PdfAttachment file={message.pdf} />}
+                  {message.error && (
+                    <p className="chat-error" role="alert">
+                      {message.error}
+                    </p>
+                  )}
+                  {message.status === 'stopped' && <span className="small-note">{t('Generation stopped')}</span>}
+                  <div className="chat-message-actions">
+                    {message.content && <CopyButton value={message.content} />}{' '}
+                    {message.role === 'assistant' && !busy && (
+                      <RegenerateButton
+                        messages={messages}
+                        index={index}
+                        conversationId={activeId}
+                        disabled={!selectedModel || !availableGroup || readingImage}
+                        onGenerate={(history, id) => void generate(history, id)}
+                      />
+                    )}
+                    {!busy && (
+                      <>
+                        <button
+                          className="icon-button"
+                          aria-label={t('Edit message')}
+                          onClick={() => setEditing({ id: message.id, content: message.content })}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button className="icon-button" aria-label={t('Delete message')} onClick={() => setDeleting(message.id)}>
+                          <Trash2 size={13} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+            {showScrollToBottom && (
+              <div className="pointer-events-none absolute inset-x-0 bottom-3 z-20 flex justify-center">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="pointer-events-auto rounded-full border border-border/80 bg-background/90 px-3.5 shadow-md backdrop-blur-md hover:bg-background"
+                  onClick={() => {
+                    followMessages.current = true
+                    setShowScrollToBottom(false)
+                    if (scroll.current) scroll.current.scrollTop = scroll.current.scrollHeight
+                  }}
+                >
+                  <ArrowDown size={14} className="mr-1" aria-hidden="true" />
+                  {t('Back to latest')}
+                </Button>
               </div>
             )}
-            {messages.map((message, index) => (
-              <article
-                className={`chat-message ${message.role}${message.status === 'streaming' ? ' transition-none' : ''}`}
-                data-streaming={message.status === 'streaming' ? 'true' : undefined}
-                key={message.id}
-              >
-                <div className="chat-message-label">{t(message.role === 'user' ? 'You' : 'Assistant')}</div>
-                {message.reasoning && (
-                  <details className="chat-reasoning">
-                    <summary>{t('Reasoning')}</summary>
-                    <p>{message.reasoning}</p>
-                  </details>
-                )}
-                <div className="chat-message-content">
-                  {message.content ? (
-                    message.role === 'assistant' ? (
-                      <MessageMarkdown content={message.content} />
-                    ) : (
-                      message.content
-                    )
-                  ) : message.status === 'streaming' ? (
-                    <div className="space-y-2 py-1" role="status" aria-label={t('Generating')}>
-                      <div className="h-3.5 w-3/4 animate-pulse rounded-md bg-muted" />
-                      <div className="h-3.5 w-5/6 animate-pulse rounded-md bg-muted" />
-                      <div className="h-3.5 w-2/3 animate-pulse rounded-md bg-muted" />
-                    </div>
-                  ) : null}
-                </div>
-                {!!message.images?.length && (
-                  <ul className="chat-image-list">
-                    {message.images.map((url, imageIndex) => (
-                      <li key={`${url}:${imageIndex}`}>
-                        <span>
-                          {t('Image')} {imageIndex + 1}:{' '}
-                        </span>
-                        <ImageAttachment source={url} index={imageIndex} />
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {message.pdf && <PdfAttachment file={message.pdf} />}
-                {message.error && (
-                  <p className="chat-error" role="alert">
-                    {message.error}
-                  </p>
-                )}
-                {message.status === 'stopped' && <span className="small-note">{t('Generation stopped')}</span>}
-                <div className="chat-message-actions">
-                  {message.content && <CopyButton value={message.content} />}{' '}
-                  {message.role === 'assistant' && !busy && (
-                    <RegenerateButton
-                      messages={messages}
-                      index={index}
-                      conversationId={activeId}
-                      disabled={!selectedModel || !availableGroup || readingImage}
-                      onGenerate={(history, id) => void generate(history, id)}
-                    />
-                  )}
-                  {!busy && (
-                    <>
-                      <button
-                        className="icon-button"
-                        aria-label={t('Edit message')}
-                        onClick={() => setEditing({ id: message.id, content: message.content })}
-                      >
-                        <Pencil size={13} />
-                      </button>
-                      <button className="icon-button" aria-label={t('Delete message')} onClick={() => setDeleting(message.id)}>
-                        <Trash2 size={13} />
-                      </button>
-                    </>
-                  )}
-                </div>
-              </article>
-            ))}
           </div>
           <form className="chat-composer" onSubmit={(event) => void submit(event)}>
             <textarea

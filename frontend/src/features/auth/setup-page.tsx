@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/lib/api/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ErrorState, LoadingState } from '@/components/shared/states'
 import { AuthShell } from './auth-shell'
 
@@ -153,7 +154,7 @@ export function SetupPage() {
                 </label>
                 <label className="field">
                   <span>{t('Password')}</span>
-                  <input
+                  <Input
                     type="password"
                     autoComplete="new-password"
                     required
@@ -163,7 +164,7 @@ export function SetupPage() {
                 </label>
                 <label className="field">
                   <span>{t('Confirm password')}</span>
-                  <input type="password" autoComplete="new-password" required value={confirm} onChange={(event) => setConfirm(event.target.value)} />
+                  <Input type="password" autoComplete="new-password" required value={confirm} onChange={(event) => setConfirm(event.target.value)} />
                 </label>
                 <p className="small-note">{t('Password must contain between 8 and 128 characters.')}</p>
               </>

@@ -49,48 +49,50 @@ export function LogDetails(props: { log: UsageLog; admin: boolean; onClose: () =
         if (!open) props.onClose()
       }}
     >
-      <DialogContent className="log-dialog">
+      <DialogContent className="log-dialog flex max-h-[88vh] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {t('Details')} #{log.id}
           </DialogTitle>
           <DialogDescription>{log.model_name || t('Usage logs')}</DialogDescription>
         </DialogHeader>
-        <dl className="ops-details">
-          {rows.map(([label, value]) => (
-            <div key={label}>
-              <dt>{t(label)}</dt>
-              <dd>
-                {value === undefined || value === '' ? '—' : String(value)}
-                {['Request ID', 'Upstream Request ID'].includes(label) && !!value && <CopyButton value={String(value)} />}
-              </dd>
-            </div>
-          ))}
-        </dl>
-        {log.content && (
-          <section>
-            <h3>{t('Content')}</h3>
-            <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
-              {log.content}
-            </pre>
-          </section>
-        )}
-        {target && (
-          <>
-            <Button variant="outline" onClick={() => setAffinity(!affinity)} aria-expanded={affinity}>
-              {t('Channel Affinity: Upstream Cache Hit')}
-            </Button>
-            {affinity && <AffinityUsage target={target} />}
-          </>
-        )}
-        {log.other && (
-          <details>
-            <summary>{t('Additional data')}</summary>
-            <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
-              {Object.keys(other).length ? JSON.stringify(other, null, 2) : log.other}
-            </pre>
-          </details>
-        )}
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+          <dl className="ops-details">
+            {rows.map(([label, value]) => (
+              <div key={label}>
+                <dt>{t(label)}</dt>
+                <dd>
+                  {value === undefined || value === '' ? '—' : String(value)}
+                  {['Request ID', 'Upstream Request ID'].includes(label) && !!value && <CopyButton value={String(value)} />}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {log.content && (
+            <section>
+              <h3>{t('Content')}</h3>
+              <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
+                {log.content}
+              </pre>
+            </section>
+          )}
+          {target && (
+            <>
+              <Button variant="outline" onClick={() => setAffinity(!affinity)} aria-expanded={affinity}>
+                {t('Channel Affinity: Upstream Cache Hit')}
+              </Button>
+              {affinity && <AffinityUsage target={target} />}
+            </>
+          )}
+          {log.other && (
+            <details>
+              <summary>{t('Additional data')}</summary>
+              <pre className="log-json rounded-xl border border-white/10 bg-zinc-950/95 p-3 font-mono text-xs text-zinc-100 shadow-inner overflow-x-auto">
+                {Object.keys(other).length ? JSON.stringify(other, null, 2) : log.other}
+              </pre>
+            </details>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

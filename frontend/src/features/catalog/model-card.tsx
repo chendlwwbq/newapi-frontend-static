@@ -1,10 +1,9 @@
 'use client'
 import { catalogGroupLabel } from './group-label'
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { ArrowUpRight, Check, Copy } from 'lucide-react'
-import { toast } from 'sonner'
+import { ArrowUpRight } from 'lucide-react'
 import { toIntlLocale } from '@/i18n/languages'
 import { formatPrice, quoteUnitLabel, componentLabels } from './price-format'
 import { formatCompactNumber } from '@/lib/format'
@@ -32,11 +31,13 @@ export function PriceDisplay({
   groupRatio,
   exchangeRate,
   layout = 'inline',
+  showUnit = false,
 }: {
   quote?: Quote
   groupRatio?: number
   exchangeRate?: number
   layout?: 'inline' | 'columns'
+  showUnit?: boolean
 }) {
   const { t, i18n } = useTranslation()
   if (quote?.status === 'unconfigured') return <span className="muted">{t('Unconfigured')}</span>
@@ -193,7 +194,7 @@ export function PriceDisplay({
           {t(componentLabels[part.kind] || part.kind)} {formatPrice(Number(part.amount), quote.currency, toIntlLocale(i18n.language))}
         </span>
       ))}
-      <span className="small-note"> · {t(quoteUnitLabel(quote))}</span>
+      {layout === 'inline' && showUnit && <span className="small-note"> · {t(quoteUnitLabel(quote))}</span>}
     </span>
   )
 }
@@ -280,23 +281,6 @@ export function ProviderIcon({ provider, modelName, icon, size = 30 }: { provide
 }
 export function ModelCard({ model }: { model: CatalogModel }) {
   const { t, i18n } = useTranslation()
-  const [copied, setCopied] = useState(false)
-  useEffect(() => {
-    if (!copied) return
-    const timer = window.setTimeout(() => setCopied(false), 1600)
-    return () => window.clearTimeout(timer)
-  }, [copied])
-  function copyModelId(event: MouseEvent<HTMLButtonElement>) {
-    event.preventDefault()
-    event.stopPropagation()
-    void navigator.clipboard
-      ?.writeText(model.configured_model_id)
-      .then(() => {
-        setCopied(true)
-        toast.success(t('Copied'))
-      })
-      .catch(() => toast.error(t('Copy failed')))
-  }
   const summary = catalogQuoteSummary(model, []),
     route = model.offerings.find((item) => item.offering_key === summary?.offering_key)
   return (
@@ -306,16 +290,9 @@ export function ModelCard({ model }: { model: CatalogModel }) {
         <ArrowUpRight size={16} />
       </div>
       <h3 className="line-clamp-1">{model.name}</h3>
-      <button
-        type="button"
-        onClick={copyModelId}
-        title={t('Copy')}
-        aria-label={`${t('Copy')} ${model.configured_model_id}`}
-        className="mt-1.5 inline-flex w-fit max-w-full cursor-pointer items-center gap-1.5 rounded bg-muted/50 px-2 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-primary/15 hover:text-foreground"
-      >
-        <code className="truncate">{model.configured_model_id}</code>
-        {copied ? <Check size={12} className="shrink-0 text-emerald-500" /> : <Copy size={12} className="shrink-0 opacity-70" />}
-      </button>
+      <code className="mt-1.5 inline-block w-fit max-w-full truncate rounded bg-muted/50 px-2 py-0.5 font-mono text-xs text-muted-foreground">
+        {model.configured_model_id}
+      </code>
       <div className="model-card-price min-h-[2.75rem] flex-1">
         <PriceDisplay quote={summary?.quote} layout="columns" />
         <small>

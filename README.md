@@ -26,6 +26,8 @@
 
 这是源码评审仓库，不是可独立运行的完整工程。直接克隆后不能运行 `bun run dev`；部分源码引用的配置、语言包、字体和图片保留在完整本地工程。需要运行验证时由项目维护者将修改合并到完整工程。
 
+当前源码对应的主工程使用 **Next.js 16.4.6**，已从 16.4.3 升级，以修复 [CVE-2026-119790 / GHSA-mfr8-8qww-v76h](https://github.com/vercel/next.js/security/advisories/GHSA-mfr8-8qww-v76h)。将本仓库源码用于其他工程时，也需安装已修复的 Next.js 版本；仅复制 `src/` 不会升级依赖。依赖声明及 Bun 锁文件由主项目维护。
+
 `frontend/src/` 直接同步自主项目 `E:/back/newapi/web-next/src/`，对应当前 EVA 的真实前端实现；旧独立预览版本的 Mock 适配已移除。协作者的修改经维护者评审后合并，不会自动部署线上。
 
 ## 许可证与来源

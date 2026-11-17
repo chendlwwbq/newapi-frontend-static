@@ -47,9 +47,11 @@ it('does not allow untrusted formula links to introduce executable URLs', () => 
   expect(html).not.toContain('href="javascript:')
 })
 
-it('offers a copy action for each fenced code block', () => {
+it('offers a copy action and language label for each fenced code block', () => {
   const html = renderToStaticMarkup(<MessageMarkdown content={'```js\nfirst()\n```\n\n```python\nsecond()\n```'} />)
   expect(html.match(/aria-label="Copy code"/g)).toHaveLength(2)
+  expect(html).toContain('>js<')
+  expect(html).toContain('>python<')
   expect(html).toContain('first()')
   expect(html).toContain('second()')
 })

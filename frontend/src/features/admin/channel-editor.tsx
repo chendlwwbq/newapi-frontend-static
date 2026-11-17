@@ -32,7 +32,8 @@ export function ChannelEditor({
     queries = useQueryClient(),
     [draft, setDraft] = useState(initial),
     [error, setError] = useState(''),
-    [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+    [fieldErrors, setFieldErrors] = useState<Record<string, string>>({}),
+    [advancedOpen, setAdvancedOpen] = useState(false)
   const save = useMutation({
     gcTime: 0,
     mutationFn: (body: ReturnType<typeof channelRequest>) => api('/api/channel', { method: draft.id ? 'PUT' : 'POST', body }),
@@ -63,7 +64,10 @@ export function ChannelEditor({
       }
     }
     setFieldErrors(errors)
-    if (Object.keys(errors).length) return
+    if (Object.keys(errors).length) {
+      setAdvancedOpen(true)
+      return
+    }
     try {
       save.mutate(channelRequest(draft, sensitive))
     } catch (error) {
@@ -81,13 +85,13 @@ export function ChannelEditor({
         if (!open && !save.isPending) onClose()
       }}
     >
-      <DialogContent className="admin-editor flex max-h-[90vh] flex-col overflow-hidden sm:max-w-3xl">
+      <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>{t(draft.id ? 'Edit channel' : 'Add channel')}</DialogTitle>
           <DialogDescription>{t('Configure upstream models, routing and credentials.')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
-          <div className="max-h-[70vh] overflow-y-auto pr-1">
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
             <div className="admin-form-grid">
               <label className="field">
                 <span>{t('Name')}</span>
@@ -232,7 +236,7 @@ export function ChannelEditor({
               </label>
               {sensitive && <ChannelCommonFields draft={draft} patch={patch} />}
             </div>
-            <details className="admin-advanced" open={Object.keys(fieldErrors).length ? true : undefined}>
+            <details className="admin-advanced" open={advancedOpen} onToggle={(event) => setAdvancedOpen(event.currentTarget.open)}>
               <summary>{t('Advanced settings')}</summary>
               {(
                 [
@@ -296,8 +300,8 @@ export function ChannelEditor({
             <Button type="button" variant="outline" disabled={save.isPending} onClick={onClose}>
               {t('Cancel')}
             </Button>
-            <Button type="submit" disabled={save.isPending}>
-              {t(save.isPending ? 'Loading' : 'Save')}
+            <Button type="submit" loading={save.isPending}>
+              {t('Save')}
             </Button>
           </DialogFooter>
         </form>

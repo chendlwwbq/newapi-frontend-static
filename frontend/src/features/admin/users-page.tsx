@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Wallet, Shield, RefreshCw } from 'lucide-react'
@@ -86,13 +86,22 @@ export function UsersPage() {
       if (quotaTargetId.current === body.id) setError(error.message)
     },
   })
+  const latestEditRequest = useRef(0)
+  useEffect(
+    () => () => {
+      latestEditRequest.current++
+    },
+    []
+  )
   async function edit(user: AdminUser) {
+    const requestId = ++latestEditRequest.current
     try {
       const detail = await api<AdminUser>(`/api/user/${user.id}`)
+      if (requestId !== latestEditRequest.current) return
       setError('')
       setEditor({ user: detail })
     } catch (error) {
-      toast.error(t((error as Error).message))
+      if (requestId === latestEditRequest.current) toast.error(t((error as Error).message))
     }
   }
   function submitUser(value: UserForm) {
@@ -174,6 +183,7 @@ export function UsersPage() {
           </Button>
           <Button
             onClick={() => {
+              latestEditRequest.current++
               setError('')
               setEditor({ user: null })
             }}
@@ -289,7 +299,18 @@ export function UsersPage() {
         </>
       )}
       {editor && (
-        <UserEditor initial={editor.user} root={root} busy={save.isPending} error={error} onSubmit={submitUser} onClose={() => setEditor(null)} />
+        <UserEditor
+          key={editor.user?.id ?? 'new'}
+          initial={editor.user}
+          root={root}
+          busy={save.isPending}
+          error={error}
+          onSubmit={submitUser}
+          onClose={() => {
+            latestEditRequest.current++
+            setEditor(null)
+          }}
+        />
       )}
       {bindingUser && <UserBindings key={`${bundle?.session.sid}:${bindingUser.id}`} user={bindingUser} onClose={() => setBindingUser(null)} />}
       <Dialog

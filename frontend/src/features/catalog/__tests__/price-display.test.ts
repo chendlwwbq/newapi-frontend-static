@@ -707,9 +707,13 @@ it.each(['inline', 'columns'] as const)('labels ordinary Input and Output prices
       { kind: 'output', amount: '6', quantity: 1000000, unit: 'token' },
     ],
   }
-  const html = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(PriceDisplay, { quote: fixedQuote, layout })))
+  const html = renderToStaticMarkup(
+    createElement(I18nextProvider, { i18n }, createElement(PriceDisplay, { quote: fixedQuote, layout, showUnit: layout === 'inline' }))
+  )
   if (layout === 'columns') expect(html).toContain('grid-cols-[auto_1fr]')
   else expect(html).toContain(chinese['Per million tokens'])
+  const withoutUnit = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(PriceDisplay, { quote: fixedQuote })))
+  expect(withoutUnit).not.toContain(chinese['Per million tokens'])
   expect(html).toContain('输入')
   expect(html).toContain('输出')
   expect(html).toContain('¥1.5')

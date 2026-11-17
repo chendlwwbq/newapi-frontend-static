@@ -206,7 +206,7 @@ export function LoginPage({ returnTo = '/dashboard/overview', initialChallenge =
                   onChange={(event) => setPassword(event.target.value)}
                   required
                 />
-                <button type="button" aria-label={t(show ? 'Hide password' : 'Show password')} onClick={() => setShow(!show)}>
+                <button type="button" aria-label={t(show ? 'Hide password' : 'Show password')} aria-pressed={show} onClick={() => setShow(!show)}>
                   {show ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
@@ -232,8 +232,8 @@ export function LoginPage({ returnTo = '/dashboard/overview', initialChallenge =
         )}
         <Button
           type="submit"
+          loading={busy}
           disabled={
-            busy ||
             !hydrated ||
             (!challenge && (!status.data || !canUsePassword || (!!status.data.turnstile_check && !token))) ||
             (!!challenge && !challenge.methods.some((method) => method.method === '2fa' && method.available))

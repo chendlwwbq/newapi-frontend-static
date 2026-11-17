@@ -144,7 +144,7 @@ describe('model details route selection', () => {
     expect(missing).toContain('Selected group is unavailable.')
     expect(missing).not.toContain('offering=route-default')
   })
-  it('keeps route navigation on the yuan-priced catalog', async () => {
+  it('keeps route navigation and explicit token units on the yuan-priced catalog', async () => {
     const model = {
       model_key: 'model/private',
       configured_model_id: 'private',
@@ -152,7 +152,25 @@ describe('model details route selection', () => {
       provider: 'Example',
       description: '',
       offerings_count: 1,
-      offerings: [{ offering_key: 'route-vip', name: 'vip', invocation_id: 'private', public_description: '', prices: [], access: [] }],
+      offerings: [
+        {
+          offering_key: 'route-vip',
+          name: 'vip',
+          invocation_id: 'private',
+          public_description: '',
+          prices: [
+            {
+              currency: 'CNY',
+              status: 'fixed',
+              components: [
+                { kind: 'input', amount: '2', quantity: 1000000, unit: 'token' },
+                { kind: 'output', amount: '10', quantity: 1000000, unit: 'token' },
+              ],
+            },
+          ],
+          access: [],
+        },
+      ],
     } as unknown as CatalogModel
     const client = new QueryClient()
     client.setQueryData(catalogModelKey('model/private', 'CNY', bundle), { model })
@@ -168,5 +186,6 @@ describe('model details route selection', () => {
     expect(html).toContain('href="/pricing"')
     expect(html).not.toContain('currency=USD')
     expect(html).toContain('offering=route-vip')
+    expect(html).toContain('Per million tokens')
   })
 })

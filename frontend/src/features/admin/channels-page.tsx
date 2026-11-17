@@ -220,7 +220,12 @@ export function ChannelsPage() {
                         />
                       </th>
                       {['Name', 'Type', 'Status', 'Models', 'Group', 'Priority', 'Total usage', 'Actions'].map((label) => (
-                        <th key={label} className={['Priority', 'Total usage'].includes(label) ? 'text-right' : undefined}>
+                        <th
+                          key={label}
+                          className={
+                            label === 'Actions' ? 'table-sticky-action' : ['Priority', 'Total usage'].includes(label) ? 'text-right' : undefined
+                          }
+                        >
                           {t(label)}
                         </th>
                       ))}
@@ -294,7 +299,7 @@ export function ChannelsPage() {
                           <span className="small-note"> / {channel.weight ?? 0}</span>
                         </td>
                         <td className="text-right tabular-nums font-mono">{format(channel.used_quota)}</td>
-                        <td>
+                        <td className="table-sticky-action">
                           <div className="action-buttons">
                             {write && (channel.type !== 61 || pluginBind || !sensitive) && (
                               <Button variant="ghost" size="icon" aria-label={`${t('Edit')} ${channel.name}`} onClick={() => edit(channel)}>

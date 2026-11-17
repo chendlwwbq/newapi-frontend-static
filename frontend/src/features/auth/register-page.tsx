@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { api } from '@/lib/api/client'
 import { safeInternalPath } from './console-return'
 import { AuthShell } from './auth-shell'
@@ -104,7 +105,7 @@ export function RegisterPage({ affiliate = '', returnTo }: { affiliate?: string;
               </label>
               <label className="field">
                 <span>{t('Password')}</span>
-                <input
+                <Input
                   type="password"
                   autoComplete="new-password"
                   minLength={8}
@@ -116,7 +117,7 @@ export function RegisterPage({ affiliate = '', returnTo }: { affiliate?: string;
               </label>
               <label className="field">
                 <span>{t('Confirm password')}</span>
-                <input
+                <Input
                   type="password"
                   autoComplete="new-password"
                   minLength={8}
@@ -187,8 +188,8 @@ export function RegisterPage({ affiliate = '', returnTo }: { affiliate?: string;
                   {t(error)}
                 </p>
               )}
-              <Button type="submit" className="auth-submit" disabled={busy || !ready || (!!legal && !accepted)}>
-                {t(busy ? 'Loading' : 'Sign up')}
+              <Button type="submit" className="auth-submit" loading={busy} disabled={!ready || (!!legal && !accepted)}>
+                {t('Sign up')}
               </Button>
             </>
           )}

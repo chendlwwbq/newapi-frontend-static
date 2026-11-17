@@ -7,6 +7,7 @@ import { createInstance } from 'i18next'
 import { I18nextProvider } from 'react-i18next'
 import { toast } from 'sonner'
 import { ChannelsPage } from '../channels-page'
+import { UsersPage } from '../users-page'
 import { ChannelEditor } from '../channel-editor'
 import { ChannelPriorityDialog } from '../channel-priority-dialog'
 import { ModelPricingPage } from '../model-pricing-page'
@@ -97,6 +98,7 @@ it('reports each invalid advanced JSON field next to that field and allows a cor
   expect(request.mock.calls.some(([, options]) => options?.method === 'PUT')).toBe(false)
   for (const key of keys) fireEvent.change(document.getElementById(`channel-${key}`)!, { target: { value: '{}' } })
   expect(screen.queryAllByRole('alert')).toHaveLength(0)
+  expect(document.getElementById('channel-header_override')?.closest('details')?.open).toBe(true)
   fireEvent.click(screen.getByRole('button', { name: 'Save' }))
   await waitFor(() => expect(request.mock.calls.some(([url, options]) => url === '/api/channel' && options?.body.id === 1)).toBe(true))
 })
@@ -139,4 +141,64 @@ it('shows a reset failure inside the confirmation dialog and sends a toast', asy
   fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
   expect((await within(dialog).findByRole('alert')).textContent).toBe('Reset rejected')
   expect(toastError).toHaveBeenCalledWith('Reset rejected')
+})
+
+it('keeps the last clicked user when user details arrive out of order and resets the editor draft', async () => {
+  const alice = {
+    id: 11,
+    username: 'alice',
+    display_name: 'Alice',
+    role: 1,
+    status: 1,
+    group: 'default',
+    quota: 0,
+    used_quota: 0,
+    request_count: 0,
+    remark: '',
+  }
+  const bob = {
+    id: 12,
+    username: 'bob',
+    display_name: 'Bob',
+    role: 1,
+    status: 1,
+    group: 'default',
+    quota: 0,
+    used_quota: 0,
+    request_count: 0,
+    remark: '',
+  }
+  let resolveAlice!: (value: unknown) => void
+  let resolveBob!: (value: unknown) => void
+  const pendingAlice = new Promise((resolve) => {
+    resolveAlice = resolve
+  })
+  const pendingBob = new Promise((resolve) => {
+    resolveBob = resolve
+  })
+  request.mockImplementation(async (url: string) => {
+    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/authz/catalog') return { resources: [], roles: [] }
+    if (url === '/api/user/11') return pendingAlice
+    if (url === '/api/user/12') return pendingBob
+    if (url.startsWith('/api/user/search')) return { items: [alice, bob], total: 2 }
+    return []
+  })
+  await mount(<UsersPage />)
+  const editAlice = await screen.findByRole('button', { name: 'Edit alice' })
+  const editBob = screen.getByRole('button', { name: 'Edit bob' })
+  fireEvent.click(editAlice)
+  fireEvent.click(editBob)
+  await act(async () => {
+    resolveBob(bob)
+  })
+  const username = await screen.findByRole('textbox', { name: 'Username' })
+  expect(username).toHaveProperty('value', 'bob')
+  fireEvent.change(username, { target: { value: 'bob-edited' } })
+  await act(async () => {
+    resolveAlice(alice)
+  })
+  expect(username).toHaveProperty('value', 'bob-edited')
+  fireEvent.click(editAlice)
+  await waitFor(() => expect(screen.getByRole('textbox', { name: 'Username' })).toHaveProperty('value', 'alice'))
 })

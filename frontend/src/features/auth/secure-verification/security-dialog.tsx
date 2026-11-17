@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/lib/api/client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { verifySecurityOperation } from './verify'
 import Link from 'next/link'
@@ -136,7 +137,7 @@ export function SecurityDialog({
           {selected === 'password' && (
             <label className="field">
               <span>{t('Password')}</span>
-              <input
+              <Input
                 type="password"
                 autoComplete="current-password"
                 value={password}

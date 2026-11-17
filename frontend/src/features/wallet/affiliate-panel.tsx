@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
-import { useQuotaFormatter } from '@/lib/format'
+import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
 import type { UserWalletData } from './types'
 import { generateAffiliateLink } from './lib/affiliate'
 
@@ -17,11 +17,13 @@ export function AffiliatePanel({ user, enabled }: { user: UserWalletData; enable
   const { t } = useTranslation(),
     auth = useAuth(),
     queries = useQueryClient(),
-    format = useQuotaFormatter()
+    format = useQuotaFormatter(),
+    currency = useCurrencyFormatter()
   const [origin, setOrigin] = useState(''),
     [confirm, setConfirm] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState('')
+  const minTransfer = currency.formatter.getCurrencyDisplay().config.quotaPerUnit
   const affiliate = useQuery({ queryKey: ['affiliate', auth.bundle?.user.id], queryFn: () => api<string>('/api/user/aff') })
   useEffect(() => {
     setOrigin(window.location.origin)
@@ -49,9 +51,16 @@ export function AffiliatePanel({ user, enabled }: { user: UserWalletData; enable
         {affiliate.error ? (
           <ErrorState error={affiliate.error} />
         ) : (
-          <div className="recovery-secret">
-            <code>{link || '—'}</code>
-            {link && <CopyButton value={link} />}
+          <div className="my-4 flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2">
+            <input
+              type="text"
+              readOnly
+              value={link || '—'}
+              aria-label={t('Invitation link')}
+              onClick={(event) => event.currentTarget.select()}
+              className="min-w-0 flex-1 bg-transparent font-mono text-xs text-foreground outline-none"
+            />
+            {link && <CopyButton value={link} label={t('Copy invitation link')} />}
           </div>
         )}
         <div className="affiliate-stats">
@@ -62,19 +71,22 @@ export function AffiliatePanel({ user, enabled }: { user: UserWalletData; enable
           ].map(([label, value]) => (
             <div key={label}>
               <span>{t(String(label))}</span>
-              <strong>{value}</strong>
+              <strong className="tabular-nums font-mono">{value}</strong>
             </div>
           ))}
         </div>
-        <Button
-          disabled={!enabled || !user.aff_quota || busy}
-          onClick={() => {
-            setError('')
-            setConfirm(true)
-          }}
-        >
-          {t('Transfer rewards to balance')}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            disabled={!enabled || user.aff_quota < minTransfer || busy}
+            onClick={() => {
+              setError('')
+              setConfirm(true)
+            }}
+          >
+            {t('Transfer rewards to balance')}
+          </Button>
+          <span className="small-note">{t('Minimum transfer quota is {{min}}', { min: currency.ready ? format(minTransfer) : '—' })}</span>
+        </div>
       </section>
       <Dialog
         open={confirm}
@@ -97,8 +109,8 @@ export function AffiliatePanel({ user, enabled }: { user: UserWalletData; enable
             <Button variant="outline" disabled={busy} onClick={() => setConfirm(false)}>
               {t('Cancel')}
             </Button>
-            <Button disabled={busy} onClick={transfer}>
-              {t(busy ? 'Loading' : 'Confirm')}
+            <Button loading={busy} onClick={transfer}>
+              {t('Confirm')}
             </Button>
           </div>
         </DialogContent>

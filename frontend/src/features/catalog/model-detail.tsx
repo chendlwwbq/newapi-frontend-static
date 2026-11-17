@@ -175,6 +175,7 @@ export function ModelDetail({
         >
           <strong>{offering.catalog_label || label || catalogGroupLabel(offering.name, t, offering.public_description)}</strong>
           <PriceDisplay
+            showUnit
             quote={offering.prices[0]}
             groupRatio={pricingQuery.data?.group_ratio[offering.name]}
             exchangeRate={query.data?.fx ? Number(query.data.fx.cny_per_usd) : undefined}

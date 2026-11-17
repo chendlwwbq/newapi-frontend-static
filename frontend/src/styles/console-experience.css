@@ -183,7 +183,7 @@
 .overview-steps small,
 .overview-suggestions small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
   line-height: 1.7;
   margin-top: 4px;
@@ -206,10 +206,10 @@
   align-items: center;
   gap: 7px;
   min-width: 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .overview-first-request .profile-section-heading {
-  font-size: 10px;
+  font-size: 12px;
 }
 .overview-first-request .code-preview {
   min-width: 0;
@@ -218,11 +218,11 @@
 .overview-first-request .code-preview pre {
   max-height: 110px;
   min-height: 95px;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .overview-first-request > p {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.8;
 }
 .terminal-dots {
@@ -253,7 +253,7 @@
   background: var(--muted);
   padding: 8px 10px;
   border-radius: 10px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .overview-first-request .code-preview > div {
   padding: 7px 10px;
@@ -629,7 +629,7 @@
   margin: 0 0 0 auto;
 }
 .profile-summary dt {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
 }
 .profile-summary dd {
@@ -670,7 +670,7 @@
 }
 .preference-switch small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
   margin-top: 5px;
 }
@@ -716,7 +716,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .checkin-calendar {
   display: grid;
@@ -725,7 +725,7 @@
   margin: 22px 0 12px;
 }
 .checkin-calendar > small {
-  font-size: 9px;
+  font-size: 12px;
   text-align: center;
   color: var(--muted-foreground);
   padding-bottom: 8px;
@@ -737,7 +737,7 @@
   align-items: center;
   aspect-ratio: 1;
   border-radius: 10px;
-  font-size: 11px;
+  font-size: 12px;
   background: var(--muted);
 }
 .checkin-calendar > div[aria-hidden='true'] {
@@ -840,7 +840,7 @@
     min-height: 115px;
   }
   .overview-stats article > span {
-    font-size: 9px;
+    font-size: 12px;
     align-items: flex-start;
     line-height: 1.5;
   }
@@ -890,7 +890,7 @@
     font-size: 20px;
   }
   .profile-summary dt {
-    font-size: 10px;
+    font-size: 12px;
   }
   .profile-language {
     align-items: flex-start;
@@ -968,9 +968,6 @@
   min-width: 0;
 }
 .chat-code-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  background: var(--muted);
   border-radius: 10px 10px 0 0;
 }
 .chat-code-block pre {
@@ -1032,7 +1029,7 @@
   margin-bottom: 12px;
 }
 .playground-parameters small {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 .chat-toolbar > .text-link {
@@ -1047,7 +1044,7 @@
 .chat-message-preview {
   flex-basis: 100%;
   min-width: 0;
-  font-size: 11px;
+  font-size: 12px;
 }
 .chat-message-preview > summary {
   cursor: pointer;
@@ -1098,7 +1095,7 @@
   padding: 7px 10px;
   border-radius: 8px;
   background: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .log-filter-bottom .log-stat:before {
   content: '';
@@ -1144,7 +1141,7 @@
   background: var(--muted);
   border-radius: 12px;
   padding: 14px;
-  font-size: 11px;
+  font-size: 12px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1157,7 +1154,7 @@
     gap: 4px 12px;
   }
   .playground-parameters .checkbox-label {
-    font-size: 11px;
+    font-size: 12px;
   }
   .task-filter-toolbar > .field {
     min-width: 130px;
@@ -1166,7 +1163,7 @@
     flex-basis: 100%;
   }
   .wallet-order-history .finance-pagination {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
 
@@ -1323,7 +1320,7 @@
 .inference-raw {
   max-height: 300px;
   overflow: auto;
-  font-size: 11px;
+  font-size: 12px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -1355,7 +1352,7 @@
   margin: 0;
 }
 .channel-provider-fields small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
   line-height: 1.6;
   overflow-wrap: anywhere;
@@ -1584,12 +1581,11 @@
 
 /* Console 面板卡片悬停 */
 .console-panel {
-  transition: all 0.3s ease-out;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .console-panel:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
 }
 
 /* 统计卡片增强 */

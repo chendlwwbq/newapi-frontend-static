@@ -314,7 +314,7 @@ export function KeysPage({ create = false, group, returnTo }: { create?: boolean
                       </th>
                     )
                   })}
-                  <th>{t('Actions')}</th>
+                  <th className="table-sticky-action">{t('Actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -391,7 +391,7 @@ export function KeysPage({ create = false, group, returnTo }: { create?: boolean
                       }
                       return <td key={key}>{content}</td>
                     })}
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button variant="ghost" size="icon" aria-label={`${t('Edit')} ${token.name}`} onClick={() => setEditor(token)}>
                           <Pencil size={14} />

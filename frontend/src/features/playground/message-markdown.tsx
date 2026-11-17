@@ -15,10 +15,14 @@ const CodeBlock: NonNullable<Components['pre']> = ({ node, children }) => {
   const { t } = useTranslation()
   const code = node?.children.find((child) => child.type === 'element' && child.tagName === 'code')
   const value = code?.type === 'element' ? code.children.map((child) => (child.type === 'text' ? child.value : '')).join('') : ''
+  const classes = code?.type === 'element' && Array.isArray(code.properties?.className) ? code.properties.className : []
+  const langClass = classes.find((item): item is string => typeof item === 'string' && item.startsWith('language-'))
+  const language = langClass ? langClass.slice('language-'.length) : 'code'
   return (
     <div className="chat-code-block">
-      <div className="chat-code-toolbar">
-        <CopyButton value={value} label={t('Copy code')} />
+      <div className="chat-code-toolbar sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-900/95 px-3 py-1.5 text-xs text-zinc-300 backdrop-blur-sm">
+        <span className="font-mono text-xs lowercase tracking-wide text-zinc-400">{language}</span>
+        <CopyButton value={value} label={t('Copy code')} className="text-zinc-300 hover:bg-white/10 hover:text-white" />
       </div>
       <pre>{children}</pre>
     </div>

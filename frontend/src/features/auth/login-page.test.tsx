@@ -79,6 +79,7 @@ describe('LoginPage submission state', () => {
     expect(submit).toHaveProperty('disabled', false)
     fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'demo' } })
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'password' } })
+    expect(screen.getByRole('button', { name: 'Show password' }).tabIndex).toBe(0)
     fireEvent.click(screen.getByRole('button', { name: 'Show password' }))
     expect(screen.getByLabelText('Password').getAttribute('type')).toBe('text')
     expect(submit).toHaveProperty('disabled', false)

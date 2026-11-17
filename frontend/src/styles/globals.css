@@ -691,7 +691,7 @@ pre {
   white-space: nowrap;
 }
 .model-card > code {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
   display: block;
   overflow: hidden;
@@ -704,7 +704,7 @@ pre {
 }
 .model-card-price small {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
   margin-top: 4px;
 }
@@ -721,7 +721,7 @@ pre {
   justify-content: space-between;
   border-top: 1px solid var(--border);
   padding-top: 12px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
 }
 .model-card-bottom b {
@@ -1166,6 +1166,29 @@ pre {
 .data-table tr:hover td {
   background: color-mix(in srgb, var(--muted) 45%, transparent);
 }
+.data-table th.table-sticky-action {
+  position: sticky;
+  right: 0;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--card) 95%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
+}
+.data-table td.table-sticky-action {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background: color-mix(in srgb, var(--card) 95%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.08);
+}
+[data-theme='dark'] .data-table th.table-sticky-action,
+[data-theme='dark'] .data-table td.table-sticky-action {
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.25);
+}
 .model-table-name {
   display: flex;
   gap: 12px;
@@ -1177,7 +1200,7 @@ pre {
   display: block;
 }
 .model-table-name code {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
   display: block;
   margin-top: 3px;
@@ -1187,7 +1210,7 @@ pre {
   height: 25px;
 }
 .small-note {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted-foreground);
   line-height: 1.8;
 }
@@ -1202,14 +1225,14 @@ pre {
   background: var(--muted);
   color: var(--muted-foreground);
   padding: 3px 7px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .status-badge.success {
   background: #00976712;
   color: var(--success);
 }
 .catalog-count {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
   margin-bottom: 12px;
 }
@@ -1233,7 +1256,7 @@ pre {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
   margin-bottom: 25px;
 }
@@ -1567,7 +1590,8 @@ pre {
 .password-field {
   position: relative;
 }
-.password-field input {
+.password-field input,
+[data-slot='password-field'] input {
   padding-right: 40px !important;
 }
 .password-field button {
@@ -1681,7 +1705,7 @@ pre {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 12px;
 }
 .sidebar-balance strong {
   font-weight: 500;
@@ -1708,7 +1732,7 @@ pre {
   display: flex;
   align-items: center;
   gap: 15px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .avatar {
   border-radius: 50%;
@@ -1864,7 +1888,7 @@ pre {
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-foreground);
 }
 .table-footer > div {
@@ -2289,7 +2313,7 @@ pre {
     font-size: 25px;
   }
   .home-stats span {
-    font-size: 9px;
+    font-size: 12px;
   }
   .section-heading {
     display: block;
@@ -2307,7 +2331,7 @@ pre {
   }
   .section-heading > .text-link {
     margin-top: 15px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .category-tabs {
     overflow: auto;
@@ -2316,7 +2340,7 @@ pre {
   }
   .category-tabs button {
     padding: 5px 10px;
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
   }
   .model-grid {
@@ -2330,19 +2354,19 @@ pre {
     font-size: 13px;
   }
   .model-card > code {
-    font-size: 9px;
+    font-size: 12px;
   }
   .model-card-price {
     margin: 20px 0 15px;
   }
   .model-card-price small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .price-display {
     font-size: 12px;
   }
   .model-card-bottom {
-    font-size: 9px;
+    font-size: 12px;
   }
   .model-card-title {
     margin-bottom: 12px;

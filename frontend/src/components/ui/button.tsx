@@ -20,6 +20,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { Button as ButtonPrimitive } from '@base-ui/react/button'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { Loader2 } from 'lucide-react'
 import { isValidElement } from 'react'
 
 import { cn } from '@/lib/utils'
@@ -86,18 +87,27 @@ function Button({
   className,
   variant = 'default',
   size = 'default',
+  loading = false,
+  disabled,
+  children,
   nativeButton,
   render,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants> & { loading?: boolean }) {
+  const isIcon = typeof size === 'string' && size.startsWith('icon')
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       nativeButton={nativeButton ?? isNativeButtonRender(render)}
       render={render}
       {...props}
-    />
+    >
+      {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" />}
+      {loading && isIcon ? <span className="sr-only">{children}</span> : children}
+    </ButtonPrimitive>
   )
 }
 

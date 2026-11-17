@@ -263,6 +263,7 @@
 }
 .auth-stage .field input::placeholder {
   color: var(--muted-foreground);
+  opacity: 1;
 }
 .auth-card-tools {
   position: absolute;
@@ -626,7 +627,6 @@
 
 .auth-stage .field input:focus,
 .auth-stage .field select:focus {
-  transform: translateY(-1px);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 12%, transparent),
               0 4px 12px rgba(0, 0, 0, 0.08) !important;
 }
@@ -673,7 +673,6 @@
 }
 
 .auth-stage .verification-code-row input:focus {
-  transform: scale(1.05);
   border-color: var(--primary);
 }
 

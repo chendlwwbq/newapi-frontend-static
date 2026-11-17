@@ -53,8 +53,8 @@ export function RecoveryPage() {
               {t(error || status.error!.message)}
             </p>
           )}
-          <Button type="submit" className="auth-submit" disabled={busy || !status.data || (!!status.data.turnstile_check && !token)}>
-            {t(busy ? 'Loading' : 'Send reset link')}
+          <Button type="submit" className="auth-submit" loading={busy} disabled={!status.data || (!!status.data.turnstile_check && !token)}>
+            {t('Send reset link')}
           </Button>
         </form>
       )}
@@ -105,8 +105,8 @@ export function ResetPasswordPage({ email, token }: { email: string; token: stri
           {!email || !token ? (
             <p className="inline-error">{t('Password reset link is invalid or has expired')}</p>
           ) : (
-            <Button className="auth-submit" disabled={busy} onClick={reset}>
-              {t(busy ? 'Loading' : 'Reset password')}
+            <Button className="auth-submit" loading={busy} onClick={reset}>
+              {t('Reset password')}
             </Button>
           )}
           {error && (

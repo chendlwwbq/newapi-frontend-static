@@ -16,12 +16,14 @@ import { quoteUnitLabel } from './price-format'
 import { VideoRouteTiers } from './video-route-tiers'
 import { CopyButton } from '@/components/shared/copy-button'
 import type { CatalogDisplayModel } from './video-billing'
+import type { PricingModel } from '@/features/pricing/types'
 
 type RouteListProps = {
   model: CatalogDisplayModel
   groups: string[]
   currency: 'CNY' | 'USD'
   groupRatios?: Record<string, number>
+  pricingModels?: PricingModel[]
   exchangeRate?: number
 }
 
@@ -29,6 +31,7 @@ function CatalogRouteRow({
   model,
   currency,
   groupRatios,
+  pricingModels,
   exchangeRate,
   route,
   label,
@@ -61,7 +64,12 @@ function CatalogRouteRow({
         </small>
       </div>
       <div className="catalog-route-price">
-        <PriceDisplay quote={route.prices[0]} groupRatio={groupRatios?.[route.name]} exchangeRate={exchangeRate} />
+        <PriceDisplay
+          quote={route.prices[0]}
+          pricing={pricingModels?.find((item) => item.model_name === route.invocation_id)}
+          groupRatio={groupRatios?.[route.name]}
+          exchangeRate={exchangeRate}
+        />
         <small className="small-note">{t(quoteUnitLabel(route.prices[0]))}</small>
       </div>
       <div className="catalog-route-metrics">

@@ -312,7 +312,8 @@ pre {
   gap: 6px;
   align-items: center;
   padding: 0.25rem 0.5rem;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
   transition: color 0.2s;
 }
 .public-nav a:hover,
@@ -347,12 +348,13 @@ pre {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: 14px;
   border: 0;
   background: none;
 }
 .header-login {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
 }
 .mobile-menu {
   display: none;
@@ -1671,7 +1673,8 @@ pre {
 }
 .sidebar-group > span {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--muted-foreground);
   padding: 0 12px;
   margin-bottom: 9px;
@@ -1708,10 +1711,11 @@ pre {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: 13.5px;
 }
 .sidebar-balance strong {
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
 }
 .console-main {
   margin-left: 224px;
@@ -1719,7 +1723,7 @@ pre {
   flex: 1;
 }
 .console-topbar {
-  height: 63px;
+  height: 64px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -1728,25 +1732,27 @@ pre {
   gap: 20px;
 }
 .console-topbar > span {
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.4;
   color: var(--muted-foreground);
 }
 .console-topbar-actions {
   display: flex;
   align-items: center;
   gap: 15px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .avatar {
   border-radius: 50%;
-  height: 28px;
-  width: 28px;
+  height: 32px;
+  width: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: var(--muted);
   border: 1px solid var(--border);
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 600;
 }
 .console-content {
   max-width: 90rem;
@@ -2239,10 +2245,10 @@ pre {
     display: none;
   }
   .language-button {
-    font-size: 10px;
+    font-size: 13px;
   }
   .header-login {
-    font-size: 12px;
+    font-size: 14px;
   }
   .hero-content {
     width: calc(100% - 35px);
@@ -2600,7 +2606,7 @@ pre {
     font-size: 23px;
   }
   .console-page-heading p {
-    font-size: 11px;
+    font-size: 13.5px;
   }
   .console-page-heading button {
     font-size: 11px;
@@ -3201,7 +3207,99 @@ button:not(:disabled) {
 /* 卡片通用增强 */
 [class*="card"],
 [class*="panel"] {
-  transition: all 0.3s ease-out;
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.24s ease-out,
+    border-color 0.24s ease-out,
+    background-color 0.2s ease-out;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes surface-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.992);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.console-content .console-page-heading {
+  animation: surface-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.console-content .console-panel,
+.stat-grid > .stat-card,
+.ops-stat-grid > section,
+.wallet-stats,
+.overview-start-grid > section,
+.news-card,
+.developer-rest-card,
+.docs-hub-card {
+  animation: surface-enter 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.stat-grid > .stat-card:nth-child(2),
+.ops-stat-grid > section:nth-child(2),
+.overview-start-grid > section:nth-child(2),
+.console-content > section.console-panel:nth-of-type(2),
+.news-grid > *:nth-child(2),
+.developer-rest-grid > *:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.stat-grid > .stat-card:nth-child(3),
+.ops-stat-grid > section:nth-child(3),
+.console-content > section.console-panel:nth-of-type(3),
+.news-grid > *:nth-child(3),
+.developer-rest-grid > *:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.stat-grid > .stat-card:nth-child(4),
+.ops-stat-grid > section:nth-child(4),
+.console-content > section.console-panel:nth-of-type(4),
+.news-grid > *:nth-child(4),
+.developer-rest-grid > *:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.stat-grid > .stat-card:nth-child(n + 5),
+.console-content > section.console-panel:nth-of-type(n + 5),
+.news-grid > *:nth-child(n + 5),
+.developer-rest-grid > *:nth-child(n + 5) {
+  animation-delay: 180ms;
+}
+
+@media (hover: hover) {
+  .sidebar-link {
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+  }
+  .sidebar-link:hover {
+    transform: translateX(2px);
+  }
+  .stat-card:hover,
+  .home-model-card:hover,
+  .model-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--foreground) 12%, transparent);
+  }
 }
 
 /* 链接悬停效果 */

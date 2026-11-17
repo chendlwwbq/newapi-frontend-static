@@ -1,5 +1,12 @@
 import type { Quote } from '@/lib/api/types'
 import { createCurrencyFormatter, DEFAULT_CURRENCY_CONFIG } from '@/lib/currency'
+import type { BillingUsageFieldSchema } from '@/features/pricing/types'
+
+export function usagePriceLabel(key: string, field: BillingUsageFieldSchema | undefined, language: string) {
+  const description = field?.description
+  if (typeof description === 'string') return description || key
+  return description?.[language] || description?.[language.split('-')[0]] || description?.en || description?.zh || key
+}
 
 export function quoteUnitLabel(quote?: Quote) {
   if (quote?.billing_group_scoped) return quote.status === 'unconfigured' || !quote.billing_expr?.trim() ? 'Unconfigured' : 'See price details'

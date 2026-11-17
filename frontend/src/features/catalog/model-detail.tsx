@@ -177,6 +177,7 @@ export function ModelDetail({
           <PriceDisplay
             showUnit
             quote={offering.prices[0]}
+            pricing={pricingQuery.data?.data.find((item) => item.model_name === offering.invocation_id)}
             groupRatio={pricingQuery.data?.group_ratio[offering.name]}
             exchangeRate={query.data?.fx ? Number(query.data.fx.cny_per_usd) : undefined}
           />

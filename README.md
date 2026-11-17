@@ -35,3 +35,7 @@
 ## 许可证与来源
 
 基于 new-api，原作者与组织为 QuantumNous；保留各文件版权声明，许可证见 [LICENSE](LICENSE)。源码提取与整理使用了 AI 辅助。
+
+## EVA 客户端 Skill
+
+[skills/eva-models/SKILL.md](skills/eva-models/SKILL.md) 同步自主项目，供客户端接入与价格展示规则评审。在线入口：[EVA 模型接入 Skill](https://api.eveapis.com/api/skills/eva-models/SKILL.md)。其中不包含密钥或固定售价。

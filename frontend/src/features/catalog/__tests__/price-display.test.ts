@@ -95,6 +95,149 @@ describe('video group provider prices', () => {
 })
 
 describe('group-scoped pricing', () => {
+  const lineL: Quote = {
+    ...quote,
+    group: '视频按秒',
+    status: 'dynamic',
+    pricing_source: 'channel',
+    billing_expr:
+      'u("video_input") == false && u("resolution") == "480p" ? tier("480p", u("seconds") * 0.01506849315068493150684931507) : tier("720p reference", u("seconds") * 0.03013698630136986301369863014 + u("input_seconds") * 0.03013698630136986301369863014)',
+    billing_usage_schema: {
+      seconds: { type: 'number', unit: 'second', description: { zh: '视频生成单价', en: 'Video generation unit price' } },
+      input_seconds: { type: 'number', unit: 'second', description: { zh: '输入视频单价', en: 'Input video unit price' } },
+      resolution: { enum: ['480p', '720p'] },
+      video_input: { type: 'boolean' },
+    },
+  }
+  it('shows generation and reference-video prices for a channel with a plain group name', async () => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'zh', resources: { zh: { translation: chinese } } })
+    const summary = renderToStaticMarkup(
+      createElement(I18nextProvider, { i18n }, createElement(PriceDisplay, { quote: lineL, groupRatio: 1, exchangeRate: 7.3 }))
+    )
+    const detail = renderToStaticMarkup(
+      createElement(I18nextProvider, { i18n }, createElement(PriceBreakdown, { quote: lineL, groupRatio: 1, exchangeRate: 7.3 }))
+    )
+    for (const html of [summary, detail]) {
+      expect(html).toContain('视频生成单价')
+      expect(html).toContain('输入视频单价')
+      expect(html).toContain('每秒')
+      expect(html).toContain('¥0.11')
+      expect(html).toContain('¥0.22')
+      expect(html).not.toContain(chinese['Dynamic pricing'])
+    }
+  })
+  it.each([
+    { expression: 'tier("base", u("seconds") * 0)', expected: '$0' },
+    { expression: 'tier("base", 0.1 + u("seconds") * 0.2)', expected: '$0.1' },
+  ])('preserves explicit zero and additive fixed charges for task summaries: $expression', async ({ expression, expected }) => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(PriceDisplay, { quote: { ...lineL, currency: 'USD', billing_expr: expression }, groupRatio: 1 })
+      )
+    )
+    expect(html).toContain(expected)
+    expect(html).toContain('Per second')
+    if (expression.includes('0.1 +')) {
+      expect(html).toContain('Fixed price')
+      expect(html).toContain('$0.2')
+    }
+  })
+  it.each(['missing-group', 'missing-fx', 'undeclared-field', 'request-multiplier'])('does not invent task prices for %s', async (condition) => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+    const candidate: Quote = {
+      ...lineL,
+      billing_expr: condition === 'request-multiplier' ? lineL.billing_expr + '|||when(param("priority") == "high") * 2' : lineL.billing_expr,
+      billing_usage_schema: condition === 'undeclared-field' ? { seconds: { type: 'number', unit: 'second' } } : lineL.billing_usage_schema,
+    }
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(PriceDisplay, {
+          quote: candidate,
+          groupRatio: condition === 'missing-group' ? undefined : 1,
+          exchangeRate: condition === 'missing-fx' ? undefined : 7.3,
+        })
+      )
+    )
+    expect(html).toContain('Dynamic pricing')
+    expect(html).not.toContain('¥')
+  })
+  it.each(['plugin', 'gateway'] as const)('shows configured %s task prices without a legacy group name', async (source) => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(PriceDisplay, {
+          quote: { ...lineL, pricing_source: source },
+          groupRatio: 2,
+          exchangeRate: 7.3,
+        })
+      )
+    )
+    expect(html).toContain('¥0.22')
+    expect(html).toContain('¥0.44')
+    expect(html).not.toContain('Dynamic pricing')
+  })
+  it.each([true, false])('uses gateway usage metadata only when its expression matches: %s', async (matches) => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+    const expression = 'tier("720p", u("videos") * 0.1369863013698630136986301370)'
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(PriceDisplay, {
+          quote: { ...lineL, pricing_source: 'gateway', billing_expr: expression, billing_usage_schema: undefined },
+          pricing: {
+            ...videoGroupPricing,
+            billing_expr: matches ? expression : 'tier("base", fixed(99))',
+            billing_usage_schema: { videos: { type: 'number', unit: 'count' } },
+          },
+          groupRatio: 1,
+          exchangeRate: 7.3,
+        })
+      )
+    )
+    if (matches) {
+      expect(html).toContain('¥1')
+      expect(html).toContain('Fixed (per video)')
+    } else {
+      expect(html).toContain('Dynamic pricing')
+      expect(html).not.toContain('¥')
+    }
+  })
+  it('shows unscoped gateway token expression prices', async () => {
+    const i18n = createInstance()
+    await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+    const html = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(PriceDisplay, {
+          quote: {
+            ...lineL,
+            currency: 'USD',
+            pricing_source: 'gateway',
+            billing_expr: 'tier("standard", p * 2 + c * 10 + cr * 0.2)',
+            billing_usage_schema: undefined,
+          },
+          groupRatio: 1,
+        })
+      )
+    )
+    expect(html).toContain('Input $2')
+    expect(html).toContain('Output $10')
+    expect(html).toContain('Per million tokens')
+  })
   it('shows the channel token tiers without using the plugin default', async () => {
     const i18n = createInstance()
     await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })

@@ -5,14 +5,15 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { ArrowUpRight } from 'lucide-react'
 import { toIntlLocale } from '@/i18n/languages'
-import { formatPrice, quoteUnitLabel, componentLabels } from './price-format'
+import { formatPrice, quoteUnitLabel, componentLabels, usagePriceLabel } from './price-format'
 import { formatCompactNumber } from '@/lib/format'
 import type { CatalogModel, Quote } from '@/lib/api/types'
 import { catalogQuoteSummary, modelDetailHref } from './catalog-state'
 import { parseVisualBillingDocument, type VisualPricingNode } from '@/features/pricing/lib/billing-expression/visual'
 import { hasDeclaredUsageKeys, pricingExpressionParts } from '@/features/pricing/expression-parts'
 import { parseTaskTiersFromExpr } from '@/features/pricing/lib/billing-expr'
-import { videoBillingGroupSlot, type CatalogDisplayModel } from './video-billing'
+import type { CatalogDisplayModel } from './video-billing'
+import type { PricingModel } from '@/features/pricing/types'
 
 function comparablePriceTiers(node: VisualPricingNode): Extract<VisualPricingNode, { kind: 'tier' }>[] {
   if (node.kind === 'tier') return [node]
@@ -28,12 +29,14 @@ export function modelHref(model: CatalogDisplayModel, groups: string[] = [], cur
 }
 export function PriceDisplay({
   quote,
+  pricing,
   groupRatio,
   exchangeRate,
   layout = 'inline',
   showUnit = false,
 }: {
   quote?: Quote
+  pricing?: PricingModel
   groupRatio?: number
   exchangeRate?: number
   layout?: 'inline' | 'columns'
@@ -41,40 +44,60 @@ export function PriceDisplay({
 }) {
   const { t, i18n } = useTranslation()
   if (quote?.status === 'unconfigured') return <span className="muted">{t('Unconfigured')}</span>
-  if (quote?.pricing_source === 'channel' && quote.billing_expr && groupRatio !== undefined && Number.isFinite(groupRatio) && groupRatio >= 0) {
+  if (
+    quote?.billing_expr &&
+    (quote.pricing_source === 'channel' || quote.status === 'dynamic') &&
+    groupRatio !== undefined &&
+    Number.isFinite(groupRatio) &&
+    groupRatio >= 0
+  ) {
     const parts = pricingExpressionParts(quote.billing_expr)
-    const schema = quote.billing_usage_schema
-    const mode = videoBillingGroupSlot(quote.group)?.mode
-    const field =
-      mode === 'request' && schema?.videos?.unit === 'count'
-        ? 'videos'
-        : mode === 'second' && schema?.seconds?.unit === 'second'
-          ? 'seconds'
-          : schema?.tokens?.unit === 'token'
-            ? 'tokens'
-            : undefined
+    const schema =
+      quote.billing_usage_schema ||
+      (quote.pricing_source === 'gateway' && pricing?.billing_expr === quote.billing_expr ? pricing.billing_usage_schema : undefined)
     const tiers =
-      field && !parts.requestRuleExpr && hasDeclaredUsageKeys(parts.billingExpr, schema)
-        ? parseTaskTiersFromExpr(parts.billingExpr, schema, true)
-        : []
+      !parts.requestRuleExpr && hasDeclaredUsageKeys(parts.billingExpr, schema) ? parseTaskTiersFromExpr(parts.billingExpr, schema, true) : []
     const fx = quote.currency === 'USD' ? 1 : exchangeRate
-    if (
-      field &&
-      tiers.length &&
-      fx &&
-      fx > 0 &&
-      tiers.every(
-        (tier) =>
-          tier.constant === 0 && Object.keys(tier.unitPrices).length === 1 && Number.isFinite(tier.unitPrices[field]) && tier.unitPrices[field] >= 0
-      )
-    ) {
-      const lowest = Math.min(...tiers.map((tier) => tier.unitPrices[field]))
-      const price = formatPrice(lowest * groupRatio * fx, quote.currency, toIntlLocale(i18n.language))
-      const label = field === 'videos' ? 'Fixed (per video)' : field === 'seconds' ? 'Per second' : 'Per million tokens'
+    if (tiers.length && fx !== undefined && Number.isFinite(fx) && fx > 0) {
+      const fields = [...new Set(tiers.flatMap((tier) => Object.keys(tier.unitPrices)))]
+      const money = (amount: number) => formatPrice(amount * groupRatio * fx, quote.currency, toIntlLocale(i18n.language))
+      const fixed = tiers.map((tier) => tier.constant)
+      const hasFixed = fixed.some((amount) => amount > 0)
+      const simple = fields.length === 1 && !hasFixed
       return (
-        <span className="price-display">
-          {tiers.length > 1 && <small className="small-note">{t('Lowest price')} · </small>}
-          {price} · {t(label)}
+        <span className="price-display grid gap-1">
+          {hasFixed && (
+            <span>
+              {t('Fixed price')}: {money(Math.min(...fixed))}
+              {Math.max(...fixed) !== Math.min(...fixed) && <> – {money(Math.max(...fixed))}</>}
+            </span>
+          )}
+          {fields.map((field) => {
+            // An absent optional usage term is not a free unit price. Show its
+            // range only among the tiers where that term is actually billed.
+            const values = tiers.filter((tier) => Object.hasOwn(tier.unitPrices, field)).map((tier) => tier.unitPrices[field])
+            const low = Math.min(...values),
+              high = Math.max(...values)
+            const unit = schema?.[field]?.unit
+            const label =
+              unit === 'second'
+                ? 'Per second'
+                : unit === 'token'
+                  ? 'Per million tokens'
+                  : unit === 'count' && field === 'videos'
+                    ? 'Fixed (per video)'
+                    : unit === 'count' && field === 'image_count'
+                      ? 'Per image'
+                      : unit || ''
+            return (
+              <span key={field}>
+                {simple && tiers.length > 1 && <small className="small-note">{t('Lowest price')} · </small>}
+                {!simple && <>{usagePriceLabel(field, schema?.[field], i18n.language)}: </>}
+                {money(low)}
+                {!simple && high !== low && <> – {money(high)}</>} · {t(label)}
+              </span>
+            )
+          })}
         </span>
       )
     }
@@ -118,7 +141,13 @@ export function PriceDisplay({
       }
     }
   }
-  if (quote?.billing_group_scoped && quote.billing_expr && groupRatio !== undefined && Number.isFinite(groupRatio) && groupRatio >= 0) {
+  if (
+    quote?.billing_expr &&
+    (quote.billing_group_scoped || (quote.status === 'dynamic' && !quote.components.length)) &&
+    groupRatio !== undefined &&
+    Number.isFinite(groupRatio) &&
+    groupRatio >= 0
+  ) {
     const parts = pricingExpressionParts(quote.billing_expr)
     const document = !parts.requestRuleExpr && parseVisualBillingDocument(parts.prefix + parts.billingExpr)
     const fx = quote.currency === 'USD' ? 1 : exchangeRate

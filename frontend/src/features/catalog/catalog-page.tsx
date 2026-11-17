@@ -524,6 +524,9 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
                                   <>
                                     <PriceDisplay
                                       quote={quote}
+                                      pricing={pricingQuery.data?.data.find(
+                                        (item) => item.model_name === (route?.invocation_id || model.configured_model_id)
+                                      )}
                                       groupRatio={quote ? pricingQuery.data?.group_ratio[quote.group] : undefined}
                                       exchangeRate={query.data?.fx ? Number(query.data.fx.cny_per_usd) : undefined}
                                     />
@@ -621,6 +624,7 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
                                 groups={filters.groups}
                                 currency={filters.currency}
                                 groupRatios={pricingQuery.data?.group_ratio}
+                                pricingModels={pricingQuery.data?.data}
                                 exchangeRate={query.data?.fx ? Number(query.data.fx.cny_per_usd) : undefined}
                               />
                             )}
@@ -733,6 +737,7 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
                     <td key={catalogDisplayKey(model)}>
                       <PriceDisplay
                         quote={catalogQuote(model, filters.groups)}
+                        pricing={pricingQuery.data?.data.find((item) => item.model_name === model.configured_model_id)}
                         groupRatio={pricingQuery.data?.group_ratio[catalogQuote(model, filters.groups)?.group || '']}
                         exchangeRate={query.data?.fx ? Number(query.data.fx.cny_per_usd) : undefined}
                       />

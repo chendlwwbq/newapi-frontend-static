@@ -9,7 +9,7 @@ import { parseTaskTiersFromExpr, BILLING_PRICING_VARS } from '@/features/pricing
 import { pricingExpressionParts, hasDeclaredUsageKeys } from '@/features/pricing/expression-parts'
 import { PriceSimulation } from '@/features/pricing/price-simulation'
 import { toIntlLocale } from '@/i18n/languages'
-import { formatPrice, componentLabels } from './price-format'
+import { formatPrice, componentLabels, usagePriceLabel } from './price-format'
 import { videoBillingGroupSlot } from './video-billing'
 
 const videoGroupPlugins: Record<string, string> = {
@@ -139,7 +139,12 @@ function ExpressionPrices({
                       t('Fixed (per video)')
                     ) : (
                       <>
-                        {key} · {schema?.[key]?.unit === 'token' ? t('Per million tokens') : schema?.[key]?.unit}
+                        {usagePriceLabel(key, schema?.[key], i18n.language)} ·{' '}
+                        {schema?.[key]?.unit === 'token'
+                          ? t('Per million tokens')
+                          : schema?.[key]?.unit === 'second'
+                            ? t('Per second')
+                            : schema?.[key]?.unit}
                       </>
                     )}
                   </dt>

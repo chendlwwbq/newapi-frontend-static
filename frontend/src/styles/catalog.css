@@ -669,7 +669,7 @@
   justify-content: space-between;
   min-height: 40px;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   border-radius: 8px;
   gap: 20px;
@@ -689,13 +689,13 @@
   background: var(--muted);
   border-radius: 99px;
   padding: 0 12px;
-  font-size: 13px;
+  font-size: 14px;
   min-width: 210px;
   min-height: 36px;
   white-space: nowrap;
 }
 .header-search > kbd {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.4;
   margin-left: auto;
   color: var(--muted-foreground);
@@ -713,7 +713,7 @@
   min-width: 132px;
   flex-shrink: 0;
   min-height: 36px;
-  font-size: 13px;
+  font-size: 14px;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1090,10 +1090,11 @@
     display: none;
   }
   .eva-public-header .language-switcher select {
-    font-size: 13px;
+    font-size: 14px;
   }
   .eva-public-header .header-login {
-    font-size: 11px;
+    font-size: 14px;
+    font-weight: 500;
     white-space: nowrap;
   }
   .public-search-dialog[data-slot='dialog-content'] {

@@ -1,7 +1,10 @@
 /* Source: supplied Orbis home page; components are rebuilt, no compiled application styles loaded. */
 .home-page .home-hero{min-height:680px;padding:96px 0 64px;max-height:1100px}
 .home-page .hero-content{padding:0}
-.home-page .hero-model{max-width:640px}
+.home-page .hero-heading{animation:surface-enter .42s cubic-bezier(.22,1,.36,1) both}
+.home-page .hero-model{max-width:640px;animation:surface-enter .44s cubic-bezier(.22,1,.36,1) .07s both}
+.home-page .hero-tags{animation:surface-enter .44s cubic-bezier(.22,1,.36,1) .13s both}
+.home-page .hero-stats{animation:surface-enter .44s cubic-bezier(.22,1,.36,1) .19s both}
 .hero-echo{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .35s;mask-image:radial-gradient(ellipse 48% 42% at 50% 48%,transparent 30%,#000 90%)}
 .hero-echo[data-visible=true]{opacity:.45}.hero-echo-ribbon{position:absolute;inset:-12% auto auto -25%;width:150%;height:125%;display:flex;flex-direction:column;justify-content:space-around;animation:home-echo-drift 36s linear infinite;animation-play-state:paused}
 .hero-echo[data-active=true] .hero-echo-ribbon{animation-play-state:running}.hero-echo-ribbon>div{overflow:hidden;white-space:nowrap;font:500 clamp(16px,2.3vw,30px)/1 monospace;letter-spacing:.04em;color:transparent;background-image:radial-gradient(circle,#8588e8 .8px,transparent 1px);background-size:4px 4px;background-clip:text;-webkit-background-clip:text}.hero-echo-ribbon>div:nth-child(even){translate:-12% 0}
@@ -108,7 +111,7 @@ html:not([data-theme="dark"]) .home-page .tools-grid img:not([src$="-color.svg"]
 .home-page .home-stats span { font-size: 12px; }
 .home-page .hero-cta .pill-button { font-size: 14px; font-weight: 600; }
 body:has(.home-page) .eva-public-header .public-nav-label > a,
-body:has(.home-page) .eva-public-header .header-login { font-size: 14px; font-weight: 500; }
+body:has(.home-page) .eva-public-header .header-login { font-size: 15px; font-weight: 500; }
 @media (max-width: 767px) {
   .home-page .hero-content h1 { font-size: clamp(38px, 10.2vw, 66px); }
   .home-page .home-stats span { font-size: 12px; }

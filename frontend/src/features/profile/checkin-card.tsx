@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
-import { useQuotaFormatter } from '@/lib/format'
+import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { ErrorState, LoadingState } from '@/components/shared/states'
@@ -27,19 +27,25 @@ export function CheckinCard({ siteKey }: { siteKey?: string }) {
   const { t, i18n } = useTranslation(),
     auth = useAuth(),
     queries = useQueryClient(),
-    money = useQuotaFormatter()
+    money = useQuotaFormatter(),
+    currency = useCurrencyFormatter()
   const [month, setMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1)),
     [token, setToken] = useState(''),
     [widget, setWidget] = useState(0)
   const key = checkinMonth(month),
     today = checkinMonth(new Date()),
-    locale = toIntlLocale(i18n.language)
+    locale = toIntlLocale(i18n.language),
+    isTokens = currency.formatter.getCurrencyDisplay().meta.kind === 'tokens'
+  const formatAward = (quota: number) => {
+    const value = money(quota, { abbreviate: false })
+    return isTokens && currency.ready ? `${value} Tokens` : value
+  }
   const query = useQuery({ queryKey: ['checkin', auth.bundle?.user.id, key], queryFn: () => api<CheckinStatus>(`/api/user/checkin?month=${key}`) })
   const mutation = useMutation({
     mutationFn: () =>
       api<{ quota_awarded: number }>(`/api/user/checkin${token ? '?turnstile=' + encodeURIComponent(token) : ''}`, { method: 'POST' }),
     onSuccess: async (result) => {
-      toast.success(`${t('Check-in successful')} · ${money(result.quota_awarded)}`)
+      toast.success(`${t('Check-in successful')} · ${formatAward(result.quota_awarded)}`)
       await Promise.all([queries.invalidateQueries({ queryKey: ['checkin'] }), queries.invalidateQueries({ queryKey: ['self'] })])
     },
     onError: (error) => toast.error(t(error.message)),
@@ -88,7 +94,7 @@ export function CheckinCard({ siteKey }: { siteKey?: string }) {
             ))}
             {monthCells(month).map((date, index) =>
               date ? (
-                <div key={date} data-checked={records.has(date)} title={records.has(date) ? `${date} · ${money(records.get(date)!)}` : date}>
+                <div key={date} data-checked={records.has(date)} title={records.has(date) ? `${date} · ${formatAward(records.get(date)!)}` : date}>
                   <span>{Number(date.slice(-2))}</span>
                   {records.has(date) && <Check size={11} />}
                 </div>
@@ -103,12 +109,13 @@ export function CheckinCard({ siteKey }: { siteKey?: string }) {
           </div>
           <div className="settings-row">
             <span>{t('Total rewards')}</span>
-            <strong className="tabular-nums font-mono">{money(query.data.stats.total_quota)}</strong>
+            <strong className="tabular-nums font-mono">{formatAward(query.data.stats.total_quota)}</strong>
           </div>
           {siteKey && !query.data.stats.checked_in_today && <Turnstile key={widget} siteKey={siteKey} onToken={setToken} />}
           <Button
             className="w-full transition-all active:scale-[0.98]"
-            disabled={mutation.isPending || query.data.stats.checked_in_today || (!!siteKey && !token)}
+            loading={mutation.isPending}
+            disabled={query.data.stats.checked_in_today || (!!siteKey && !token)}
             onClick={() => mutation.mutate()}
           >
             {t(query.data.stats.checked_in_today ? 'Already checked in today' : 'Check in')}

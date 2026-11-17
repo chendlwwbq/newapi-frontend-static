@@ -6,11 +6,17 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import type { User } from '@/lib/api/types'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
 import { notificationSettings, type NotificationSettings } from './preferences'
 
 export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { user: User; siteEnabled: boolean; siteThreshold: number }) {
   const { t } = useTranslation(),
-    queries = useQueryClient()
+    queries = useQueryClient(),
+    format = useQuotaFormatter(),
+    currency = useCurrencyFormatter()
+  const { config, meta } = currency.formatter.getCurrencyDisplay()
+  const unitLabel = meta.kind === 'tokens' ? 'Tokens' : meta.symbol
   const [draft, setDraft] = useState(() => notificationSettings(user.setting))
   const save = useMutation({
     mutationFn: () => api('/api/user/setting', { method: 'PUT', body: draft }),
@@ -73,7 +79,7 @@ export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { 
           </label>
           <label className="field">
             <span>{t('Webhook Secret')}</span>
-            <input type="password" autoComplete="off" value={draft.webhook_secret} onChange={(e) => patch({ webhook_secret: e.target.value })} />
+            <Input type="password" autoComplete="off" value={draft.webhook_secret} onChange={(e) => patch({ webhook_secret: e.target.value })} />
           </label>
         </>
       )}
@@ -91,7 +97,7 @@ export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { 
           </label>
           <label className="field">
             <span>{t('Gotify Token')}</span>
-            <input required type="password" autoComplete="off" value={draft.gotify_token} onChange={(e) => patch({ gotify_token: e.target.value })} />
+            <Input required type="password" autoComplete="off" value={draft.gotify_token} onChange={(e) => patch({ gotify_token: e.target.value })} />
           </label>
           <label className="field">
             <span>{t('Priority')}</span>
@@ -107,7 +113,7 @@ export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { 
       )}
       <label className="field">
         <span>
-          {t('Reminder threshold')} ({t('Raw quota')})
+          {t('Reminder threshold')} ({t('Raw quota')} · {unitLabel})
         </span>
         <input
           type="number"
@@ -116,8 +122,13 @@ export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { 
           value={draft.quota_warning_threshold}
           onChange={(e) => patch({ quota_warning_threshold: Number(e.target.value) })}
         />
-        <small>
+        <small className="tabular-nums font-mono">
+          {currency.ready && draft.quota_warning_threshold > 0
+            ? `≈ ${format(draft.quota_warning_threshold, { abbreviate: false })} · `
+            : ''}
           {t('Zero uses the system default')}: {siteThreshold}
+          {currency.ready ? ` (≈ ${format(siteThreshold, { abbreviate: false })})` : ''} · 1 USD ={' '}
+          {config.quotaPerUnit.toLocaleString(currency.locale)} {t('Raw quota')}
         </small>
       </label>
       <label className="preference-switch">
@@ -152,8 +163,8 @@ export function NotificationPreferences({ user, siteEnabled, siteThreshold }: { 
           </label>
         </>
       )}
-      <Button type="submit" disabled={save.isPending}>
-        {t(save.isPending ? 'Loading' : 'Save')}
+      <Button type="submit" loading={save.isPending}>
+        {t('Save')}
       </Button>
     </form>
   )

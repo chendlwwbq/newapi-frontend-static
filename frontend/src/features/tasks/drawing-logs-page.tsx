@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth/session'
 import { useQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { FilterSelect } from '@/components/ui/filter-select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CopyButton } from '@/components/shared/copy-button'
@@ -45,6 +46,17 @@ const labels: Record<string, string> = {
   FAILURE: 'Failed',
   QUEUED: 'Queued',
   UNKNOWN: 'Unknown',
+}
+
+function statusBadge(status: string): { variant: 'destructive' | 'outline' | 'secondary'; className?: string } {
+  if (status === 'FAILURE') return { variant: 'destructive' }
+  if (status === 'SUCCESS') {
+    return { variant: 'outline', className: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' }
+  }
+  if (['IN_PROGRESS', 'QUEUED', 'SUBMITTED'].includes(status)) {
+    return { variant: 'outline', className: 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400' }
+  }
+  return { variant: 'secondary' }
 }
 
 function mediaURL(value: string) {
@@ -191,7 +203,12 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
               <thead>
                 <tr>
                   {['Task ID', ...(all ? ['User', 'Channel'] : []), 'Action', 'Status', 'Progress', 'Cost', 'Time', 'Details'].map((label) => (
-                    <th key={label} className={['Progress', 'Cost'].includes(label) ? 'text-right' : undefined}>
+                    <th
+                      key={label}
+                      className={
+                        label === 'Details' ? 'table-sticky-action' : ['Progress', 'Cost'].includes(label) ? 'text-right' : undefined
+                      }
+                    >
                       {t(label)}
                     </th>
                   ))}
@@ -214,14 +231,24 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
                     )}
                     <td>{task.action}</td>
                     <td>
-                      <span className="task-status" data-status={task.status}>
-                        {t(labels[task.status] || task.status)}
-                      </span>
+                      {(() => {
+                        const badge = statusBadge(task.status)
+                        return (
+                          <Badge variant={badge.variant} className={badge.className}>
+                            {t(labels[task.status] || task.status)}
+                          </Badge>
+                        )
+                      })()}
+                      {task.status === 'FAILURE' && task.fail_reason && (
+                        <small className="mt-1 block max-w-[220px] line-clamp-2 text-xs text-destructive" title={task.fail_reason}>
+                          {task.fail_reason}
+                        </small>
+                      )}
                     </td>
                     <td className="text-right tabular-nums font-mono">{task.progress || '—'}</td>
                     <td className="text-right tabular-nums font-mono">{money(task.quota)}</td>
                     <td className="small-note tabular-nums font-mono">{date(task.submit_time)}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <Button variant="ghost" size="sm" onClick={() => setSelected(task)}>
                         {t('Details')}
                       </Button>
@@ -281,12 +308,12 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
           if (!open) setSelected(null)
         }}
       >
-        <DialogContent className="task-detail-dialog">
+        <DialogContent className="task-detail-dialog flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t('Task details')}</DialogTitle>
           </DialogHeader>
           {current && (
-            <>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               <dl className="settings-list">
                 {[
                   ['Task ID', current.mj_id],
@@ -348,7 +375,7 @@ export function DrawingLogsPage({ initialQuery = '' }: { initialQuery?: string }
                   </a>
                 </div>
               ))}
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

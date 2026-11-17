@@ -9,7 +9,7 @@ import { toIntlLocale } from '@/i18n/languages'
 import { rankingHistory } from './rankings-history'
 import type { ModelHistorySeries, VendorShareSeries } from './rankings-types'
 
-const colors = ['var(--chart-1)', 'var(--chart-2)', '#7778f7', '#d14d91', '#447fc4', '#a47a36', '#499248', '#ac5b53']
+const colors = ['var(--accent)', 'var(--chart-2)', 'var(--chart-1)', '#0ea5e9', '#d946ef', '#10b981', '#f59e0b', '#ec4899']
 
 /** Stacked native ranking buckets; the dashboard UsageChart only supports one series. */
 export function RankingsHistoryChart(props: { source: ModelHistorySeries | VendorShareSeries; share?: boolean }) {
@@ -96,6 +96,7 @@ export function RankingsHistoryChart(props: { source: ModelHistorySeries | Vendo
                     y={220 - accumulated}
                     width={step * 0.76}
                     height={height}
+                    rx={2}
                     fill={colors[colorIndex % colors.length]}
                   >
                     <title>{`${bucket.label} · ${name}: ${valueLabel(value)}`}</title>
@@ -130,9 +131,9 @@ export function RankingsHistoryChart(props: { source: ModelHistorySeries | Vendo
         {visible.map((name) => (
           <div key={name}>
             <span>{['Unknown', 'Others'].includes(name) ? t(name) : name}</span>
-            <strong>{valueLabel(selected.values[name]?.value || 0)}</strong>
+            <strong className="tabular-nums font-mono">{valueLabel(selected.values[name]?.value || 0)}</strong>
             {props.share && (
-              <small>
+              <small className="tabular-nums font-mono">
                 {formatNumber(selected.values[name]?.tokens || 0, locale)} {t('Tokens')}
               </small>
             )}

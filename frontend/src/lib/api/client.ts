@@ -1,6 +1,6 @@
 'use client'
 
-import { freshAuthHeaders } from '@/lib/auth/session'
+import { freshAuthHeaders, invalidateExpiredSession } from '@/lib/auth/session'
 import type { ApiEnvelope } from './types'
 
 export class ApiError extends Error {
@@ -24,6 +24,9 @@ export async function apiResponse<T>(path: string, options: RequestOptions = {})
     ...(options.body !== undefined ? { body: JSON.stringify(options.body) } : {}),
   })
   const fallback = response.statusText.trim() || 'Request failed'
+  if (response.status === 401 && !options.anonymous) {
+    invalidateExpiredSession()
+  }
   const result: ApiEnvelope<T> & { url?: string; message_key?: string; error?: { message?: string; code?: string } } = await response
     .json()
     .catch(() => {

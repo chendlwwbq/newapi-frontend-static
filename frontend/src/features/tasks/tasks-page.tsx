@@ -9,6 +9,7 @@ import type { PageResult } from '@/lib/api/types'
 import { useAuth } from '@/lib/auth/session'
 import { useQuotaFormatter, formatNumber } from '@/lib/format'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { FilterSelect } from '@/components/ui/filter-select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { CopyButton } from '@/components/shared/copy-button'
@@ -28,6 +29,17 @@ const statusLabels: Record<string, string> = {
   FAILURE: 'Failed',
   QUEUED: 'Queued',
   UNKNOWN: 'Unknown',
+}
+
+function taskStatusBadge(status: string): { variant: 'destructive' | 'outline' | 'secondary'; className?: string } {
+  if (status === 'FAILURE') return { variant: 'destructive' }
+  if (status === 'SUCCESS') {
+    return { variant: 'outline', className: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' }
+  }
+  if (['IN_PROGRESS', 'QUEUED', 'SUBMITTED'].includes(status)) {
+    return { variant: 'outline', className: 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400' }
+  }
+  return { variant: 'secondary' }
 }
 export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
   const { t, i18n } = useTranslation(),
@@ -178,7 +190,16 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                     'Duration',
                     'Details',
                   ].map((label) => (
-                    <th key={label} className={['Progress', 'Cost', 'Duration'].includes(label) ? 'text-right' : undefined}>
+                    <th
+                      key={label}
+                      className={
+                        label === 'Details'
+                          ? 'table-sticky-action'
+                          : ['Progress', 'Cost', 'Duration'].includes(label)
+                            ? 'text-right'
+                            : undefined
+                      }
+                    >
                       {t(label)}
                     </th>
                   ))}
@@ -205,9 +226,19 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                     <td>{task.platform}</td>
                     <td>{task.action}</td>
                     <td>
-                      <span className="task-status" data-status={task.status}>
-                        {t(statusLabels[task.status] || task.status)}
-                      </span>
+                      {(() => {
+                        const badge = taskStatusBadge(task.status)
+                        return (
+                          <Badge variant={badge.variant} className={badge.className}>
+                            {t(statusLabels[task.status] || task.status)}
+                          </Badge>
+                        )
+                      })()}
+                      {task.status === 'FAILURE' && task.fail_reason && (
+                        <small className="mt-1 block max-w-[220px] line-clamp-2 text-xs text-destructive" title={t(task.fail_reason)}>
+                          {t(task.fail_reason)}
+                        </small>
+                      )}
                     </td>
                     <td className="text-right tabular-nums font-mono">
                       {task.progress || '—'}
@@ -218,7 +249,7 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                     <td className="text-right tabular-nums font-mono">
                       {task.finish_time && task.start_time ? `${formatNumber(Math.max(0, task.finish_time - task.start_time), locale)}s` : '—'}
                     </td>
-                    <td>
+                    <td className="table-sticky-action">
                       <Button variant="ghost" size="sm" onClick={() => setSelected(task)}>
                         {t('Details')}
                       </Button>
@@ -278,12 +309,12 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
           if (!open) setSelected(null)
         }}
       >
-        <DialogContent className="task-detail-dialog">
+        <DialogContent className="task-detail-dialog flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t('Task details')}</DialogTitle>
           </DialogHeader>
           {current && (
-            <>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               <dl className="settings-list">
                 {[
                   ['Task ID', current.task_id],
@@ -343,7 +374,7 @@ export function TasksPage({ initialQuery = '' }: { initialQuery?: string }) {
                 </details>
               )}
               <TaskResult key={current.task_id} task={current} />
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

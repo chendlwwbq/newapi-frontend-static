@@ -24,9 +24,22 @@ export function AdminGate({ children }: { children: ReactNode }) {
 export function canChannel(user: User | undefined, action: string) {
   return user?.role === 100 || user?.permissions?.admin_permissions?.channel?.[action] === true
 }
-export function AdminSearch({ onSearch, children }: { onSearch: (keyword: string) => void; children?: ReactNode }) {
-  const [keyword, setKeyword] = useState(''),
+export function AdminSearch({
+  initialValue = '',
+  onSearch,
+  children,
+}: {
+  initialValue?: string
+  onSearch: (keyword: string) => void
+  children?: ReactNode
+}) {
+  const [keyword, setKeyword] = useState(initialValue),
+    [syncedInitial, setSyncedInitial] = useState(initialValue),
     { t } = useTranslation()
+  if (syncedInitial !== initialValue) {
+    setSyncedInitial(initialValue)
+    setKeyword(initialValue)
+  }
   function submit(event: FormEvent) {
     event.preventDefault()
     onSearch(keyword.trim())

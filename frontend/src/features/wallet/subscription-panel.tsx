@@ -244,11 +244,11 @@ export function SubscriptionPanel({ info, quota }: { info: TopupInfo; quota: num
                 <dl className="payment-summary">
                   <div>
                     <dt>{t('Cost')}</dt>
-                    <dd>{balanceCost !== null ? format(balanceCost) : '—'}</dd>
+                    <dd className="tabular-nums font-mono">{balanceCost !== null ? format(balanceCost) : '—'}</dd>
                   </div>
                   <div>
                     <dt>{t('Account balance')}</dt>
-                    <dd>{format(quota)}</dd>
+                    <dd className="tabular-nums font-mono">{format(quota)}</dd>
                   </div>
                 </dl>
               )}
@@ -263,12 +263,13 @@ export function SubscriptionPanel({ info, quota }: { info: TopupInfo; quota: num
                   {t('Cancel')}
                 </Button>
                 <Button
+                  loading={busy}
                   disabled={
-                    busy || limitReached || !methods(selected).length || (method === 'balance' && (balanceCost === null || quota < balanceCost))
+                    limitReached || !methods(selected).length || (method === 'balance' && (balanceCost === null || quota < balanceCost))
                   }
                   onClick={pay}
                 >
-                  {t(busy ? 'Loading' : method === 'balance' ? 'Pay with balance' : 'Continue to payment')}
+                  {t(method === 'balance' ? 'Pay with balance' : 'Continue to payment')}
                 </Button>
               </div>
             </>

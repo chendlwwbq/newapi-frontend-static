@@ -11,6 +11,7 @@ import { UsersPage } from '../users-page'
 import { ChannelEditor } from '../channel-editor'
 import { ChannelPriorityDialog } from '../channel-priority-dialog'
 import { ModelPricingPage } from '../model-pricing-page'
+import { RedemptionsPage } from '../redemptions-page'
 import { newChannel } from '../lib/channel-form'
 import type { Channel } from '../types'
 
@@ -26,6 +27,7 @@ afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
   request.mockReset()
+  window.history.replaceState(null, '', '/')
 })
 
 async function mount(children: ReactNode, client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) {
@@ -201,4 +203,66 @@ it('keeps the last clicked user when user details arrive out of order and resets
   expect(username).toHaveProperty('value', 'bob-edited')
   fireEvent.click(editAlice)
   await waitFor(() => expect(screen.getByRole('textbox', { name: 'Username' })).toHaveProperty('value', 'alice'))
+})
+
+it('submits ChannelEditor on Ctrl+Enter and syncs ChannelsPage search filters with URL parameters', async () => {
+  request.mockImplementation(async (url: string) => {
+    if (url === '/api/user/self') return user
+    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url.startsWith('/api/channel/')) return { items: [], total: 0 }
+    return []
+  })
+  const editorView = await mount(
+    <ChannelEditor initial={{ ...newChannel, id: 5, name: 'Shortcut Channel', models: 'gpt-4o' }} sensitive pluginBind ownerId={1} onClose={vi.fn()} />
+  )
+  fireEvent.keyDown(screen.getByRole('textbox', { name: 'Models' }), { key: 'Enter', ctrlKey: true })
+  await waitFor(() => expect(request.mock.calls.some(([url, options]) => url === '/api/channel' && options?.method === 'PUT')).toBe(true))
+  editorView.unmount()
+
+  window.history.replaceState(null, '', '/channels?page=2&q=openai&status=1')
+  await mount(<ChannelsPage />)
+  await waitFor(() =>
+    expect(
+      request.mock.calls.some(([url]) => typeof url === 'string' && url.includes('/api/channel/search?p=2') && url.includes('keyword=openai') && url.includes('status=1'))
+    ).toBe(true)
+  )
+  const searchInput = screen.getByRole('textbox', { name: 'Search' }) as HTMLInputElement
+  expect(searchInput.value).toBe('openai')
+  fireEvent.change(searchInput, { target: { value: 'claude' } })
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }))
+  expect(window.location.search).toContain('q=claude')
+  expect(window.location.search).not.toContain('page=2')
+})
+
+it('syncs RedemptionsPage filters with URL and previews raw quota on Amount (USD)', async () => {
+  request.mockImplementation(async (url: string, options?: RequestInit) => {
+    if (url === '/api/user/self') return user
+    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/user/topup/info') return { payment_compliance_confirmed: true }
+    if (url.startsWith('/api/redemption') && options?.method === 'POST') return ['CODE-1']
+    if (url.startsWith('/api/redemption')) {
+      return {
+        items: [{ id: 1, user_id: 1, name: 'Promo', key: 'CODE-1', status: 1, quota: 500000, created_time: 1700000000, redeemed_time: 0, expired_time: 0, used_user_id: 0 }],
+        total: 1,
+      }
+    }
+    return []
+  })
+  window.history.replaceState(null, '', '/redemptions?page=2&q=promo&status=1')
+  await mount(<RedemptionsPage />)
+  await waitFor(() =>
+    expect(
+      request.mock.calls.some(([url]) => typeof url === 'string' && url.includes('/api/redemption/search?p=2') && url.includes('keyword=promo') && url.includes('status=1'))
+    ).toBe(true)
+  )
+  expect((screen.getByRole('textbox', { name: 'Search' }) as HTMLInputElement).value).toBe('promo')
+  expect(screen.getByRole('columnheader', { name: 'Actions' }).className).toContain('table-sticky-action')
+
+  fireEvent.click(screen.getByRole('button', { name: 'Generate codes' }))
+  fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Spring' } })
+  const amountInput = screen.getByRole('spinbutton', { name: 'Amount (USD)' })
+  fireEvent.change(amountInput, { target: { value: '2' } })
+  expect(screen.getByText(/1,000,000 Raw quota/)).toBeTruthy()
+  fireEvent.keyDown(amountInput, { key: 'Enter', ctrlKey: true })
+  await waitFor(() => expect(request.mock.calls.some(([url, options]) => url === '/api/redemption' && options?.method === 'POST')).toBe(true))
 })

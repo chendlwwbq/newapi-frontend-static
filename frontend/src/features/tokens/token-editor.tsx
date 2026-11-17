@@ -106,7 +106,16 @@ export function TokenEditor({
         <DialogDescription>{t('Manage keys for your applications and services.')}</DialogDescription>
       </DialogHeader>
 
-      <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
+      <form
+        onSubmit={submit}
+        onKeyDown={(event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && !save.isPending) {
+            event.preventDefault()
+            event.currentTarget.requestSubmit()
+          }
+        }}
+        className="flex min-h-0 flex-1 flex-col gap-4"
+      >
         <div className="min-h-0 flex-1 overflow-y-auto pr-1">
           <label className="field">
             <span>{t('Key name')}</span>

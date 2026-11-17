@@ -1,5 +1,5 @@
 'use client'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Power, Trash2, Eye, Download, RefreshCw } from 'lucide-react'
@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { api, ApiError } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
 import type { PageResult } from '@/lib/api/types'
-import { useQuotaFormatter } from '@/lib/format'
+import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
@@ -23,16 +23,57 @@ interface RedemptionDraft {
   count: number
   expires: string
 }
+function readRedemptionUrlState() {
+  if (typeof window === 'undefined') return { page: 1, keyword: '', status: '' }
+  const params = new URLSearchParams(window.location.search)
+  const rawPage = Number.parseInt(params.get('page') ?? '', 10)
+  return {
+    page: Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1,
+    keyword: params.get('q') ?? '',
+    status: params.get('status') ?? '',
+  }
+}
+
+function syncRedemptionUrl(page: number, keyword: string, status: string) {
+  if (typeof window === 'undefined') return
+  const params = new URLSearchParams(window.location.search)
+  if (page > 1) params.set('page', String(page))
+  else params.delete('page')
+  if (keyword.trim()) params.set('q', keyword.trim())
+  else params.delete('q')
+  if (status) params.set('status', status)
+  else params.delete('status')
+  const search = params.toString()
+  const nextUrl = search ? `${window.location.pathname}?${search}` : window.location.pathname
+  window.history.replaceState(null, '', nextUrl)
+}
+
 export function RedemptionsPage() {
   const { t, i18n } = useTranslation(),
     { bundle } = useAuth(),
     queries = useQueryClient(),
-    format = useQuotaFormatter()
-  const [page, setPage] = useState(1),
-    [keyword, setKeyword] = useState(''),
-    [status, setStatus] = useState(''),
-    [filter, setFilter] = useState(''),
+    format = useQuotaFormatter(),
+    currency = useCurrencyFormatter(),
+    locale = toIntlLocale(i18n.resolvedLanguage ?? i18n.language)
+  const initialUrl = readRedemptionUrlState()
+  const [page, setPage] = useState(initialUrl.page),
+    [keyword, setKeyword] = useState(initialUrl.keyword),
+    [status, setStatus] = useState(initialUrl.status),
+    [filter, setFilter] = useState(initialUrl.status),
     [selected, setSelected] = useState<number[]>([])
+
+  useEffect(() => {
+    const onPopState = () => {
+      const next = readRedemptionUrlState()
+      setPage(next.page)
+      setKeyword(next.keyword)
+      setStatus(next.status)
+      setFilter(next.status)
+      setSelected([])
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
   const [editor, setEditor] = useState<RedemptionDraft | null>(null),
     [error, setError] = useState(''),
     [generated, setGenerated] = useState<string[] | null>(null),
@@ -152,11 +193,13 @@ export function RedemptionsPage() {
       )}
       {info.error && <ErrorState error={info.error} retry={() => info.refetch()} />}
       <AdminSearch
+        initialValue={keyword}
         onSearch={(value) => {
           setKeyword(value)
           setStatus(filter)
           setPage(1)
           setSelected([])
+          syncRedemptionUrl(1, value, filter)
         }}
       >
         <select className="plain-select" aria-label={t('Status')} value={filter} onChange={(event) => setFilter(event.target.value)}>
@@ -218,7 +261,7 @@ export function RedemptionsPage() {
                     />
                   </th>
                   {['Name', 'Redemption code', 'Status', 'Quota', 'Created', 'Expiry', 'Used by', 'Actions'].map((label) => (
-                    <th key={label} className={label === 'Quota' ? 'text-right' : undefined}>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : label === 'Quota' ? 'text-right' : undefined}>
                       {t(label)}
                     </th>
                   ))}
@@ -266,7 +309,7 @@ export function RedemptionsPage() {
                     <td className="small-note tabular-nums font-mono">{date(item.created_time)}</td>
                     <td className="small-note tabular-nums font-mono">{item.expired_time ? date(item.expired_time) : t('Never expires')}</td>
                     <td className="tabular-nums font-mono">{item.used_user_id ? `#${item.used_user_id}` : '—'}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         {item.status !== 3 && (
                           <>
@@ -312,6 +355,7 @@ export function RedemptionsPage() {
             onPage={(value) => {
               setPage(value)
               setSelected([])
+              syncRedemptionUrl(value, keyword, status)
             }}
           />
         </>
@@ -328,7 +372,15 @@ export function RedemptionsPage() {
             <DialogDescription>{t('Create and manage balance redemption codes.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form
+              onSubmit={submit}
+              onKeyDown={(event) => {
+                if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && unit && !save.isPending) {
+                  event.preventDefault()
+                  event.currentTarget.requestSubmit()
+                }
+              }}
+            >
               <label className="field">
                 <span>{t('Name')}</span>
                 <input required maxLength={20} value={editor.name} onChange={(event) => setEditor({ ...editor, name: event.target.value })} />
@@ -339,10 +391,16 @@ export function RedemptionsPage() {
                   required
                   type="number"
                   min="0.000001"
-                  step="0.000001"
+                  step="any"
                   value={editor.quota}
                   onChange={(event) => setEditor({ ...editor, quota: event.target.value })}
                 />
+                {unit && Number(editor.quota) > 0 && (
+                  <span className="small-note tabular-nums font-mono">
+                    ≈ {currency.formatter.formatCurrencyFromUSD(Number(editor.quota), { locale, abbreviate: false })} ·{' '}
+                    {Math.round(Number(editor.quota) * unit).toLocaleString(locale)} {t('Raw quota')}
+                  </span>
+                )}
               </label>
               {!editor.id && (
                 <label className="field">
@@ -372,7 +430,7 @@ export function RedemptionsPage() {
                 <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={!unit || save.isPending}>
+                <Button type="submit" loading={save.isPending} disabled={!unit}>
                   {t('Save')}
                 </Button>
               </DialogFooter>

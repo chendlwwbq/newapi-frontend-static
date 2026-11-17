@@ -57,6 +57,32 @@ export function UsersPage() {
   })
   const statusQuery = useQuery({ queryKey: ['status'], queryFn: () => api<QuotaStatus>('/api/status') })
   const adjustment = statusQuery.data?.quota_per_unit ? quotaInput(statusQuery.data) : null
+  useEffect(() => {
+    function restore() {
+      const params = new URLSearchParams(window.location.search)
+      const nextPage = Number(params.get('page')) || 1
+      const nextKeyword = params.get('q') || ''
+      const nextStatus = params.get('status') || ''
+      const nextRole = params.get('role') || ''
+      setPage(nextPage > 0 ? nextPage : 1)
+      setKeyword(nextKeyword)
+      setStatus(nextStatus)
+      setRole(nextRole)
+      setFilters({ status: nextStatus, role: nextRole })
+    }
+    restore()
+    window.addEventListener('popstate', restore)
+    return () => window.removeEventListener('popstate', restore)
+  }, [])
+  function syncUserUrl(nextPage: number, nextKeyword: string, nextStatus: string, nextRole: string) {
+    const params = new URLSearchParams()
+    if (nextPage > 1) params.set('page', String(nextPage))
+    if (nextKeyword) params.set('q', nextKeyword)
+    if (nextStatus) params.set('status', nextStatus)
+    if (nextRole) params.set('role', nextRole)
+    const queryString = params.toString()
+    window.history.replaceState(null, '', `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`)
+  }
   function changed() {
     void queries.invalidateQueries({ queryKey: ['admin-users'] })
     void queries.invalidateQueries({ queryKey: ['self'] })
@@ -194,10 +220,12 @@ export function UsersPage() {
         </div>
       </div>
       <AdminSearch
+        initialValue={keyword}
         onSearch={(value) => {
           setPage(1)
           setKeyword(value)
           setFilters({ status, role })
+          syncUserUrl(1, value, status, role)
         }}
       >
         <select className="plain-select" value={status} onChange={(event) => setStatus(event.target.value)} aria-label={t('Status')}>
@@ -295,7 +323,14 @@ export function UsersPage() {
             </table>
           </div>
           {!query.data.items.length && <EmptyState />}
-          <AdminPagination page={page} total={query.data.total} onPage={setPage} />
+          <AdminPagination
+            page={page}
+            total={query.data.total}
+            onPage={(nextPage) => {
+              setPage(nextPage)
+              syncUserUrl(nextPage, keyword, filters.status, filters.role)
+            }}
+          />
         </>
       )}
       {editor && (

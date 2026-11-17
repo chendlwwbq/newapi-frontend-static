@@ -60,6 +60,29 @@ export function ChannelsPage() {
     },
     []
   )
+  useEffect(() => {
+    function restore() {
+      const params = new URLSearchParams(window.location.search)
+      const nextPage = Number(params.get('page')) || 1
+      const nextKeyword = params.get('q') || ''
+      const nextStatus = params.get('status') || ''
+      setPage(nextPage > 0 ? nextPage : 1)
+      setKeyword(nextKeyword)
+      setFilter(nextStatus)
+      setStatus(nextStatus)
+    }
+    restore()
+    window.addEventListener('popstate', restore)
+    return () => window.removeEventListener('popstate', restore)
+  }, [])
+  function syncChannelUrl(nextPage: number, nextKeyword: string, nextStatus: string) {
+    const params = new URLSearchParams()
+    if (nextPage > 1) params.set('page', String(nextPage))
+    if (nextKeyword) params.set('q', nextKeyword)
+    if (nextStatus) params.set('status', nextStatus)
+    const queryString = params.toString()
+    window.history.replaceState(null, '', `${window.location.pathname}${queryString ? `?${queryString}` : ''}${window.location.hash}`)
+  }
   const pluginBind = user?.role === 100 || user?.permissions?.admin_permissions?.task_plugin?.bind === true
   const read = canChannel(user, 'read'),
     write = canChannel(user, 'write'),
@@ -146,11 +169,13 @@ export function ChannelsPage() {
       ) : (
         <>
           <AdminSearch
+            initialValue={keyword}
             onSearch={(value) => {
               setPage(1)
               setKeyword(value)
               setStatus(filter)
               setSelected([])
+              syncChannelUrl(1, value, filter)
             }}
           >
             <FilterSelect
@@ -404,9 +429,10 @@ export function ChannelsPage() {
               <AdminPagination
                 page={page}
                 total={query.data.total}
-                onPage={(page) => {
-                  setPage(page)
+                onPage={(nextPage) => {
+                  setPage(nextPage)
                   setSelected([])
+                  syncChannelUrl(nextPage, keyword, status)
                 }}
               />
             </>

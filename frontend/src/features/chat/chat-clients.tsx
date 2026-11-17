@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
 import { AdminSearch, AdminPagination } from '@/features/admin/shared'
+import { getKeyUnavailableReason } from '@/features/tokens/connect-key-selector'
 import { parseChatConfig, chatLinkRequiresApiKey, type ChatPreset } from './chat-links'
 import { clientDestination, resolveClientUrl, ccSwitchUrl } from './client-destination'
 import { SecurityDialog } from '@/features/auth/secure-verification/security-dialog'
@@ -91,11 +92,12 @@ export function ClientConnection({
         if (!open && !busy) onClose()
       }}
     >
-      <DialogContent className="admin-editor" showCloseButton={!busy}>
+      <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden" showCloseButton={!busy}>
         <DialogHeader>
           <DialogTitle>{preset.name}</DialogTitle>
           <DialogDescription>{t('Review the destination before connecting a client.')}</DialogDescription>
         </DialogHeader>
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
         {!destination ? (
           <EmptyState title={t('Unsupported client destination')} />
         ) : (
@@ -205,11 +207,8 @@ export function ClientConnection({
                       <>
                         <div className="client-key-list">
                           {tokens.data.items.map((token) => {
-                            const available =
-                              (!requiredGroup || token.group === requiredGroup) &&
-                              token.status === 1 &&
-                              (token.expired_time === -1 || token.expired_time > Date.now() / 1000) &&
-                              (token.unlimited_quota || token.remain_quota > 0)
+                            const unavailableReason = getKeyUnavailableReason(token, requiredGroup, bundle?.user.group)
+                            const available = !unavailableReason
                             return (
                               <label className="checkbox-label" key={token.id}>
                                 <input
@@ -225,7 +224,7 @@ export function ClientConnection({
                                 <span>
                                   {token.name}{' '}
                                   <small className="small-note">
-                                    #{token.id} · {token.group} · {t(available ? 'Enabled' : 'Unavailable')}
+                                    #{token.id} · {token.group || bundle?.user.group || 'default'} · {t(unavailableReason || 'Enabled')}
                                   </small>
                                 </span>
                               </label>
@@ -246,18 +245,20 @@ export function ClientConnection({
                   </>
                 )}
                 <Button
-                  disabled={busy || (needsKey && (!selected || !consent)) || (isCCSwitch && !models.model)}
+                  loading={busy}
+                  disabled={(needsKey && (!selected || !consent)) || (isCCSwitch && !models.model)}
                   onClick={() => {
                     if (needsKey) setVerifyKey(true)
                     else void prepare()
                   }}
                 >
-                  {t(busy ? 'Loading' : needsKey ? 'Prepare connection' : 'Continue')}
+                  {t(needsKey ? 'Prepare connection' : 'Continue')}
                 </Button>
               </fieldset>
             )}
           </>
         )}
+        </div>
         {verifyKey && selected && (
           <SecurityDialog
             operation={{ scope: 'api_key.read_secret', context: { token_ids: [selected.id] } }}

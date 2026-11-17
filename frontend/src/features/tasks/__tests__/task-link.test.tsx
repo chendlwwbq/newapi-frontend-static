@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createInstance } from 'i18next'
 import { I18nextProvider } from 'react-i18next'
@@ -19,8 +19,8 @@ afterEach(() => {
   window.history.replaceState(null, '', '/')
 })
 
-async function renderTaskLogs(kind: string, query = '') {
-  request.mockResolvedValue({ items: [], total: 60 })
+async function renderTaskLogs(kind: string, query = '', response: { items: unknown[]; total: number } = { items: [], total: 60 }) {
+  request.mockResolvedValue(response)
   const i18n = createInstance()
   await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -114,4 +114,41 @@ it.each(['task', 'drawing'])('restores and updates %s log links', async (kind) =
   window.history.replaceState(null, '', `/usage-logs/${kind}?${query}`)
   fireEvent(window, new PopStateEvent('popstate'))
   await waitFor(() => expect((screen.getByLabelText('Task ID') as HTMLInputElement).value).toBe('old-id'))
+})
+
+it.each(['task', 'drawing'])('renders %s failure reason and sticky details column', async (kind) => {
+  const row =
+    kind === 'task'
+      ? {
+          id: 1,
+          task_id: 'task-fail-1',
+          platform: 'suno',
+          action: 'MUSIC',
+          status: 'FAILURE',
+          fail_reason: 'Upstream timeout',
+          progress: '100%',
+          submit_time: 1700000000,
+          finish_time: 1700000010,
+          quota: 1000,
+          channel_id: 2,
+          data: {},
+        }
+      : {
+          id: 1,
+          mj_id: 'mj-fail-1',
+          action: 'IMAGINE',
+          status: 'FAILURE',
+          fail_reason: 'Banned prompt',
+          progress: '100%',
+          submit_time: 1700000000000,
+          finish_time: 1700000010000,
+          quota: 1000,
+          channel_id: 2,
+          prompt: 'test',
+        }
+  await renderTaskLogs(kind, '', { items: [row], total: 1 })
+  expect(await screen.findByText(row.fail_reason)).toBeTruthy()
+  expect(within(screen.getByRole('table')).getByText('Failed')).toBeTruthy()
+  expect(screen.getByRole('columnheader', { name: 'Details' }).className).toContain('table-sticky-action')
+  expect(screen.getByRole('button', { name: 'Details' }).closest('td')?.className).toContain('table-sticky-action')
 })

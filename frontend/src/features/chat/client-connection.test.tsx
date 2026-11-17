@@ -77,3 +77,45 @@ it('prefills the chosen route model and only allows a key for that group', async
   expect(target.searchParams.get('model')).toBe('selected/model')
   expect(target.searchParams.get('endpoint')).toBe('https://gateway.test/v1')
 })
+
+it('marks disabled, expired, and exhausted keys unavailable with specific reasons', async () => {
+  vi.mocked(api).mockReset()
+  vi.mocked(api).mockImplementation(async (path) => {
+    if (path === '/api/user/models') return ['other-model']
+    return {
+      items: [
+        { id: 1, name: 'disabled-key', group: 'default', status: 2, expired_time: -1, unlimited_quota: true },
+        { id: 2, name: 'expired-key', group: 'default', status: 1, expired_time: 100, unlimited_quota: true },
+        { id: 3, name: 'empty-key', group: 'default', status: 1, expired_time: -1, unlimited_quota: false, remain_quota: 0 },
+      ],
+    }
+  })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const i18n = createInstance()
+  await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+  const view = render(
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={client}>
+        <ClientConnection
+          preset={{ id: 'cc', name: 'CC Switch', url: 'ccswitch', type: 'custom-protocol' }}
+          address="https://gateway.test"
+          initialApp="codex"
+          onClose={() => {}}
+        />
+      </QueryClientProvider>
+    </I18nextProvider>
+  )
+  try {
+    const disabledRadio = (await screen.findByRole('radio', { name: /disabled-key/ })) as HTMLInputElement
+    const expiredRadio = (await screen.findByRole('radio', { name: /expired-key/ })) as HTMLInputElement
+    const emptyRadio = (await screen.findByRole('radio', { name: /empty-key/ })) as HTMLInputElement
+    expect(disabledRadio.disabled).toBe(true)
+    expect(expiredRadio.disabled).toBe(true)
+    expect(emptyRadio.disabled).toBe(true)
+    expect(screen.getByText(/· Disabled$/)).toBeTruthy()
+    expect(screen.getByText(/· Expired$/)).toBeTruthy()
+    expect(screen.getByText(/· Exhausted$/)).toBeTruthy()
+  } finally {
+    view.unmount()
+  }
+})

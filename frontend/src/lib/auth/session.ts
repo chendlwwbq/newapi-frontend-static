@@ -11,10 +11,22 @@ let refreshing: Promise<void> | null = null
 let bootstrapping: Promise<void> | null = null
 let generation = 0
 let channel: BroadcastChannel | null = null
+const SESSION_STORAGE_EVENT_KEY = 'new-api-next:session-event'
 const subscribers = (callback: () => void) => {
   listeners.add(callback)
   return () => {
     listeners.delete(callback)
+  }
+}
+
+function broadcastSessionCleared() {
+  channel?.postMessage('logout')
+  if (typeof window !== 'undefined') {
+    try {
+      window.localStorage?.setItem(SESSION_STORAGE_EVENT_KEY, String(Date.now()))
+    } catch {
+      // Ignore storage access errors in restricted browsing modes.
+    }
   }
 }
 
@@ -52,6 +64,12 @@ export function clearSession() {
   publish({ phase: 'ready', bundle: null })
 }
 
+export function invalidateExpiredSession() {
+  const hadSession = !!state.bundle
+  clearSession()
+  if (hadSession) broadcastSessionCleared()
+}
+
 export async function refreshSession() {
   if (refreshing) return refreshing
   const epoch = generation
@@ -68,7 +86,7 @@ export async function refreshSession() {
     })
     if (epoch !== generation) return
     if (!response.ok || !body.success) {
-      if (response.status === 401) clearSession()
+      if (response.status === 401) invalidateExpiredSession()
       throw new Error(body.message || 'Session refresh failed')
     }
     acceptSession(body.data)
@@ -91,6 +109,11 @@ export function bootstrapSession() {
   channel?.addEventListener('message', (event) => {
     if (event.data === 'logout') clearSession()
   })
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+      if (event.key === SESSION_STORAGE_EVENT_KEY && event.newValue) clearSession()
+    })
+  }
   bootstrapping = (async () => {
     if (!document.cookie.split(';').some((part) => part.trim() === 'new_api_has_session=1')) {
       publish({ phase: 'ready', bundle: null })
@@ -116,5 +139,5 @@ export async function logout() {
   })
   if (!response.ok || !body.success) throw new Error(body.message || 'Logout failed')
   clearSession()
-  channel?.postMessage('logout')
+  broadcastSessionCleared()
 }

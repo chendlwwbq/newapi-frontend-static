@@ -37,7 +37,7 @@ export function ModelTyping({ models, quoted = false }: { models: CatalogModel[]
   return (
     <div ref={ref} className="model-typing" aria-label={`model=${target}`}>
       <span>model{quoted ? ' = ' : '='}</span>
-      <strong aria-hidden="true">
+      <strong aria-hidden="true" className="inline-block min-h-[1.5em] leading-[1.5em]">
         {quoted ? '"' : ''}
         {text}
         {quoted ? '"' : ''}

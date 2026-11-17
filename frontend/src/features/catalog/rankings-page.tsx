@@ -88,16 +88,16 @@ export function RankingsPage() {
         <EmptyState title={t('No data yet')} />
       ) : (
         <>
-          <Reveal className="console-panel rankings-history">
+          <Reveal className="console-panel rankings-history rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10">
             <h2>{t('Top models token history')}</h2>
             <RankingsHistoryChart key={`models-${period}`} source={data.models_history} />
           </Reveal>
-          <Reveal className="console-panel rankings-history">
+          <Reveal className="console-panel rankings-history rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl transition-all duration-300 hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/10">
             <h2>{t('Provider share history')}</h2>
             <RankingsHistoryChart key={`vendors-${period}`} source={data.vendor_share_history} share />
           </Reveal>
           <div className="rankings-layout">
-            <section className="console-panel">
+            <section className="console-panel rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl">
               <div className="page-heading">
                 <h2>{t('Models')}</h2>
                 <Input
@@ -113,15 +113,29 @@ export function RankingsPage() {
                     <tr>
                       <th>#</th>
                       <th>{t('Model')}</th>
-                      <th>{t('Tokens')}</th>
-                      <th>{t('Share')}</th>
-                      <th>{t('Growth')}</th>
+                      <th className="text-right">{t('Tokens')}</th>
+                      <th className="text-right">{t('Share')}</th>
+                      <th className="text-right">{t('Growth')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {models.map((model) => (
                       <tr key={model.model_name}>
-                        <td>{model.rank}</td>
+                        <td>
+                          <span
+                            className={`inline-flex min-w-7 items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums font-mono ${
+                              model.rank === 1
+                                ? 'bg-amber-500/15 text-amber-600 ring-1 ring-amber-500/30 dark:text-amber-400'
+                                : model.rank === 2
+                                  ? 'bg-slate-400/15 text-slate-600 ring-1 ring-slate-400/30 dark:text-slate-300'
+                                  : model.rank === 3
+                                    ? 'bg-orange-500/15 text-orange-600 ring-1 ring-orange-500/30 dark:text-orange-400'
+                                    : 'text-muted-foreground'
+                            }`}
+                          >
+                            {model.rank}
+                          </span>
+                        </td>
                         <td>
                           <div className="rankings-model">
                             <ProviderIcon provider={model.vendor} modelName={model.model_name} />
@@ -133,9 +147,19 @@ export function RankingsPage() {
                             </div>
                           </div>
                         </td>
-                        <td>{number.format(model.total_tokens)}</td>
-                        <td>{percent.format(model.share)}</td>
-                        <td>{growthPercent.format(model.growth_pct / 100)}</td>
+                        <td className="text-right tabular-nums font-mono">{number.format(model.total_tokens)}</td>
+                        <td className="text-right tabular-nums font-mono">{percent.format(model.share)}</td>
+                        <td
+                          className={`text-right tabular-nums font-mono ${
+                            model.growth_pct > 0
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : model.growth_pct < 0
+                                ? 'text-rose-600 dark:text-rose-400'
+                                : 'text-muted-foreground'
+                          }`}
+                        >
+                          {growthPercent.format(model.growth_pct / 100)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -144,7 +168,7 @@ export function RankingsPage() {
               </div>
             </section>
             <aside className="rankings-sidebar">
-              <section className="console-panel">
+              <section className="console-panel rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl">
                 <h2>{t('Providers')}</h2>
                 {data.vendors.map((vendor) => (
                   <div className="rankings-vendor" key={vendor.vendor}>
@@ -153,10 +177,10 @@ export function RankingsPage() {
                       <strong>
                         <Link href={vendorHref(vendor.vendor)}>{vendor.vendor === 'Unknown' ? t('Unknown') : vendor.vendor}</Link>
                       </strong>
-                      <span>{percent.format(vendor.share)}</span>
+                      <span className="tabular-nums font-mono">{percent.format(vendor.share)}</span>
                     </div>
                     <meter value={vendor.share} min={0} max={1} aria-label={vendor.vendor} />
-                    <small>
+                    <small className="tabular-nums font-mono">
                       {number.format(vendor.total_tokens)} {t('Tokens')} · {vendor.models_count} {t('Models')}
                     </small>
                   </div>
@@ -166,19 +190,29 @@ export function RankingsPage() {
           </div>
           <div className="rankings-movers">
             {moverSections.map(([items, label]) => (
-              <section className="console-panel" key={label}>
+              <section className="console-panel rounded-2xl border-border/60 bg-card/70 backdrop-blur-xl" key={label}>
                 <h2>{t(label)}</h2>
                 {items.length ? (
                   items.map((model) => (
                     <div className="rankings-mover" key={model.model_name}>
                       <div>
                         <Link href={`/pricing/${encodeURIComponent(model.model_name)}`}>{model.model_name}</Link>
-                        <small>
+                        <small className="tabular-nums font-mono">
                           #{formatNumber(model.current_rank, locale)} ·{' '}
                           <Link href={vendorHref(model.vendor)}>{model.vendor === 'Unknown' ? t('Unknown') : model.vendor}</Link>
                         </small>
                       </div>
-                      <strong>{growth.format(model.rank_delta)}</strong>
+                      <strong
+                        className={`tabular-nums font-mono ${
+                          model.rank_delta > 0
+                            ? 'text-emerald-600 dark:text-emerald-400'
+                            : model.rank_delta < 0
+                              ? 'text-rose-600 dark:text-rose-400'
+                              : 'text-muted-foreground'
+                        }`}
+                      >
+                        {growth.format(model.rank_delta)}
+                      </strong>
                     </div>
                   ))
                 ) : (

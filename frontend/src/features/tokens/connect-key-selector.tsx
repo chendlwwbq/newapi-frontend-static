@@ -13,8 +13,8 @@ import { api } from '@/lib/api/client'
 import type { PageResult, Token } from '@/lib/api/types'
 import { tokenStatus } from './token-form'
 
-export function getKeyUnavailableReason(token: Token, requiredGroup: string, userGroup?: string): string | null {
-  if ((token.group || userGroup) !== requiredGroup) return 'Group mismatch'
+export function getKeyUnavailableReason(token: Token, requiredGroup?: string, userGroup?: string): string | null {
+  if (requiredGroup && (token.group || userGroup) !== requiredGroup) return 'Group mismatch'
   const status = tokenStatus(token)
   if (status !== 'Enabled') return status
   return null

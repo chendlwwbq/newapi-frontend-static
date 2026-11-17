@@ -90,7 +90,16 @@ export function ChannelEditor({
           <DialogTitle>{t(draft.id ? 'Edit channel' : 'Add channel')}</DialogTitle>
           <DialogDescription>{t('Configure upstream models, routing and credentials.')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
+        <form
+          onSubmit={submit}
+          onKeyDown={(event) => {
+            if ((event.metaKey || event.ctrlKey) && event.key === 'Enter' && !save.isPending) {
+              event.preventDefault()
+              event.currentTarget.requestSubmit()
+            }
+          }}
+          className="flex min-h-0 flex-1 flex-col gap-4"
+        >
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
             <div className="admin-form-grid">
               <label className="field">

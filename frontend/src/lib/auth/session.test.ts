@@ -54,3 +54,35 @@ it('a refresh completing after logout cannot restore the session', async () => {
   await pending
   expect(session.authHeaders()).toEqual({})
 })
+
+it('broadcasts session invalidation across tabs via BroadcastChannel and storage events', async () => {
+  const postMessage = vi.fn()
+  const channelListeners: ((event: MessageEvent) => void)[] = []
+  const storageListeners: ((event: StorageEvent) => void)[] = []
+  const setItem = vi.fn()
+
+  class FakeBroadcastChannel {
+    postMessage = postMessage
+    addEventListener(_type: string, fn: (event: MessageEvent) => void) {
+      channelListeners.push(fn)
+    }
+  }
+  vi.stubGlobal('BroadcastChannel', FakeBroadcastChannel)
+  vi.stubGlobal('document', { cookie: '' })
+  vi.stubGlobal('window', {
+    localStorage: { setItem },
+    addEventListener: (_type: string, fn: (event: StorageEvent) => void) => storageListeners.push(fn),
+  })
+
+  const session = await import('./session')
+  await session.bootstrapSession()
+  session.acceptSession(bundle('active-token'))
+  session.invalidateExpiredSession()
+  expect(session.authHeaders()).toEqual({})
+  expect(postMessage).toHaveBeenCalledWith('logout')
+  expect(setItem).toHaveBeenCalledWith('new-api-next:session-event', expect.any(String))
+
+  session.acceptSession(bundle('second-token'))
+  storageListeners[0]({ key: 'new-api-next:session-event', newValue: '123' } as StorageEvent)
+  expect(session.authHeaders()).toEqual({})
+})

@@ -181,7 +181,9 @@ export function AuditPage() {
               <thead>
                 <tr>
                   {['Time', 'User', 'Category', 'Action', 'Request', 'Result', 'Details'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Details' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -205,7 +207,7 @@ export function AuditPage() {
                     <td>
                       <span className={`status-badge ${record.success ? 'success' : ''}`}>{t(record.success ? 'Success' : 'Failed')}</span>
                     </td>
-                    <td>
+                    <td className="table-sticky-action">
                       <Button variant="ghost" size="icon" aria-label={`${t('Details')} ${record.event_id}`} onClick={() => setDetail(record)}>
                         <Eye size={14} />
                       </Button>
@@ -225,13 +227,13 @@ export function AuditPage() {
           if (!open) setDetail(null)
         }}
       >
-        <DialogContent className="admin-editor">
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t('Audit details')}</DialogTitle>
             <DialogDescription>{detail?.action || detail?.event_id}</DialogDescription>
           </DialogHeader>
           {detail && (
-            <>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               <dl className="ops-details">
                 {[
                   ['Event ID', detail.event_id],
@@ -256,7 +258,7 @@ export function AuditPage() {
               </dl>
               {detail.content && <p className="small-note">{t(detail.content)}</p>}
               <pre className="admin-pricing-effective">{JSON.stringify(detail.other, null, 2)}</pre>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

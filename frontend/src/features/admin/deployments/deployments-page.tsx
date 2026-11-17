@@ -75,7 +75,9 @@ export function DeploymentsPage() {
             <thead>
               <tr>
                 {['Deployment name', 'Status', 'Hardware', 'Remaining minutes', 'Actions'].map((label) => (
-                  <th key={label}>{t(label)}</th>
+                  <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                    {t(label)}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -91,7 +93,7 @@ export function DeploymentsPage() {
                     {row.brand_name} {row.hardware_name} × {formatNumber(row.hardware_quantity, locale)}
                   </td>
                   <td>{formatNumber(row.compute_minutes_remaining, locale)}</td>
-                  <td>
+                  <td className="table-sticky-action">
                     <div className="deployment-row-actions">
                       {(['detail', 'edit', 'rename', 'extend'] as const).map((mode) => (
                         <Button key={mode} size="sm" variant="outline" onClick={() => setDialog({ deployment: row, mode })}>
@@ -130,10 +132,10 @@ export function DeploymentsPage() {
       <>
         <section className="console-panel">
           <div className="action-buttons">
-            <Button variant="outline" disabled={connection.isPending} onClick={() => connection.mutate()}>
+            <Button variant="outline" loading={connection.isPending} onClick={() => connection.mutate()}>
               {t('Test connection')}
             </Button>
-            <Button variant="outline" disabled={list.isFetching} onClick={() => list.refetch()}>
+            <Button variant="outline" loading={list.isFetching} onClick={() => list.refetch()}>
               {t('Refresh')}
             </Button>
             <label className="checkbox-label">

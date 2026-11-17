@@ -164,7 +164,6 @@ export function RestOperationReference(props: { api: RestDefinition; operation: 
         <section className="rest-code-panel">
           <div className="section-heading">
             <h3>{t('Request example')}</h3>
-            <CopyButton value={code} />
           </div>
           <div className="rest-code-languages" role="group" aria-label={t('Code language')}>
             {(['curl', 'javascript', 'python'] as const).map((value) => (
@@ -179,7 +178,13 @@ export function RestOperationReference(props: { api: RestDefinition; operation: 
               </Button>
             ))}
           </div>
-          <pre className="rest-call-example">{code}</pre>
+          <div className="code-preview mt-3">
+            <div>
+              <span>{language === 'javascript' ? 'Node.js' : language === 'python' ? 'Python' : 'cURL'}</span>
+              <CopyButton value={code} />
+            </div>
+            <pre className="rest-call-example">{code}</pre>
+          </div>
           {gateway.error && <ErrorState error={gateway.error} retry={gateway.retry} />}
           {request.issues.length > 0 && (
             <ul className="rest-example-issues" role="status">
@@ -234,8 +239,11 @@ export function RestOperationReference(props: { api: RestDefinition; operation: 
               </p>
               <SchemaTable fields={schemaFields(item.schema, root, 'response')} />
               {item.example !== undefined && (
-                <div className="rest-response-example">
-                  <CopyButton value={JSON.stringify(item.example, null, 2)} />
+                <div className="code-preview rest-response-example mt-3">
+                  <div>
+                    <span>{item.type}</span>
+                    <CopyButton value={JSON.stringify(item.example, null, 2)} />
+                  </div>
                   <pre className="rest-call-example">{JSON.stringify(item.example, null, 2)}</pre>
                 </div>
               )}

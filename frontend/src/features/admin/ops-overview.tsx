@@ -156,7 +156,10 @@ export function OpsOverview() {
           <thead>
             <tr>
               {['Instance', 'Status', 'Version', 'CPU', 'Memory', 'Disk usage', 'Started at', 'Last seen', 'Actions'].map((label) => (
-                <th key={label} className={['CPU', 'Memory', 'Disk usage'].includes(label) ? 'text-right' : undefined}>
+                <th
+                  key={label}
+                  className={label === 'Actions' ? 'table-sticky-action' : ['CPU', 'Memory', 'Disk usage'].includes(label) ? 'text-right' : undefined}
+                >
                   {t(label)}
                 </th>
               ))}
@@ -189,7 +192,7 @@ export function OpsOverview() {
                   <td className="text-right tabular-nums font-mono">{percent(instance.info?.resources?.storage?.used_percent)}</td>
                   <td className="small-note tabular-nums font-mono">{date(instance.started_at)}</td>
                   <td className="small-note tabular-nums font-mono">{date(instance.last_seen_at)}</td>
-                  <td>
+                  <td className="table-sticky-action">
                     <div className="action-buttons">
                       <Button variant="ghost" size="sm" onClick={() => setSelected(instance)}>
                         {t('Details')}

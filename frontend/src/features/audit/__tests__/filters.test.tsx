@@ -84,4 +84,5 @@ it('switching audit scope resets pagination and preserves applied filters', asyn
   fireEvent.click(await screen.findByRole('option', { name: 'All audit records' }))
   await waitFor(() => expect(String(request.mock.lastCall?.[0])).toMatch(/^\/api\/audit\?p=1&.*success=true/))
   expect(screen.getByLabelText('Username')).toBeTruthy()
+  expect((await screen.findByRole('columnheader', { name: 'Details' })).className).toContain('table-sticky-action')
 })

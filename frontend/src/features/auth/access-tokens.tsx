@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
 import { dateTime } from '@/lib/format'
+import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { CopyButton } from '@/components/shared/copy-button'
@@ -42,7 +43,7 @@ export function AccessTokens() {
   return bundle ? <AccessTokensContent key={`${bundle.user.id}:${bundle.session.sid}`} /> : null
 }
 function AccessTokensContent() {
-  const { t } = useTranslation(),
+  const { t, i18n } = useTranslation(),
     { bundle } = useAuth(),
     queries = useQueryClient()
   const list = useQuery({
@@ -174,7 +175,7 @@ function AccessTokensContent() {
             <article className="admin-notice">
               <strong>{t('Legacy access token')}</strong>
               <p>
-                <code>{list.data.legacy.token_hint}</code> · {t('Expiry')}: {dateTime(list.data.legacy.retire_at)}
+                <code>{list.data.legacy.token_hint}</code> · {t('Expiry')}: {dateTime(list.data.legacy.retire_at, toIntlLocale(i18n.language))}
               </p>
               <Button variant="destructive" onClick={() => revoke('legacy')}>
                 {t('Revoke')}
@@ -191,7 +192,8 @@ function AccessTokensContent() {
                     <div>
                       <strong>{token.name}</strong>
                       <p className="small-note">
-                        <code>{token.token_hint}</code> · {t('Expiry')}: {token.expires_at ? dateTime(token.expires_at) : t('Never expires')}
+                        <code>{token.token_hint}</code> · {t('Expiry')}:{' '}
+                        {token.expires_at ? dateTime(token.expires_at, toIntlLocale(i18n.language)) : t('Never expires')}
                         {!!token.expires_at && token.expires_at <= Date.now() / 1000 && ` · ${t('Expired')}`}
                       </p>
                     </div>
@@ -217,7 +219,7 @@ function AccessTokensContent() {
                     </ul>
                   </details>
                   <p className="small-note">
-                    {t('Last used')}: {token.last_used_at ? dateTime(token.last_used_at) : '—'} {token.last_used_ip}
+                    {t('Last used')}: {token.last_used_at ? dateTime(token.last_used_at, toIntlLocale(i18n.language)) : '—'} {token.last_used_ip}
                   </p>
                 </article>
               ))}
@@ -234,12 +236,12 @@ function AccessTokensContent() {
           if (!open && !busy) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor" showCloseButton={!busy}>
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden" showCloseButton={!busy}>
           <DialogHeader>
             <DialogTitle>{t(editor === 'new' ? 'Create access token' : 'Edit access token')}</DialogTitle>
             <DialogDescription>{t('Select only the permissions this application needs.')}</DialogDescription>
           </DialogHeader>
-          <form onSubmit={submit}>
+          <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
             <fieldset className="admin-pricing-fields" disabled={busy}>
               <label className="field">
                 <span>{t('Name')}</span>
@@ -312,7 +314,7 @@ function AccessTokensContent() {
                   {t(error)}
                 </p>
               )}
-              <Button type="submit" disabled={busy || !catalog.data}>
+              <Button type="submit" loading={busy} disabled={!catalog.data}>
                 {t('Save')}
               </Button>
             </fieldset>

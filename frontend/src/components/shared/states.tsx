@@ -4,13 +4,14 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import type { ReactNode } from 'react'
 
-export function EmptyState({ title, description, icon }: { title?: string; description?: string; icon?: ReactNode }) {
+export function EmptyState({ title, description, icon, action }: { title?: string; description?: string; icon?: ReactNode; action?: ReactNode }) {
   const { t } = useTranslation()
   return (
     <div className="empty-state">
       {icon ?? <Inbox size={30} strokeWidth={1.2} />}
       <h3>{title || t('No data yet')}</h3>
       {description && <p>{description}</p>}
+      {action && <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">{action}</div>}
     </div>
   )
 }

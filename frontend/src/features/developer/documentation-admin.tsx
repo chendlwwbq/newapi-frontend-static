@@ -150,7 +150,9 @@ export function DocumentationAdmin() {
               <thead>
                 <tr>
                   {['Title', 'Language', 'Type', 'Status', 'Bindings', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -167,7 +169,7 @@ export function DocumentationAdmin() {
                       <span className={`status-badge ${doc.status === 1 ? 'success' : ''}`}>{t(doc.status === 1 ? 'Published' : 'Disabled')}</span>
                     </td>
                     <td>{doc.bindings?.length || 0}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button
                           variant="ghost"
@@ -219,13 +221,13 @@ export function DocumentationAdmin() {
           if (!open && !save.isPending) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor developer-doc-editor">
+        <DialogContent className="admin-editor developer-doc-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t(editor?.id ? 'Edit documentation' : 'Add documentation')}</DialogTitle>
             <DialogDescription>{t('Publish Markdown or external documentation and bind it to models and REST operations.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
               <div className="admin-form-grid">
                 <label className="field">
                   <span>{t('Slug')}</span>
@@ -313,7 +315,7 @@ export function DocumentationAdmin() {
                 <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={save.isPending}>
+                <Button type="submit" loading={save.isPending}>
                   {t('Save')}
                 </Button>
               </DialogFooter>

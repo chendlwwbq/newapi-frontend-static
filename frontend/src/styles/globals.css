@@ -792,8 +792,8 @@ pre {
   padding: 20px;
 }
 .connection-card > small {
-  font-size: 9px;
-  letter-spacing: 2px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
   color: var(--muted-foreground);
 }
 .connection-card > strong {
@@ -1746,7 +1746,7 @@ pre {
   justify-content: center;
   background: var(--muted);
   border: 1px solid var(--border);
-  font-size: 10px;
+  font-size: 11px;
 }
 .console-content {
   max-width: 90rem;

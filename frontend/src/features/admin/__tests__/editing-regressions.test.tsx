@@ -56,7 +56,7 @@ it('keeps the last clicked channel when details arrive out of order and resets i
   })
   request.mockImplementation(async (url: string) => {
     if (url === '/api/user/self') return user
-    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/status') return { quota_per_unit: 500000, quota_display_type: 'TOKENS' }
     if (url === '/api/channel/1') return pendingA
     if (url === '/api/channel/2') return pendingB
     if (url.startsWith('/api/channel/?')) return { items: [a, b], total: 2 }
@@ -179,7 +179,7 @@ it('keeps the last clicked user when user details arrive out of order and resets
     resolveBob = resolve
   })
   request.mockImplementation(async (url: string) => {
-    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/status') return { quota_per_unit: 500000, quota_display_type: 'TOKENS' }
     if (url === '/api/authz/catalog') return { resources: [], roles: [] }
     if (url === '/api/user/11') return pendingAlice
     if (url === '/api/user/12') return pendingBob
@@ -208,7 +208,7 @@ it('keeps the last clicked user when user details arrive out of order and resets
 it('submits ChannelEditor on Ctrl+Enter and syncs ChannelsPage search filters with URL parameters', async () => {
   request.mockImplementation(async (url: string) => {
     if (url === '/api/user/self') return user
-    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/status') return { quota_per_unit: 500000, quota_display_type: 'TOKENS' }
     if (url.startsWith('/api/channel/')) return { items: [], total: 0 }
     return []
   })
@@ -237,7 +237,7 @@ it('submits ChannelEditor on Ctrl+Enter and syncs ChannelsPage search filters wi
 it('syncs RedemptionsPage filters with URL and previews raw quota on Amount (USD)', async () => {
   request.mockImplementation(async (url: string, options?: RequestInit) => {
     if (url === '/api/user/self') return user
-    if (url === '/api/status') return { quota_per_unit: 500000 }
+    if (url === '/api/status') return { quota_per_unit: 500000, quota_display_type: 'TOKENS' }
     if (url === '/api/user/topup/info') return { payment_compliance_confirmed: true }
     if (url.startsWith('/api/redemption') && options?.method === 'POST') return ['CODE-1']
     if (url.startsWith('/api/redemption')) {
@@ -262,7 +262,7 @@ it('syncs RedemptionsPage filters with URL and previews raw quota on Amount (USD
   fireEvent.change(await screen.findByRole('textbox', { name: 'Name' }), { target: { value: 'Spring' } })
   const amountInput = screen.getByRole('spinbutton', { name: 'Amount (USD)' })
   fireEvent.change(amountInput, { target: { value: '2' } })
-  expect(screen.getByText(/1,000,000 Raw quota/)).toBeTruthy()
+  expect(screen.getByText(/\$2 · 1,000,000 Raw quota/)).toBeTruthy()
   fireEvent.keyDown(amountInput, { key: 'Enter', ctrlKey: true })
   await waitFor(() => expect(request.mock.calls.some(([url, options]) => url === '/api/redemption' && options?.method === 'POST')).toBe(true))
 })

@@ -252,7 +252,16 @@ export function UsersPage() {
               <thead>
                 <tr>
                   {['Username', 'Role', 'Status', 'Group', 'Account balance', 'Total usage', 'Requests', 'Actions'].map((label) => (
-                    <th key={label} className={['Account balance', 'Total usage', 'Requests'].includes(label) ? 'text-right' : undefined}>
+                    <th
+                      key={label}
+                      className={
+                        label === 'Actions'
+                          ? 'table-sticky-action'
+                          : ['Account balance', 'Total usage', 'Requests'].includes(label)
+                            ? 'text-right'
+                            : undefined
+                      }
+                    >
                       {t(label)}
                     </th>
                   ))}
@@ -289,7 +298,7 @@ export function UsersPage() {
                         </div>
                       </td>
                       <td className="text-right tabular-nums font-mono">{user.request_count}</td>
-                      <td>
+                      <td className="table-sticky-action">
                         {manageable && (
                           <div className="action-buttons">
                             <Button variant="ghost" size="icon" aria-label={`${t('Edit')} ${user.username}`} onClick={() => edit(user)}>
@@ -457,7 +466,7 @@ export function UsersPage() {
               >
                 {t('Cancel')}
               </Button>
-              <Button type="submit" disabled={quota.isPending || !adjustment}>
+              <Button type="submit" loading={quota.isPending} disabled={!adjustment}>
                 {t('Confirm')}
               </Button>
             </DialogFooter>

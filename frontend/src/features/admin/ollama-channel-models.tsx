@@ -147,7 +147,7 @@ export function OllamaChannelModels({
           }
         }}
       >
-        <DialogContent className="admin-editor ollama-channel-models">
+        <DialogContent className="admin-editor ollama-channel-models max-h-[88vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {t('Ollama Models')} · {channel.name}

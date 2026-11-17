@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createCurrencyFormatter, DEFAULT_CURRENCY_CONFIG } from '../currency'
 import { toIntlLocale } from '@/i18n/languages'
 import { formatNumber, formatCompactNumber } from '../number-format'
+import { dateTime } from '../format'
 
 describe('native currency behavior in the Next frontend', () => {
   it.each([
@@ -64,5 +65,10 @@ describe('shared number display', () => {
     expect(formatNumber(null, 'en')).toBe('-')
     expect(formatCompactNumber(NaN, 'en')).toBe('-')
     expect(formatNumber(0, 'en')).toBe('0')
+  })
+  it('formats timestamps with explicit locale instead of hardcoding zh-CN', () => {
+    expect(dateTime(-1, 'en')).toBe('—')
+    expect(dateTime(1700000000, 'en')).toBe(new Date(1700000000 * 1000).toLocaleString('en-US', { hour12: false }))
+    expect(dateTime(1700000000, 'zhCN')).toBe(new Date(1700000000 * 1000).toLocaleString('zh-CN', { hour12: false }))
   })
 })

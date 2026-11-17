@@ -147,8 +147,13 @@ function RestPublishedContent(props: { item: RestDefinition }) {
             <PublishedDocLinks docs={selected.docs || []} />
             <details>
               <summary>{t('OpenAPI definition')}</summary>
-              <CopyButton value={JSON.stringify(selected.definition, null, 2)} />
-              <pre>{JSON.stringify(selected.definition, null, 2)}</pre>
+              <div className="code-preview mt-3">
+                <div>
+                  <span>OpenAPI</span>
+                  <CopyButton value={JSON.stringify(selected.definition, null, 2)} />
+                </div>
+                <pre>{JSON.stringify(selected.definition, null, 2)}</pre>
+              </div>
             </details>
           </section>
         </div>
@@ -156,8 +161,13 @@ function RestPublishedContent(props: { item: RestDefinition }) {
       <section className="console-panel developer-operation">
         <details>
           <summary>{t('Shared schemas')}</summary>
-          <CopyButton value={JSON.stringify(item.schemas || {}, null, 2)} />
-          <pre>{JSON.stringify(item.schemas || {}, null, 2)}</pre>
+          <div className="code-preview mt-3">
+            <div>
+              <span>OpenAPI Schemas</span>
+              <CopyButton value={JSON.stringify(item.schemas || {}, null, 2)} />
+            </div>
+            <pre>{JSON.stringify(item.schemas || {}, null, 2)}</pre>
+          </div>
         </details>
       </section>
     </>

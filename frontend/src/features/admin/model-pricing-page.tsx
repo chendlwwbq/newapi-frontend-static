@@ -142,7 +142,9 @@ export function ModelPricingPage() {
               <thead>
                 <tr>
                   {['Model name', 'Billing mode', 'Configured overrides', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -154,7 +156,7 @@ export function ModelPricingPage() {
                     </td>
                     <td>{t(entry.effective['billing_setting.billing_mode'] === 'tiered_expr' ? 'Expression' : 'Legacy pricing')}</td>
                     <td>{Object.keys(entry.configured).length ? <span className="status-badge">{t('Custom')}</span> : t('Inherited')}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button variant="ghost" size="icon" aria-label={`${t('Edit')} ${entry.model_name}`} onClick={() => edit(entry)}>
                           <Pencil size={14} />

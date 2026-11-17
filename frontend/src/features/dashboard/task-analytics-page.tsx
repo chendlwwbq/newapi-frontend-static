@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { Download, RefreshCw } from 'lucide-react'
 import { api } from '@/lib/api/client'
 import { useAuth } from '@/lib/auth/session'
-import { useQuotaFormatter, formatNumber } from '@/lib/format'
+import { useTokenAwareQuotaFormatter, formatNumber } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -118,7 +118,7 @@ function DimensionTable({
 export function TaskAnalyticsPage() {
   const { t, i18n } = useTranslation(),
     auth = useAuth(),
-    money = useQuotaFormatter()
+    money = useTokenAwareQuotaFormatter()
   const admin = (auth.bundle?.user.role || 0) >= 10
   const userId = auth.bundle?.user.id
   const [days, setDays] = useState(7)
@@ -294,7 +294,20 @@ export function TaskAnalyticsPage() {
         ) : query.error ? (
           <ErrorState error={query.error} retry={() => query.refetch()} />
         ) : !stat || !stat.summary.total_tasks ? (
-          <EmptyState title={t('No data yet')} />
+          <EmptyState
+            title={t('No data yet')}
+            description={t('No usage in this period. Aggregated data appears after collection is enabled and requests are recorded.')}
+            action={
+              <>
+                <Link className="pill-button" href="/playground">
+                  {t('Playground')}
+                </Link>
+                <Link className="pill-button secondary" href="/usage-logs/task">
+                  {t('Task logs')}
+                </Link>
+              </>
+            }
+          />
         ) : (
           <>
             <div className="analytics-summary">

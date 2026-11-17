@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -8,7 +9,7 @@ import { Download, RefreshCw } from 'lucide-react'
 import { api } from '@/lib/api/client'
 import type { QuotaData } from '@/lib/api/types'
 import { useAuth } from '@/lib/auth/session'
-import { formatNumber, useQuotaFormatter } from '@/lib/format'
+import { formatNumber, useTokenAwareQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -39,7 +40,7 @@ const ModelAnalytics = dynamic(() => import('./model-analytics').then((module) =
 export function AnalyticsPanel({ compact = false, initialView = 'models' }: { compact?: boolean; initialView?: 'models' | 'flow' | 'users' }) {
   const { t, i18n } = useTranslation(),
     auth = useAuth(),
-    money = useQuotaFormatter()
+    money = useTokenAwareQuotaFormatter()
   const queryClient = useQueryClient()
   const [days, setDays] = useState(7),
     [revision, setRevision] = useState(0)
@@ -356,7 +357,22 @@ export function AnalyticsPanel({ compact = false, initialView = 'models' }: { co
                 </div>
               )}
               {admin && !compact && <PerformanceHealth />}
-              {compact || !usage.models.length ? (
+              {!compact && !usage.models.length ? (
+                <EmptyState
+                  title={t('No data yet')}
+                  description={t('No usage in this period. Aggregated data appears after collection is enabled and requests are recorded.')}
+                  action={
+                    <>
+                      <Link className="pill-button" href="/playground">
+                        {t('Playground')}
+                      </Link>
+                      <Link className="pill-button secondary" href="/keys?create=1">
+                        {t('Create API key')}
+                      </Link>
+                    </>
+                  }
+                />
+              ) : compact || !usage.models.length ? (
                 <UsageChart days={usage.days} metric={metric} format={format} granularity={granularity} />
               ) : (
                 <ModelAnalytics
@@ -368,7 +384,7 @@ export function AnalyticsPanel({ compact = false, initialView = 'models' }: { co
                   format={format}
                 />
               )}
-              {!usage.models.length && (
+              {compact && !usage.models.length && (
                 <p className="analytics-note">
                   {t('No usage in this period. Aggregated data appears after collection is enabled and requests are recorded.')}
                 </p>

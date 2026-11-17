@@ -41,8 +41,18 @@ export function useQuotaFormatter() {
   const { formatter, ready, locale } = useCurrencyFormatter()
   return (quota: number, options?: CurrencyFormatOptions) => (ready ? formatter.formatQuotaWithCurrency(quota, { ...options, locale }) : '—')
 }
-export function dateTime(timestamp: number) {
-  return timestamp === -1 ? '—' : new Date(timestamp * 1000).toLocaleString('zh-CN', { hour12: false })
+/** Format quota using site display mode, appending "Tokens" when configured for raw token display. */
+export function useTokenAwareQuotaFormatter() {
+  const { formatter, ready, locale } = useCurrencyFormatter()
+  const isTokens = formatter.getCurrencyDisplay().meta.kind === 'tokens'
+  return (quota: number, options?: CurrencyFormatOptions) => {
+    if (!ready) return '—'
+    const formatted = formatter.formatQuotaWithCurrency(quota, { ...options, locale })
+    return isTokens ? `${formatted} Tokens` : formatted
+  }
+}
+export function dateTime(timestamp: number, locale = 'en') {
+  return timestamp === -1 ? '—' : new Date(timestamp * 1000).toLocaleString(toIntlLocale(locale), { hour12: false })
 }
 
 export { formatNumber, formatCompactNumber } from './number-format'

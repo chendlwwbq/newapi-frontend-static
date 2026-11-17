@@ -26,7 +26,7 @@ export function ServiceStatus({ enabled }: { enabled: boolean }) {
       <div className="console-page-heading">
         <h2>{t('Service status')}</h2>
         {enabled && (
-          <Button variant="outline" disabled={query.isFetching} onClick={() => query.refetch()}>
+          <Button variant="outline" loading={query.isFetching} onClick={() => query.refetch()}>
             {t('Refresh')}
           </Button>
         )}

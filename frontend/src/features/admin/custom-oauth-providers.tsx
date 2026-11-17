@@ -135,7 +135,7 @@ function ProviderForm({
         if (!open && !busy) onClose()
       }}
     >
-      <DialogContent className="custom-oauth-dialog">
+      <DialogContent className="custom-oauth-dialog max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t(provider ? 'Edit OAuth Provider' : 'Add OAuth Provider')}</DialogTitle>
           <DialogDescription>{t('Configure the identity provider, user fields and access policy.')}</DialogDescription>

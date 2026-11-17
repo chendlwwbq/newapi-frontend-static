@@ -190,7 +190,9 @@ export function ModelsPage() {
                     />
                   </th>
                   {['Model name', 'Visibility', 'Channels', 'Name matching rule', 'Tags', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -228,7 +230,7 @@ export function ModelsPage() {
                     </td>
                     <td>{t(rules[model.name_rule])}</td>
                     <td className="small-note">{model.tags || '—'}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button
                           variant="ghost"
@@ -279,13 +281,14 @@ export function ModelsPage() {
           if (!open && !save.isPending) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor">
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t(editor?.id ? 'Edit model' : 'Add model')}</DialogTitle>
             <DialogDescription>{t('Manage catalog descriptions, visibility and provider metadata.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col gap-4">
+              <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               <div className="admin-form-grid">
                 <label className="field">
                   <span>{t('Model name')}</span>
@@ -372,11 +375,12 @@ export function ModelsPage() {
                   {t(error)}
                 </p>
               )}
-              <DialogFooter>
+              </div>
+              <DialogFooter className="shrink-0">
                 <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={save.isPending}>
+                <Button type="submit" loading={save.isPending}>
                   {t('Save')}
                 </Button>
               </DialogFooter>

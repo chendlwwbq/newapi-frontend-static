@@ -6,6 +6,7 @@ import { I18nextProvider } from 'react-i18next'
 import { AnalyticsPanel } from '../analytics-panel'
 import { MetricTrend } from '@/components/shared/metric-trend'
 import { TrafficFlow } from '../traffic-flow'
+import { UserAnalytics } from '../user-analytics'
 
 vi.mock('@/lib/auth/session', () => ({ useAuth: () => ({ bundle: { user: { id: 1 } } }) }))
 
@@ -77,4 +78,41 @@ it('keeps one tab stop for the flow graph while exposing its nodes and links', a
   expect(svg.match(/role="button"/g)).toHaveLength(5)
   expect(svg.match(/tabindex="0"/g)).toHaveLength(1)
   expect(svg.match(/tabindex="-1"/g)).toHaveLength(4)
+})
+
+it('shows playground and API key actions when traffic flow is empty', async () => {
+  const client = new QueryClient()
+  client.setQueryData(['status'], { quota_per_unit: 500000 })
+  client.setQueryData(['traffic-flow', 1, 'user', 100, 200, ''], [])
+  const i18n = createInstance()
+  await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+  const html = renderToStaticMarkup(
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={client}>
+        <TrafficFlow userId={1} role="user" start={100} end={200} username="" initialOpen />
+      </QueryClientProvider>
+    </I18nextProvider>
+  )
+  expect(html).toContain('No flow data available')
+  expect(html).toContain('href="/playground"')
+  expect(html).toContain('href="/keys?create=1"')
+})
+
+it('appends Tokens unit in UserAnalytics when quota_display_type is TOKENS', async () => {
+  const client = new QueryClient()
+  client.setQueryData(['status'], { quota_per_unit: 500000, quota_display_type: 'TOKENS' })
+  const i18n = createInstance()
+  await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+  const html = renderToStaticMarkup(
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={client}>
+        <UserAnalytics
+          rows={[{ username: 'alice', created_at: 1700000000, quota: 500000, count: 2, token_used: 1200 }]}
+          granularity="day"
+          username=""
+        />
+      </QueryClientProvider>
+    </I18nextProvider>
+  )
+  expect(html).toContain('Tokens')
 })

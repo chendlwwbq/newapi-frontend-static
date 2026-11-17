@@ -94,7 +94,9 @@ export function SubscriptionsPage() {
             <thead>
               <tr>
                 {['Title', 'Price', 'Quota', 'Duration', 'Quota reset period', 'Status', 'Actions'].map((label) => (
-                  <th key={label}>{t(label)}</th>
+                  <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                    {t(label)}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -118,7 +120,7 @@ export function SubscriptionsPage() {
                   <td>
                     <span className={`status-badge ${plan.enabled ? 'success' : ''}`}>{t(plan.enabled ? 'Enabled' : 'Disabled')}</span>
                   </td>
-                  <td>
+                  <td className="table-sticky-action">
                     <div className="action-buttons">
                       <Button variant="ghost" size="icon" disabled={!unit} aria-label={`${t('Edit')} ${plan.title}`} onClick={() => setEditor(plan)}>
                         <Pencil size={14} />
@@ -220,7 +222,9 @@ export function SubscriptionsPage() {
                   <thead>
                     <tr>
                       {['Subscription plan', 'Status', 'Quota', 'Total usage', 'Expiry', 'Actions'].map((label) => (
-                        <th key={label}>{t(label)}</th>
+                        <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                          {t(label)}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -234,7 +238,7 @@ export function SubscriptionsPage() {
                         <td>{sub.amount_total === 0 ? '∞' : format(sub.amount_total)}</td>
                         <td>{format(sub.amount_used)}</td>
                         <td className="small-note">{date(sub.end_time)}</td>
-                        <td>
+                        <td className="table-sticky-action">
                           <div className="action-buttons">
                             {sub.status === 'active' && (
                               <Button

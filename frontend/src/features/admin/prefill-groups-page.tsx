@@ -126,7 +126,9 @@ export function PrefillGroupsPage() {
             <thead>
               <tr>
                 {['Name', 'Type', 'Description', 'Items', 'Actions'].map((label) => (
-                  <th key={label}>{t(label)}</th>
+                  <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                    {t(label)}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -143,7 +145,7 @@ export function PrefillGroupsPage() {
                     <td>
                       <code className="admin-models">{typeof group.items === 'string' ? group.items : JSON.stringify(group.items)}</code>
                     </td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button variant="ghost" size="icon" aria-label={`${t('Edit')} ${group.name}`} onClick={() => edit({ ...group })}>
                           <Pencil size={14} />
@@ -165,13 +167,13 @@ export function PrefillGroupsPage() {
           if (!open && !save.isPending) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor">
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t(editor?.id ? 'Edit group' : 'Add group')}</DialogTitle>
             <DialogDescription>{t('Reusable model, tag and endpoint presets.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
               <label className="field">
                 <span>{t('Name')}</span>
                 <input required maxLength={64} value={editor.name} onChange={(event) => setEditor({ ...editor, name: event.target.value })} />
@@ -208,7 +210,7 @@ export function PrefillGroupsPage() {
                 <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button disabled={save.isPending} type="submit">
+                <Button loading={save.isPending} type="submit">
                   {t('Save')}
                 </Button>
               </DialogFooter>

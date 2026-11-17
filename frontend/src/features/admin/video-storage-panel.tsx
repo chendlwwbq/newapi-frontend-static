@@ -140,7 +140,7 @@ export function VideoStoragePanel() {
           </div>
           <div className="rounded-xl border border-border p-4">
             <dt className="small-note">{t('Last usage update')}</dt>
-            <dd className="mt-2 break-words">{usage?.updated_at ? dateTime(usage.updated_at) : '—'}</dd>
+            <dd className="mt-2 break-words">{usage?.updated_at ? dateTime(usage.updated_at, locale) : '—'}</dd>
           </div>
         </dl>
         <p className="small-note">

@@ -132,7 +132,7 @@ export function CodexChannelDialog({
         if (!open && !reset.isPending && !refresh.isPending) onClose()
       }}
     >
-      <DialogContent className="admin-editor codex-channel-dialog">
+      <DialogContent className="admin-editor codex-channel-dialog max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {t('Codex Usage')} · {channel.name}

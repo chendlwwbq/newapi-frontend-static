@@ -129,7 +129,7 @@ export function PluginDetailDialog(props: { pluginKey: string; onClose: () => vo
         if (!open) props.onClose()
       }}
     >
-      <DialogContent className="admin-dialog plugin-dialog">
+      <DialogContent className="admin-dialog plugin-dialog max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="plugin-identity">
             {data && (

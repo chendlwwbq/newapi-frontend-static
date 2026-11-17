@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/states'
-import { useQuotaFormatter } from '@/lib/format'
+import { useTokenAwareQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { userUsageHistory, trendPosition, nearestTrendIndex, type UserUsageRow, type UsageGranularity } from './lib/analytics'
 
@@ -26,7 +26,7 @@ export function UserAnalytics({
   format?: (value: number) => string
 }) {
   const { t, i18n } = useTranslation()
-  const money = useQuotaFormatter()
+  const money = useTokenAwareQuotaFormatter()
   const [limit, setLimit] = useState(10)
   const [hidden, setHidden] = useState<Set<string>>(() => new Set())
   const [active, setActive] = useState(0)

@@ -1,10 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '@/lib/api/client'
-import { useQuotaFormatter } from '@/lib/format'
+import { useTokenAwareQuotaFormatter } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
 import { Button } from '@/components/ui/button'
 import { EmptyState, ErrorState, LoadingState } from '@/components/shared/states'
@@ -38,7 +39,7 @@ export function TrafficFlow({
   initialOpen?: boolean
 }) {
   const { t, i18n } = useTranslation()
-  const money = useQuotaFormatter()
+  const money = useTokenAwareQuotaFormatter()
   const [open, setOpen] = useState(initialOpen)
   const [metric, setMetric] = useState<FlowMetric>('quota')
   const [selected, setSelected] = useState<FlowSelection[]>([])
@@ -209,7 +210,20 @@ export function TrafficFlow({
           ) : query.isPending ? (
             <LoadingState />
           ) : !filterOptions.columns[0]?.length ? (
-            <EmptyState title={t('No flow data available')} />
+            <EmptyState
+              title={t('No flow data available')}
+              description={t('No usage in this period. Aggregated data appears after collection is enabled and requests are recorded.')}
+              action={
+                <>
+                  <Link className="pill-button" href="/playground">
+                    {t('Playground')}
+                  </Link>
+                  <Link className="pill-button secondary" href="/keys?create=1">
+                    {t('Create API key')}
+                  </Link>
+                </>
+              }
+            />
           ) : (
             <>
               <details>
@@ -240,7 +254,16 @@ export function TrafficFlow({
                 ))}
               </details>
               {!graph.columns[0]?.length ? (
-                <EmptyState title={t('No flow data available')} />
+                <EmptyState
+                  title={t('No flow data available')}
+                  action={
+                    selected.length > 0 ? (
+                      <Button variant="outline" onClick={() => setSelected([])}>
+                        {t('Clear selection')}
+                      </Button>
+                    ) : undefined
+                  }
+                />
               ) : (
                 <div style={{ overflow: 'auto', maxHeight: 620 }}>
                   <svg

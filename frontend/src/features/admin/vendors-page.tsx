@@ -159,7 +159,9 @@ export function VendorsPage() {
                     />
                   </th>
                   {['Name', 'Description', 'Models', 'Status', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -191,7 +193,7 @@ export function VendorsPage() {
                     </td>
                     <td>{vendor.model_count ?? 0}</td>
                     <td>{t(vendor.status === 1 ? 'Enabled' : 'Disabled')}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <Button
                           variant="ghost"
@@ -224,13 +226,13 @@ export function VendorsPage() {
           if (!open && !save.isPending) setEditor(null)
         }}
       >
-        <DialogContent>
+        <DialogContent className="flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t(editor?.id ? 'Edit vendor' : 'Add vendor')}</DialogTitle>
             <DialogDescription>{t('Maintain provider names, descriptions and icons.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
               <label className="field">
                 <span>{t('Name')}</span>
                 <input required value={editor.name} maxLength={128} onChange={(event) => setEditor({ ...editor, name: event.target.value })} />
@@ -252,7 +254,7 @@ export function VendorsPage() {
                 <Button type="button" variant="outline" disabled={save.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={save.isPending}>
+                <Button type="submit" loading={save.isPending}>
                   {t('Save')}
                 </Button>
               </DialogFooter>

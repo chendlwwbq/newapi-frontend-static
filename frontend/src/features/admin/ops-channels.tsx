@@ -118,7 +118,9 @@ export function OpsChannels() {
               <thead>
                 <tr>
                   {['Channel', 'Type', 'Status', 'Response time', 'Models', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -137,7 +139,7 @@ export function OpsChannels() {
                         {item.models}
                       </span>
                     </td>
-                    <td>
+                    <td className="table-sticky-action">
                       <Button variant="outline" onClick={() => setChannel(item)}>
                         {t('Details')}
                       </Button>

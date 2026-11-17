@@ -142,7 +142,9 @@ export function RestDefinitionsAdmin() {
               <thead>
                 <tr>
                   {['ID', 'Name', 'Group', 'REST operations', 'Status', 'Actions'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -159,7 +161,7 @@ export function RestDefinitionsAdmin() {
                     <td>
                       <span className={`status-badge ${item.status === 1 ? 'success' : ''}`}>{t(item.status === 1 ? 'Published' : 'Disabled')}</span>
                     </td>
-                    <td>
+                    <td className="table-sticky-action">
                       <div className="action-buttons">
                         <RestRelayButton apiID={item.id} name={item.name} />
                         <Button variant="outline" onClick={() => setDetailID(item.id)}>
@@ -218,13 +220,13 @@ export function RestDefinitionsAdmin() {
           if (!open && !mutation.isPending) setEditor(null)
         }}
       >
-        <DialogContent className="admin-editor">
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t(editor?.id ? 'Edit API' : 'Add API')}</DialogTitle>
             <DialogDescription>{t('Manage endpoint definitions and their documentation.')}</DialogDescription>
           </DialogHeader>
           {editor && (
-            <form onSubmit={submit}>
+            <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
               <div className="admin-form-grid">
                 <label className="field">
                   <span>{t('Slug')}</span>
@@ -280,7 +282,7 @@ export function RestDefinitionsAdmin() {
                 <Button type="button" variant="outline" disabled={mutation.isPending} onClick={() => setEditor(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={mutation.isPending}>
+                <Button type="submit" loading={mutation.isPending}>
                   {t('Save')}
                 </Button>
               </DialogFooter>
@@ -453,7 +455,7 @@ export function RestDefinitionsAdmin() {
                 <Button variant="outline" type="button" disabled={mutation.isPending} onClick={() => setOperation(null)}>
                   {t('Cancel')}
                 </Button>
-                <Button type="submit" disabled={mutation.isPending}>
+                <Button type="submit" loading={mutation.isPending}>
                   {t('Save')}
                 </Button>
               </DialogFooter>

@@ -58,12 +58,12 @@ export function PlanEditor({ initial, unit, enabled, onClose }: { initial: Subsc
         if (!open && !save.isPending) onClose()
       }}
     >
-      <DialogContent className="admin-editor">
+      <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t(plan.id ? 'Edit subscription plan' : 'Create subscription plan')}</DialogTitle>
           <DialogDescription>{t('Configure subscription pricing, quota and renewal rules.')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={submit}>
+        <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto pr-1">
           <div className="admin-form-grid">
             <label className="field">
               <span>{t('Title')}</span>
@@ -225,7 +225,7 @@ export function PlanEditor({ initial, unit, enabled, onClose }: { initial: Subsc
             <Button type="button" variant="outline" disabled={save.isPending} onClick={onClose}>
               {t('Cancel')}
             </Button>
-            <Button type="submit" disabled={!enabled || save.isPending}>
+            <Button type="submit" loading={save.isPending} disabled={!enabled}>
               {t('Save')}
             </Button>
           </DialogFooter>

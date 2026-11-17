@@ -73,7 +73,7 @@ export function ChannelKeyManager({
           if (!open && !mutation.isPending) onClose()
         }}
       >
-        <DialogContent className="admin-editor channel-key-manager">
+        <DialogContent className="admin-editor channel-key-manager max-h-[88vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {t('Multi-key management')} · {channel.name}

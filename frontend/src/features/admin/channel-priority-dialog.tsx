@@ -93,7 +93,7 @@ export function ChannelPriorityDialog({
           if (!open && !busy) onClose()
         }}
       >
-        <DialogContent className="admin-editor channel-priority-dialog">
+        <DialogContent className="admin-editor channel-priority-dialog max-h-[88vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t('Priority order')}</DialogTitle>
           </DialogHeader>

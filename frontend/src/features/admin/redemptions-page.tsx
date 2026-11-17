@@ -397,7 +397,7 @@ export function RedemptionsPage() {
                 />
                 {unit && Number(editor.quota) > 0 && (
                   <span className="small-note tabular-nums font-mono">
-                    ≈ {currency.formatter.formatCurrencyFromUSD(Number(editor.quota), { locale, abbreviate: false })} ·{' '}
+                    ≈ {currency.formatter.formatBillingCurrencyFromUSD(Number(editor.quota), { locale, abbreviate: false })} ·{' '}
                     {Math.round(Number(editor.quota) * unit).toLocaleString(locale)} {t('Raw quota')}
                   </span>
                 )}

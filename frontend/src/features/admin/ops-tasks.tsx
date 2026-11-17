@@ -136,7 +136,9 @@ export function OpsTasks() {
               <thead>
                 <tr>
                   {['Task ID', 'Type', 'Status', 'Worker', 'Updated', 'Details'].map((label) => (
-                    <th key={label}>{t(label)}</th>
+                    <th key={label} className={label === 'Details' ? 'table-sticky-action' : undefined}>
+                      {t(label)}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -156,7 +158,7 @@ export function OpsTasks() {
                     </td>
                     <td>{task.locked_by || '—'}</td>
                     <td className="small-note">{date(task.updated_at)}</td>
-                    <td>
+                    <td className="table-sticky-action">
                       <Button variant="ghost" size="icon" aria-label={`${t('Details')} ${task.task_id}`} onClick={() => setDetailId(task.task_id)}>
                         <Eye size={14} />
                       </Button>
@@ -176,7 +178,7 @@ export function OpsTasks() {
           if (!open) setDetailId('')
         }}
       >
-        <DialogContent className="admin-editor">
+        <DialogContent className="admin-editor flex max-h-[88vh] flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>{t('Task details')}</DialogTitle>
             <DialogDescription>{detailId}</DialogDescription>
@@ -186,7 +188,7 @@ export function OpsTasks() {
           ) : detail.isPending ? (
             <LoadingState />
           ) : (
-            <>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               <p className="small-note">
                 {t(statuses[detail.data.status as keyof typeof statuses] || detail.data.status)} · {date(detail.data.updated_at)}
               </p>
@@ -197,7 +199,7 @@ export function OpsTasks() {
                   <pre className="admin-pricing-effective">{JSON.stringify(detail.data[key], null, 2)}</pre>
                 </section>
               ))}
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

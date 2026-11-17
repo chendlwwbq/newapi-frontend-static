@@ -225,12 +225,12 @@ export function DeploymentDialog(props: { deployment: Deployment; mode: Deployme
         if (!open) props.onClose()
       }}
     >
-      <DialogContent className="deployment-dialog">
+      <DialogContent className="deployment-dialog flex max-h-[88vh] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t(titles[props.mode])}</DialogTitle>
           <DialogDescription>{props.deployment.deployment_name || props.deployment.id}</DialogDescription>
         </DialogHeader>
-        {content}
+        <div className="min-h-0 flex-1 overflow-y-auto pr-1">{content}</div>
       </DialogContent>
     </Dialog>
   )

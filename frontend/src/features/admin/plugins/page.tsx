@@ -131,7 +131,9 @@ function TaskPluginsContent() {
                   <thead>
                     <tr>
                       {['Plugin', 'Version', 'Source', 'Runtime status', 'Models', 'Channels', 'In-flight tasks', 'Actions'].map((label) => (
-                        <th key={label}>{t(label)}</th>
+                        <th key={label} className={label === 'Actions' ? 'table-sticky-action' : undefined}>
+                          {t(label)}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -170,7 +172,7 @@ function TaskPluginsContent() {
                         </td>
                         <td>{plugin.source === 'override' ? plugin.channel_count : '—'}</td>
                         <td>{plugin.source === 'override' ? plugin.in_flight_count : '—'}</td>
-                        <td>
+                        <td className="table-sticky-action">
                           <div className="action-buttons">
                             <Button
                               size="icon"

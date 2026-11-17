@@ -103,12 +103,12 @@ export function CreateDeployment(props: { onClose: () => void; onSaved: () => vo
         if (!open && !save.isPending) props.onClose()
       }}
     >
-      <DialogContent className="deployment-dialog">
+      <DialogContent className="deployment-dialog flex max-h-[88vh] flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t(review ? 'Review deployment' : 'Create deployment')}</DialogTitle>
           <DialogDescription>{t('Resources are provisioned by io.net and may incur provider charges.')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={submit} autoComplete="off">
+        <form onSubmit={submit} autoComplete="off" className="min-h-0 flex-1 overflow-y-auto pr-1">
           <fieldset disabled={save.isPending}>
             {review ? (
               <div className="deployment-review">
@@ -211,7 +211,8 @@ export function CreateDeployment(props: { onClose: () => void; onSaved: () => vo
                   <Button
                     type="button"
                     variant="outline"
-                    disabled={!quoteKey || estimate.isPending}
+                    loading={estimate.isPending}
+                    disabled={!quoteKey}
                     onClick={() => {
                       setError('')
                       estimate.mutate()
@@ -235,7 +236,7 @@ export function CreateDeployment(props: { onClose: () => void; onSaved: () => vo
               <Button type="button" variant="outline" onClick={props.onClose}>
                 {t('Cancel')}
               </Button>
-              <Button type="submit" disabled={save.isPending || !validQuote}>
+              <Button type="submit" loading={save.isPending} disabled={!validQuote}>
                 {t(review ? 'Create deployment' : 'Review deployment')}
               </Button>
             </DialogFooter>

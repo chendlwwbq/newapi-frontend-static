@@ -25,11 +25,13 @@ export function ApiHub() {
       </div>
       <section className="console-panel">
         <h2>{t('Base URL')}</h2>
-        <div className="action-buttons" style={{ marginTop: 18 }}>
-          <code>{address ? `${address}/v1` : '—'}</code>
+        <div className="mt-4 flex flex-wrap items-center gap-2.5">
+          <code className="rounded-xl border border-border/70 bg-muted/50 px-3.5 py-2 font-mono text-sm text-foreground">
+            {address ? `${address}/v1` : '—'}
+          </code>
           {address && <CopyButton value={`${address}/v1`} />}
         </div>
-        <p className="small-note" style={{ marginTop: 16 }}>
+        <p className="small-note mt-4">
           {t('Create an account, choose a model and route, then create an API key.')}
         </p>
         <Link href="/keys" className="text-link">

@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { LoadingState, ErrorState } from '@/components/shared/states'
 import { AdminConfirm } from './shared'
 import { channelPriorityUndo, type ChannelPriorityMove, type ChannelPriorityOrder } from './lib/channel-priority'
+import type { PageResult } from '@/lib/api/types'
 import type { Channel } from './types'
 
 export function ChannelPriorityDialog({
@@ -37,6 +38,22 @@ export function ChannelPriorityDialog({
     queryKey: ['channel-priority-order', ownerId],
     queryFn: ({ signal }) => api<ChannelPriorityOrder>('/api/channel/priority/order', { signal }),
   })
+  const channelNames = useQuery({
+    queryKey: ['channel-name-cache', ownerId],
+    staleTime: 60_000,
+    queryFn: async ({ signal }) => {
+      const names: Record<number, string> = {}
+      let loaded = 0
+      for (let page = 1; page <= 10000; page++) {
+        const result = await api<PageResult<Pick<Channel, 'id' | 'name'>>>(`/api/channel/?p=${page}&page_size=100`, { signal })
+        for (const channel of result.items) names[channel.id] = channel.name
+        loaded += result.items.length
+        if (loaded >= result.total) return names
+        if (!result.items.length) throw new Error('Invalid server response')
+      }
+      throw new Error('Invalid server response')
+    },
+  })
   const mutation = useMutation({
     mutationFn: (body: ChannelPriorityMove | ReturnType<typeof channelPriorityUndo>) =>
       api<ChannelPriorityOrder>('/api/channel/priority/reorder', { method: 'POST', body }),
@@ -62,7 +79,10 @@ export function ChannelPriorityDialog({
     event.preventDefault()
     if (query.data) mutation.mutate({ revision: query.data.revision, id, target_id: target, position, preview: true })
   }
-  const names = new Map(channels.map((channel) => [channel.id, channel.name])),
+  const names = new Map([
+      ...channels.map((channel) => [channel.id, channel.name] as const),
+      ...Object.entries(channelNames.data || {}).map(([id, name]) => [Number(id), name] as const),
+    ]),
     items = [...(query.data?.items || [])].sort((a, b) => (b.priority || 0) - (a.priority || 0) || a.id - b.id)
   const busy = mutation.isPending
   return (
@@ -78,6 +98,7 @@ export function ChannelPriorityDialog({
             <DialogTitle>{t('Priority order')}</DialogTitle>
           </DialogHeader>
           <p className="small-note">{t('Higher priority channels are tried first. Channels at the same priority share traffic by weight.')}</p>
+          {channelNames.error && <ErrorState error={channelNames.error} retry={() => channelNames.refetch()} />}
           {query.isPending ? (
             <LoadingState />
           ) : query.error ? (

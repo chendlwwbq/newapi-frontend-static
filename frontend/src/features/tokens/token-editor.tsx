@@ -219,7 +219,7 @@ export function TokenEditor({
 
         <label className="checkbox-label">
           <input type="checkbox" checked={!!draft.unlimited_quota} onChange={(e) => patch({ unlimited_quota: e.target.checked })} />
-          {t('Unlimited quota')}
+          {t('Do not limit spending on this key (account balance and subscription rules still apply)')}
         </label>
 
         {!draft.unlimited_quota && (

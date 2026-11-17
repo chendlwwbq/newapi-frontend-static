@@ -7,7 +7,7 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { toIntlLocale } from '@/i18n/languages'
 import { useAuth } from '@/lib/auth/session'
-import { useCurrencyFormatter, useQuotaFormatter } from '@/lib/format'
+import { useCurrencyFormatter, useQuotaFormatter, formatNumber } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ErrorState } from '@/components/shared/states'
@@ -154,7 +154,10 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                       disabled={busy}
                     />
                     <small className="small-note">
-                      {t('Minimum')}: {currency.ready ? `${currency.formatter.formatCurrencyFromUSD(minimum, { locale: currency.locale, abbreviate: false })} (${minimum} USD)` : minimum}
+                      {t('Minimum')}:{' '}
+                      {currency.ready
+                        ? `${currency.formatter.formatCurrencyFromUSD(minimum, { locale: currency.locale, abbreviate: false })} (${minimum} USD)`
+                        : minimum}
                     </small>
                   </label>
                   <Button type="submit" disabled={busy || !method || !Number.isInteger(amount) || amount < minimum}>
@@ -248,7 +251,7 @@ export function RechargePanel({ info, affiliate }: { info: TopupInfo; affiliate?
                   : quote.isFetching
                     ? t('Loading')
                     : quote.data
-                      ? `${quote.data} ${currency.ready ? currency.formatter.getCurrencyLabel() : ''}`
+                      ? formatNumber(Number(quote.data), currency.locale)
                       : '—'}
               </dd>
             </div>

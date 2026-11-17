@@ -81,12 +81,14 @@ export function AdminConfirm({
   busy,
   onConfirm,
   onClose,
+  error,
 }: {
   title: string
   description: string
   busy: boolean
   onConfirm: () => void
   onClose: () => void
+  error?: Error | null
 }) {
   const { t } = useTranslation()
   return (
@@ -101,6 +103,11 @@ export function AdminConfirm({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
+        {error && (
+          <p role="alert" className="inline-error">
+            {t(error.message)}
+          </p>
+        )}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>{t('Cancel')}</AlertDialogCancel>
           <Button variant="destructive" disabled={busy} onClick={onConfirm}>

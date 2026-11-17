@@ -7,6 +7,7 @@ import { renderToString } from 'react-dom/server'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LoginPage } from './login-page'
 import { api } from '@/lib/api/client'
+import { availableOAuthProviders } from './oauth'
 
 const apiMock = vi.mocked(api)
 vi.mock('@/lib/api/client', () => ({ api: vi.fn() }))
@@ -20,7 +21,7 @@ vi.mock('./turnstile', () => ({
     </button>
   ),
 }))
-vi.mock('./oauth', () => ({ availableOAuthProviders: () => [], createOAuthAuthorization: vi.fn() }))
+vi.mock('./oauth', () => ({ availableOAuthProviders: vi.fn(() => []), createOAuthAuthorization: vi.fn() }))
 vi.mock('./passkey/assertion', () => ({ requestPasskeyAssertion: vi.fn(), rememberPasskeyRPID: vi.fn() }))
 vi.mock('@/lib/auth/session', () => ({ acceptSession: vi.fn() }))
 vi.mock('@/lib/auth/password', () => ({ passwordPayload: async (password: string) => ({ password }) }))
@@ -38,6 +39,7 @@ describe('LoginPage submission state', () => {
 
   beforeEach(() => {
     apiMock.mockReset()
+    vi.mocked(availableOAuthProviders).mockReturnValue([])
     apiMock.mockResolvedValue({ password_login_enabled: true, turnstile_check: false })
     ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
   })
@@ -136,8 +138,17 @@ describe('LoginPage submission state', () => {
   it('forwards custom returnTo to the sign-up link', () => {
     const queryClient = client()
     render(wrapper(queryClient, <LoginPage returnTo="/pricing/gpt-4o/connect?group=vip" />))
-    expect(screen.getByRole('link', { name: 'Sign up' }).getAttribute('href')).toBe(
-      '/sign-up?redirect=%2Fpricing%2Fgpt-4o%2Fconnect%3Fgroup%3Dvip'
+    expect(screen.getByRole('link', { name: 'Sign up' }).getAttribute('href')).toBe('/sign-up?redirect=%2Fpricing%2Fgpt-4o%2Fconnect%3Fgroup%3Dvip')
+  })
+
+  it('keeps distinct provider names visible when more than three providers share the default icon', async () => {
+    vi.mocked(availableOAuthProviders).mockReturnValue(
+      ['Company A', 'Company B', 'Company C', 'Company D'].map((name, index) => ({ slug: `company-${index}`, name }))
     )
+    render(wrapper(client(), <LoginPage />))
+    for (const name of ['Company A', 'Company B', 'Company C', 'Company D']) {
+      const button = await screen.findByRole('button', { name })
+      expect(button.textContent).toContain(name)
+    }
   })
 })

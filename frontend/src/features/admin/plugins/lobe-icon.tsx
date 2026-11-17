@@ -26,6 +26,31 @@ For commercial licensing, please contact support@quantumnous.com
  * - Size parameter: getLobeIcon("OpenAI", 20)
  */
 import { toc } from '@lobehub/icons/es/toc'
+import AnthropicMono from '@lobehub/icons/es/Anthropic/components/Mono.js'
+import ByteDanceColor from '@lobehub/icons/es/ByteDance/components/Color.js'
+import ByteDanceMono from '@lobehub/icons/es/ByteDance/components/Mono.js'
+import ClaudeColor from '@lobehub/icons/es/Claude/components/Color.js'
+import ClaudeMono from '@lobehub/icons/es/Claude/components/Mono.js'
+import DeepSeekColor from '@lobehub/icons/es/DeepSeek/components/Color.js'
+import DeepSeekMono from '@lobehub/icons/es/DeepSeek/components/Mono.js'
+import DoubaoColor from '@lobehub/icons/es/Doubao/components/Color.js'
+import DoubaoMono from '@lobehub/icons/es/Doubao/components/Mono.js'
+import GeminiColor from '@lobehub/icons/es/Gemini/components/Color.js'
+import GeminiMono from '@lobehub/icons/es/Gemini/components/Mono.js'
+import GoogleColor from '@lobehub/icons/es/Google/components/Color.js'
+import GoogleMono from '@lobehub/icons/es/Google/components/Mono.js'
+import GrokMono from '@lobehub/icons/es/Grok/components/Mono.js'
+import KimiColor from '@lobehub/icons/es/Kimi/components/Color.js'
+import KimiMono from '@lobehub/icons/es/Kimi/components/Mono.js'
+import MetaColor from '@lobehub/icons/es/Meta/components/Color.js'
+import MetaMono from '@lobehub/icons/es/Meta/components/Mono.js'
+import MistralColor from '@lobehub/icons/es/Mistral/components/Color.js'
+import MistralMono from '@lobehub/icons/es/Mistral/components/Mono.js'
+import MoonshotMono from '@lobehub/icons/es/Moonshot/components/Mono.js'
+import OpenAIMono from '@lobehub/icons/es/OpenAI/components/Mono.js'
+import QwenColor from '@lobehub/icons/es/Qwen/components/Color.js'
+import QwenMono from '@lobehub/icons/es/Qwen/components/Mono.js'
+import XAIMono from '@lobehub/icons/es/XAI/components/Mono.js'
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent, type ReactNode } from 'react'
 
 import { lobeIconLoaders } from './lobe-icon-loaders'
@@ -33,10 +58,41 @@ const sglangLogo = '/orbis/brand-icons/sglang.svg'
 import { IconSub2api } from './icon-sub2api'
 import { IconWan } from './icon-wan'
 
+type IconProps = Record<string, string | number | boolean> & { size?: number | string }
+
 const CUSTOM_ICONS: Record<string, ComponentType<{ size?: number }>> = {
   SGLang: (props) => <img src={sglangLogo} alt="" aria-hidden="true" width={props.size ?? 20} height={props.size ?? 20} className="object-contain" />,
   Sub2API: IconSub2api,
   Wan: IconWan,
+}
+
+// Top-10 high-frequency providers render synchronously with zero async chunk delay.
+const SYNC_ICONS: Record<string, ComponentType<IconProps>> = {
+  'Anthropic.Mono': AnthropicMono as ComponentType<IconProps>,
+  'ByteDance.Color': ByteDanceColor as ComponentType<IconProps>,
+  'ByteDance.Mono': ByteDanceMono as ComponentType<IconProps>,
+  'Claude.Color': ClaudeColor as ComponentType<IconProps>,
+  'Claude.Mono': ClaudeMono as ComponentType<IconProps>,
+  'DeepSeek.Color': DeepSeekColor as ComponentType<IconProps>,
+  'DeepSeek.Mono': DeepSeekMono as ComponentType<IconProps>,
+  'Doubao.Color': DoubaoColor as ComponentType<IconProps>,
+  'Doubao.Mono': DoubaoMono as ComponentType<IconProps>,
+  'Gemini.Color': GeminiColor as ComponentType<IconProps>,
+  'Gemini.Mono': GeminiMono as ComponentType<IconProps>,
+  'Google.Color': GoogleColor as ComponentType<IconProps>,
+  'Google.Mono': GoogleMono as ComponentType<IconProps>,
+  'Grok.Mono': GrokMono as ComponentType<IconProps>,
+  'Kimi.Color': KimiColor as ComponentType<IconProps>,
+  'Kimi.Mono': KimiMono as ComponentType<IconProps>,
+  'Meta.Color': MetaColor as ComponentType<IconProps>,
+  'Meta.Mono': MetaMono as ComponentType<IconProps>,
+  'Mistral.Color': MistralColor as ComponentType<IconProps>,
+  'Mistral.Mono': MistralMono as ComponentType<IconProps>,
+  'Moonshot.Mono': MoonshotMono as ComponentType<IconProps>,
+  'OpenAI.Mono': OpenAIMono as ComponentType<IconProps>,
+  'Qwen.Color': QwenColor as ComponentType<IconProps>,
+  'Qwen.Mono': QwenMono as ComponentType<IconProps>,
+  'XAI.Mono': XAIMono as ComponentType<IconProps>,
 }
 
 const ICON_METADATA = new Map(toc.map((icon) => [icon.id, icon]))
@@ -55,7 +111,7 @@ const LAZY_ICONS = new Map<string, LazyExoticComponent<ComponentType<Record<stri
 function renderLobeIconFallback(name: string, size: number | string): ReactNode {
   return (
     <div
-      className="bg-muted text-muted-foreground flex shrink-0 items-center justify-center rounded-full text-xs font-medium"
+      className="w-5 h-5 rounded-md bg-muted/40 shrink-0 text-muted-foreground flex items-center justify-center text-xs font-medium"
       style={{ width: size, height: size }}
     >
       {name.charAt(0).toUpperCase() || '?'}
@@ -127,23 +183,11 @@ export function getLobeIcon(iconName: string | undefined | null, size: number = 
   }
   const propStartIndex = segments.length > 1 && /^[A-Z]/.test(segments[1]) ? 2 : 1
   const cacheKey = `${baseKey}.${variant}`
-  if (!lobeIconLoaders[cacheKey]) return fallback
-  let IconComponent = LAZY_ICONS.get(cacheKey)
-  if (!IconComponent) {
-    // Explicit import paths allow Next.js to split each installed icon variant.
-    IconComponent = lazy(() =>
-      lobeIconLoaders[cacheKey]()
-        .then((module) => ({ default: module.default as ComponentType<Record<string, unknown>> }))
-        .catch(() => ({
-          default: (props: Record<string, unknown>) =>
-            renderLobeIconFallback(baseKey, typeof props.size === 'number' || typeof props.size === 'string' ? props.size : 20),
-        }))
-    )
-    LAZY_ICONS.set(cacheKey, IconComponent)
-  }
+  const SyncIcon = SYNC_ICONS[cacheKey]
+  if (!SyncIcon && !lobeIconLoaders[cacheKey]) return fallback
 
   // Parse chained properties (e.g., "type={'platform'}", "shape='square'")
-  const props: Record<string, string | number | boolean> = {}
+  const props: IconProps = {}
 
   for (let i = propStartIndex; i < segments.length; i++) {
     const seg = segments[i]
@@ -166,6 +210,28 @@ export function getLobeIcon(iconName: string | undefined | null, size: number = 
   }
 
   const resolvedSize = typeof props.size === 'number' || typeof props.size === 'string' ? props.size : size
+  if (SyncIcon) {
+    return (
+      <span className="inline-flex shrink-0 items-center justify-center" style={{ width: resolvedSize, height: resolvedSize }}>
+        <SyncIcon {...props} />
+      </span>
+    )
+  }
+
+  let IconComponent = LAZY_ICONS.get(cacheKey)
+  if (!IconComponent) {
+    // Explicit import paths allow Next.js to split each installed icon variant.
+    IconComponent = lazy(() =>
+      lobeIconLoaders[cacheKey]()
+        .then((module) => ({ default: module.default as ComponentType<Record<string, unknown>> }))
+        .catch(() => ({
+          default: (p: Record<string, unknown>) =>
+            renderLobeIconFallback(baseKey, typeof p.size === 'number' || typeof p.size === 'string' ? p.size : 20),
+        }))
+    )
+    LAZY_ICONS.set(cacheKey, IconComponent)
+  }
+
   return (
     <span className="inline-flex shrink-0 items-center justify-center" style={{ width: resolvedSize, height: resolvedSize }}>
       <Suspense fallback={renderLobeIconFallback(baseKey, resolvedSize)}>

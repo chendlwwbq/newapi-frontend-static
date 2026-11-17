@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api/client'
+import { safeInternalPath } from './console-return'
 import { AuthShell } from './auth-shell'
 import { Turnstile } from './turnstile'
 import { useAuthStatus } from './use-auth-status'
@@ -11,7 +12,8 @@ import { useAuthStatus } from './use-auth-status'
 export function RegisterPage({ affiliate = '', returnTo }: { affiliate?: string; returnTo?: string }) {
   const { t } = useTranslation(),
     status = useAuthStatus()
-  const signInHref = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? `/sign-in?redirect=${encodeURIComponent(returnTo)}` : '/sign-in'
+  const safeReturn = safeInternalPath(returnTo)
+  const signInHref = safeReturn ? `/sign-in?redirect=${encodeURIComponent(safeReturn)}` : '/sign-in'
   const [username, setUsername] = useState(''),
     [password, setPassword] = useState(''),
     [confirm, setConfirm] = useState('')

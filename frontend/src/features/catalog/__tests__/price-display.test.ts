@@ -681,3 +681,37 @@ it('labels a bound per-video quote as fixed per video', () => {
   const bound: Quote = { ...quote, pricing_source: 'plugin', components: [{ kind: 'request', amount: '4.2', quantity: 1, unit: 'request' }] }
   expect(quoteUnitLabel(bound)).toBe('Fixed (per video)')
 })
+
+it('matches Chinese vendor and modality aliases when filtering the catalog', () => {
+  const qwen = catalogModel('qwen3-max', 'Alibaba', ['default'], '2')
+  const claude = catalogModel('claude-sonnet-4', 'Anthropic', ['default'], '3')
+  const seedance = { ...catalogModel('seedance-2-0', 'ByteDance', ['default'], '1'), modality: 'video' }
+  const imageGen = { ...catalogModel('flux-pro', 'Black Forest', ['default'], '0.5'), modality: 'image' }
+  const list = [qwen, claude, seedance, imageGen]
+
+  expect(filterCatalog(list, readCatalogFilters('q=千问')).map((m) => m.configured_model_id)).toEqual(['qwen3-max'])
+  expect(filterCatalog(list, readCatalogFilters('q=千问3')).map((m) => m.configured_model_id)).toEqual(['qwen3-max'])
+  expect(filterCatalog(list, readCatalogFilters('q=克劳德')).map((m) => m.configured_model_id)).toEqual(['claude-sonnet-4'])
+  expect(filterCatalog(list, readCatalogFilters('q=即梦')).map((m) => m.configured_model_id)).toEqual(['seedance-2-0'])
+  expect(filterCatalog(list, readCatalogFilters('q=画图')).map((m) => m.configured_model_id)).toEqual(['flux-pro'])
+  expect(filterCatalog(list, readCatalogFilters('q=视频')).map((m) => m.configured_model_id)).toEqual(['seedance-2-0'])
+})
+
+it.each(['inline', 'columns'] as const)('labels ordinary Input and Output prices with the %s layout', async (layout) => {
+  const i18n = createInstance()
+  await i18n.init({ lng: 'zh', resources: { zh: { translation: chinese } } })
+  const fixedQuote: Quote = {
+    ...quote,
+    components: [
+      { kind: 'input', amount: '1.5', quantity: 1000000, unit: 'token' },
+      { kind: 'output', amount: '6', quantity: 1000000, unit: 'token' },
+    ],
+  }
+  const html = renderToStaticMarkup(createElement(I18nextProvider, { i18n }, createElement(PriceDisplay, { quote: fixedQuote, layout })))
+  if (layout === 'columns') expect(html).toContain('grid-cols-[auto_1fr]')
+  else expect(html).toContain(chinese['Per million tokens'])
+  expect(html).toContain('输入')
+  expect(html).toContain('输出')
+  expect(html).toContain('¥1.5')
+  expect(html).toContain('¥6')
+})

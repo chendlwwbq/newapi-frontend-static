@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { formatNumber } from '@/lib/format'
 import { toIntlLocale } from '@/i18n/languages'
@@ -101,7 +101,20 @@ export function HomePage({
     search = useRef<HTMLInputElement>(null)
   const [category, setCategory] = useState('all'),
     [sort, setSort] = useState('name'),
-    [previewModel, setPreviewModel] = useState('')
+    [previewModel, setPreviewModel] = useState(''),
+    [globeReady, setGlobeReady] = useState(false)
+  useEffect(() => {
+    const win = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    if (typeof win.requestIdleCallback === 'function') {
+      const id = win.requestIdleCallback(() => setGlobeReady(true), { timeout: 300 })
+      return () => win.cancelIdleCallback?.(id)
+    }
+    const timer = window.setTimeout(() => setGlobeReady(true), 300)
+    return () => window.clearTimeout(timer)
+  }, [])
   const filtered = useMemo(
     () => filterCatalog(models, readCatalogFilters(new URLSearchParams({ modality: category, sort }).toString())),
     [models, category, sort]
@@ -112,7 +125,7 @@ export function HomePage({
   return (
     <main id="content" className="home-page">
       <section className="home-hero">
-        <Globe />
+        {globeReady ? <Globe /> : <div className="hero-globe" aria-hidden="true" />}
         <div className="hero-vignette" />
         <HeroEcho
           model={
@@ -121,11 +134,8 @@ export function HomePage({
         />
         <div className="hero-content">
           <div className="hero-heading">
-            <h1
-              lang="en"
-              className="text-4xl md:text-5xl font-bold tracking-normal leading-[1.25] bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent"
-            >
-              All models, one place.
+            <h1 className="text-4xl md:text-5xl font-bold tracking-normal leading-[1.25] bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+              {t('All models, one place.')}
             </h1>
             <p className="text-foreground/80">{t('Intelligence together. Creativity ahead.')}</p>
           </div>
@@ -239,8 +249,8 @@ export function HomePage({
                 </div>
               </div>
               <div className="model-grid">
-                {visible.map((model, index) => (
-                  <Reveal key={model.model_key} delay={(index % 4) * 0.04} className="home-model-card">
+                {visible.map((model) => (
+                  <Reveal key={model.model_key} compact className="home-model-card catalog-card-item">
                     <ModelCard model={model} />
                     <CopyButton value={model.configured_model_id} label={`${t('Copy')} ${t('Model ID')}`} />
                   </Reveal>

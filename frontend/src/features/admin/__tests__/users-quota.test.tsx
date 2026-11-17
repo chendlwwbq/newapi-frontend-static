@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createInstance } from 'i18next'
 import { I18nextProvider } from 'react-i18next'
@@ -12,6 +12,38 @@ vi.mock('@/lib/auth/session', () => ({ useAuth: () => ({ bundle: { user: { id: 1
 afterEach(() => {
   cleanup()
   vi.clearAllMocks()
+})
+
+it('keeps the quota dialog open and blocks cancellation while saving', async () => {
+  let finish!: (value: unknown) => void
+  const saving = new Promise((resolve) => {
+    finish = resolve
+  })
+  vi.mocked(api).mockImplementation(async (path) => {
+    if (path === '/api/status') return { quota_per_unit: 500000, quota_display_type: 'USD' }
+    if (path === '/api/user/manage') return saving
+    return { items: [{ id: 60, username: 'customer', role: 1, status: 1, quota: 0, used_quota: 0 }], total: 1 }
+  })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const i18n = createInstance()
+  await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
+  render(
+    <I18nextProvider i18n={i18n}>
+      <QueryClientProvider client={client}>
+        <UsersPage />
+      </QueryClientProvider>
+    </I18nextProvider>
+  )
+  fireEvent.click(await screen.findByRole('button', { name: 'Adjust quota customer' }))
+  const dialog = await screen.findByRole('dialog')
+  const input = within(dialog).getByRole('spinbutton')
+  fireEvent.change(input, { target: { value: '10' } })
+  fireEvent.submit(input.closest('form')!)
+  await waitFor(() => expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveProperty('disabled', true))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }))
+  expect(screen.getByRole('dialog')).toBeTruthy()
+  finish({})
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
 })
 
 it('adds ¥100 in CNY mode using the corresponding wallet quota', async () => {

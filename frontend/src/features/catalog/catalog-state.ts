@@ -160,6 +160,56 @@ export function catalogFilterQuery(query: string, key: string, values: string | 
   for (const value of [values].flat()) if (value && (key !== 'modality' || value !== 'all')) params.append(key, value)
   return params.toString()
 }
+const CATALOG_SEARCH_ALIASES: [string, string[]][] = [
+  ['千问', ['qwen', 'tongyi', 'alibaba']],
+  ['通义', ['qwen', 'tongyi', 'wan', 'alibaba']],
+  ['通义千问', ['qwen']],
+  ['通义万相', ['wan']],
+  ['万相', ['wan']],
+  ['豆包', ['doubao', 'bytedance']],
+  ['即梦', ['seedance', 'jimeng', 'bytedance']],
+  ['字节', ['bytedance', 'doubao', 'seedance']],
+  ['字节跳动', ['bytedance', 'doubao', 'seedance']],
+  ['克劳德', ['claude', 'anthropic']],
+  ['谷歌', ['google', 'gemini']],
+  ['双子星', ['gemini']],
+  ['深度求索', ['deepseek']],
+  ['智谱', ['zhipu', 'glm', 'z.ai', 'zai']],
+  ['月之暗面', ['moonshot', 'kimi']],
+  ['可灵', ['kling', 'kuaishou']],
+  ['快手', ['kuaishou', 'kling']],
+  ['画图', ['image', 'dall', 'flux', 'midjourney', 'wan', 'seedream', 'imagen']],
+  ['生图', ['image', 'dall', 'flux', 'midjourney', 'wan', 'seedream', 'imagen']],
+  ['文生图', ['image', 'dall', 'flux', 'midjourney', 'wan', 'seedream', 'imagen']],
+  ['图片', ['image']],
+  ['图像', ['image']],
+  ['视频', ['video', 'seedance', 'sora', 'veo', 'kling', 'wan']],
+  ['生视频', ['video', 'seedance', 'sora', 'veo', 'kling', 'wan']],
+  ['文生视频', ['video', 'seedance', 'sora', 'veo', 'kling', 'wan']],
+  ['语音', ['audio', 'speech', 'tts', 'whisper']],
+  ['音频', ['audio']],
+  ['文本', ['text']],
+  ['对话', ['text', 'chat']],
+  ['向量', ['embedding']],
+  ['嵌入', ['embedding']],
+  ['推理', ['reasoning', 'thinking', 'o1', 'o3', 'r1']],
+]
+
+function matchesCatalogTerm(term: string, text: string): boolean {
+  if (text.includes(term)) return true
+  for (const [alias, expansions] of CATALOG_SEARCH_ALIASES) {
+    if (term === alias) {
+      if (expansions.some((expansion) => text.includes(expansion))) return true
+      continue
+    }
+    if (alias.length >= 2 && term.includes(alias)) {
+      const remainder = term.replace(alias, '').trim()
+      if (expansions.some((expansion) => text.includes(expansion) && (!remainder || text.includes(remainder)))) return true
+    }
+  }
+  return false
+}
+
 export function filterCatalog<T extends CatalogModel>(models: T[], filters: CatalogFilters, metrics: Map<string, PerformanceSummary> = new Map()) {
   const terms = filters.q.trim().toLowerCase().split(/\s+/).filter(Boolean)
   const rows = models.filter((model) => {
@@ -167,13 +217,14 @@ export function filterCatalog<T extends CatalogModel>(models: T[], filters: Cata
       model.name,
       model.configured_model_id,
       model.provider,
+      model.modality,
       ...model.capabilities,
       ...model.offerings.flatMap((route) => [route.invocation_id, route.catalog_label || '']),
     ]
       .join(' ')
       .toLowerCase()
     return (
-      terms.every((term) => text.includes(term)) &&
+      terms.every((term) => matchesCatalogTerm(term, text)) &&
       (filters.modality === 'all' || model.modality === filters.modality) &&
       (!filters.providers.length || filters.providers.includes(model.provider || UNKNOWN_PROVIDER)) &&
       (!filters.groups.length || model.offerings.some((offering) => filters.groups.includes(offering.name))) &&

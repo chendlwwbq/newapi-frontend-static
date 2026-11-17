@@ -10,12 +10,12 @@ vi.mock('@/lib/auth/session', () => ({ useAuth: () => ({ bundle: { user: { id: 1
 vi.mock('@/lib/api/client', () => ({
   api: async (url: string) =>
     url === '/api/status'
-      ? { quota_per_unit: 500000, quota_display_type: 'USD' }
+      ? { quota_per_unit: 500000, quota_display_type: 'CNY', usd_exchange_rate: 7 }
       : {
           total: 2,
           items: [
             { id: 1, trade_no: 'creem-order', amount: 500000, money: 5, payment_provider: 'creem', payment_method: 'creem', status: 'success' },
-            { id: 2, trade_no: 'epay-order', amount: 2, money: 2, payment_provider: 'epay', payment_method: 'alipay', status: 'success' },
+            { id: 2, trade_no: 'epay-order', amount: 2, money: 50, payment_provider: 'epay', payment_method: 'alipay', status: 'success' },
           ],
         },
 }))
@@ -34,6 +34,8 @@ it('formats Creem raw quota and other providers USD amounts using their respecti
   )
   const creem = (await screen.findByText('creem-order')).closest('tr')!
   const epay = screen.getByText('epay-order').closest('tr')!
-  expect(within(creem).getAllByRole('cell')[2].textContent).toBe('$1')
-  expect(within(epay).getAllByRole('cell')[2].textContent).toBe('$2')
+  expect(within(creem).getAllByRole('cell')[2].textContent).toBe('¥7')
+  expect(within(epay).getAllByRole('cell')[2].textContent).toBe('¥14')
+  expect(within(epay).getAllByRole('cell')[3].textContent).toBe('50')
+  expect(within(creem).getAllByRole('cell')[3].textContent).toBe('5')
 })

@@ -14,15 +14,14 @@ export function Reveal({
   compact?: boolean
 }) {
   const reducedMotion = useReducedMotion()
-  const yOffset = compact ? 6 : 18
-  const duration = compact ? 0.16 : 0.45
+  const duration = compact ? 0.14 : 0.35
   return (
     <motion.div
       className={className}
-      initial={reducedMotion ? false : { opacity: 0, y: yOffset }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={reducedMotion ? false : compact ? { opacity: 0 } : { opacity: 0, y: 18 }}
+      whileInView={compact ? { opacity: 1 } : { opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: reducedMotion ? 0 : duration, delay: reducedMotion ? 0 : compact ? 0 : delay, ease: [0.2, 0.7, 0.2, 1] }}
+      transition={{ duration: reducedMotion ? 0 : duration, delay: reducedMotion ? 0 : compact ? 0 : delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>

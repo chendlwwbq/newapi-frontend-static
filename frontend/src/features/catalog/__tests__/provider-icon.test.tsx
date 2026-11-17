@@ -2,6 +2,7 @@
 import { afterEach, expect, it } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { ProviderIcon } from '../model-card'
+import { getLobeIcon } from '@/features/admin/plugins/lobe-icon'
 
 afterEach(cleanup)
 
@@ -104,4 +105,17 @@ it('preserves the text fallback for unknown brands', () => {
   render(<ProviderIcon provider="Custom" modelName="wanton-example" icon="UnknownIcon" />)
   expect(screen.queryByRole('img')).toBeNull()
   expect(screen.getByText('C')).toBeTruthy()
+})
+
+it('renders Top-10 LobeHub icons synchronously and uses fixed rounded-md fallback for unknown icons', () => {
+  const { container, rerender } = render(<>{getLobeIcon('Claude.Color', 20)}</>)
+  expect(container.querySelector('svg')).not.toBeNull()
+  expect(container.querySelector('.bg-muted\\/40')).toBeNull()
+
+  rerender(<>{getLobeIcon('UnknownProviderBrand', 20)}</>)
+  const fallback = screen.getByText('U')
+  expect(fallback.className).toContain('rounded-md')
+  expect(fallback.className).toContain('bg-muted/40')
+  expect(fallback.style.width).toBe('20px')
+  expect(fallback.style.height).toBe('20px')
 })

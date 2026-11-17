@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { safeInternalPath } from './console-return'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
@@ -69,7 +70,7 @@ export function OAuthCallbackPage({
       .then((result) => {
         if (!active) return
         const redirect = consumeOAuthLoginRedirect(state) || '/dashboard/overview'
-        const safe = redirect.startsWith('/') && !redirect.startsWith('//') && !redirect.includes('\\') ? redirect : '/dashboard/overview'
+        const safe = safeInternalPath(redirect) || '/dashboard/overview'
         if ('require_verification' in result) {
           setReturnTo(safe)
           setChallenge(result)

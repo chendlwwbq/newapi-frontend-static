@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Power, Trash2, KeyRound, Activity, RefreshCw, Copy, Boxes, Tags, ArrowUpDown, Gauge } from 'lucide-react'
@@ -53,6 +53,13 @@ export function ChannelsPage() {
     [inference, setInference] = useState<Channel | null>(null),
     [operations, setOperations] = useState<Channel | null>(null),
     [codex, setCodex] = useState<Channel | null>(null)
+  const latestEditRequest = useRef(0)
+  useEffect(
+    () => () => {
+      latestEditRequest.current++
+    },
+    []
+  )
   const pluginBind = user?.role === 100 || user?.permissions?.admin_permissions?.task_plugin?.bind === true
   const read = canChannel(user, 'read'),
     write = canChannel(user, 'write'),
@@ -94,11 +101,13 @@ export function ChannelsPage() {
     },
   })
   async function edit(channel: Channel) {
+    const requestId = ++latestEditRequest.current
     try {
       const data = await api<Channel>(`/api/channel/${channel.id}`)
+      if (requestId !== latestEditRequest.current) return
       setEditor({ ...data, key: '', mode: 'single', key_mode: 'append', multi_key_mode: data.channel_info?.multi_key_mode || 'random' })
     } catch (error) {
-      toast.error(t((error as Error).message))
+      if (requestId === latestEditRequest.current) toast.error(t((error as Error).message))
     }
   }
   const items = query.data?.items || []
@@ -120,7 +129,12 @@ export function ChannelsPage() {
             </Button>
           )}
           {sensitive && (
-            <Button onClick={() => setEditor({ ...newChannel })}>
+            <Button
+              onClick={() => {
+                latestEditRequest.current++
+                setEditor({ ...newChannel })
+              }}
+            >
               <Plus size={14} />
               {t('Add channel')}
             </Button>
@@ -245,11 +259,7 @@ export function ChannelsPage() {
                         <td>
                           <span
                             className={`status-badge ${
-                              channel.status === 1
-                                ? 'success'
-                                : channel.status === 3
-                                  ? 'bg-destructive/10 text-destructive'
-                                  : ''
+                              channel.status === 1 ? 'success' : channel.status === 3 ? 'bg-destructive/10 text-destructive' : ''
                             }`}
                           >
                             {channel.status === 1 ? (
@@ -456,7 +466,17 @@ export function ChannelsPage() {
       )}
       {operations && <ChannelOperationsDialog channel={operations} user={user} onClose={() => setOperations(null)} />}
       {editor && (
-        <ChannelEditor initial={editor} sensitive={sensitive} pluginBind={pluginBind} ownerId={bundle!.user.id} onClose={() => setEditor(null)} />
+        <ChannelEditor
+          key={editor.id ?? 'new'}
+          initial={editor}
+          sensitive={sensitive}
+          pluginBind={pluginBind}
+          ownerId={bundle!.user.id}
+          onClose={() => {
+            latestEditRequest.current++
+            setEditor(null)
+          }}
+        />
       )}
       {deleting && (
         <AdminConfirm

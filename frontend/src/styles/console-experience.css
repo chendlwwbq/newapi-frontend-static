@@ -417,7 +417,7 @@
 .keys-columns {
   position: relative;
   margin-left: auto;
-  font-size: 11px;
+  font-size: 13px;
 }
 .keys-columns summary {
   display: flex;
@@ -458,7 +458,7 @@
 }
 .keys-table .data-table td {
   max-width: 220px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .keys-table .data-table td:first-child,
 .keys-table .data-table th:first-child {
@@ -474,13 +474,13 @@
 }
 .keys-table td small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   color: var(--muted-foreground);
   line-height: 1.8;
   margin-top: 4px;
 }
 .keys-table code {
-  font-size: 10px;
+  font-size: 12px;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
@@ -503,7 +503,7 @@
   background: var(--muted);
   border-radius: 12px;
   margin: 15px 0;
-  font-size: 11px;
+  font-size: 13px;
 }
 .keys-empty {
   min-height: 360px;
@@ -1615,7 +1615,6 @@
 
 .data-table tbody tr:hover {
   background: color-mix(in srgb, var(--primary) 5%, var(--background));
-  transform: scale(1.01);
 }
 
 /* 按钮组交互 */
@@ -1628,22 +1627,6 @@
 .console-topbar-actions a:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* 移动端抽屉滑入动画 */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.console-mobile-drawer[data-slot="dialog-content"] {
-  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* 文本链接悬停 */
@@ -1672,7 +1655,6 @@ input[type="password"]:focus,
 input[type="number"]:focus,
 input[type="url"]:focus,
 textarea:focus {
-  transform: translateY(-1px);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 12%, transparent),
               0 4px 12px rgba(0, 0, 0, 0.06) !important;
 }

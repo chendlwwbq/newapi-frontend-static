@@ -74,6 +74,7 @@ export function ModelPricingPage() {
       setResetting(null)
       changed()
     },
+    onError: (error) => toast.error(t(error.message)),
   })
   const preview = useMutation({
     mutationFn: () => api<Description>('/api/option/model_pricing/preview', { method: 'POST', body: { model_name: name.trim(), pricing: draft } }),
@@ -462,10 +463,10 @@ export function ModelPricingPage() {
             title={t('Reset pricing overrides')}
             description={`${resetting.model_name} · ${t('Remove this model’s saved overrides and inherit native defaults.')}${Object.keys(resetting.configured['billing_setting.group_billing_expr'] || {}).length ? ` ${t('This also removes all saved route prices for this model.')}` : ''}${Object.keys(resetting.configured['billing_setting.plugin_billing_expr'] || {}).length ? ` ${t('This also removes all saved plugin prices for this model.')}` : ''}`}
             busy={save.isPending}
+            error={save.error}
             onClose={() => setResetting(null)}
             onConfirm={() => save.mutate({ model_name: resetting.model_name, version: resetting.version, pricing: {}, reset: true })}
           />
-          {save.error && <ErrorState error={save.error} />}
         </>
       )}
     </>

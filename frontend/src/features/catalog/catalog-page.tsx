@@ -1,6 +1,6 @@
 'use client'
 import { catalogGroupLabel } from './group-label'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useDeferredValue, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { Search, ChevronDown, X, SlidersHorizontal, ArrowLeft, ArrowRight } from 'lucide-react'
@@ -57,6 +57,13 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
     locale = toIntlLocale(i18n.language)
   const filterQuery = params.toString()
   const filters = useMemo(() => readCatalogFilters(filterQuery), [filterQuery])
+  const [searchInput, setSearchInput] = useState(filters.q)
+  const [syncedQuery, setSyncedQuery] = useState(filters.q)
+  if (syncedQuery !== filters.q) {
+    setSyncedQuery(filters.q)
+    setSearchInput(filters.q)
+  }
+  const deferredFilters = useDeferredValue({ ...filters, q: searchInput })
   const [compared, setCompared] = useState<string[]>([])
   const [compareOpen, setCompareOpen] = useState(false)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -135,12 +142,12 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
       counts,
     }
   }, [models])
-  const filtered = useMemo(() => filterCatalog(models || [], filters, metrics), [models, filters, metrics])
+  const filtered = useMemo(() => filterCatalog(models || [], deferredFilters, metrics), [models, deferredFilters, metrics])
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
   const page = Math.min(filters.page, pageCount)
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize)
   const selections = (models || []).filter((model) => compared.includes(catalogDisplayKey(model)))
-  const active = !!(filters.q || filters.providers.length || filters.groups.length || filters.inputs?.length || filters.modality !== 'all')
+  const active = !!(searchInput || filters.providers.length || filters.groups.length || filters.inputs?.length || filters.modality !== 'all')
   function update(key: string, values: string | string[], replace = false) {
     const query = catalogFilterQuery(window.location.search, key, values)
     const url = `/pricing${query ? '?' + query : ''}`
@@ -165,6 +172,7 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
     })
   }
   function reset() {
+    setSearchInput('')
     window.history.pushState(null, '', '/pricing')
   }
   const comparisonRows: [string, (model: CatalogModel) => string | number][] = [
@@ -253,8 +261,12 @@ export function CatalogPage({ initial }: { initial: Catalog | null }) {
             type="search"
             aria-label={t('Search models')}
             placeholder={t('Search models')}
-            value={filters.q}
-            onChange={(event) => update('q', event.target.value, true)}
+            value={searchInput}
+            onChange={(event) => {
+              const value = event.target.value
+              setSearchInput(value)
+              update('q', value, true)
+            }}
           />
         </label>
         <FilterSelect

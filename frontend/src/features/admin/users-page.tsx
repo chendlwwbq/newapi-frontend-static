@@ -1,5 +1,5 @@
 'use client'
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Plus, Pencil, Wallet, Shield, RefreshCw } from 'lucide-react'
@@ -71,14 +71,20 @@ export function UsersPage() {
     },
     onError: (error) => setError(error.message),
   })
+  const quotaTargetId = useRef<number | null>(null)
   const quota = useMutation({
     mutationFn: (body: { id: number; action: string; mode: string; value: number }) => api('/api/user/manage', { method: 'POST', body }),
-    onSuccess: () => {
-      setQuotaUser(null)
-      setAmount('')
+    onSuccess: (_result, body) => {
+      if (quotaTargetId.current === body.id) {
+        quotaTargetId.current = null
+        setQuotaUser(null)
+        setAmount('')
+      }
       changed()
     },
-    onError: (error) => setError(error.message),
+    onError: (error, body) => {
+      if (quotaTargetId.current === body.id) setError(error.message)
+    },
   })
   async function edit(user: AdminUser) {
     try {
@@ -144,7 +150,7 @@ export function UsersPage() {
   }
   function submitQuota(event: FormEvent) {
     event.preventDefault()
-    if (!quotaUser || !adjustment) return
+    if (!quotaUser || !adjustment || quota.isPending) return
     setError('')
     try {
       if (!amount.trim()) throw new Error('Invalid parameters')
@@ -255,8 +261,10 @@ export function UsersPage() {
                               variant="ghost"
                               size="icon"
                               aria-label={`${t('Adjust quota')} ${user.username}`}
+                              disabled={quota.isPending}
                               onClick={() => {
                                 setError('')
+                                quotaTargetId.current = user.id
                                 setQuotaUser(user)
                                 setMode('add')
                                 setAmount('')
@@ -338,7 +346,10 @@ export function UsersPage() {
       <Dialog
         open={!!quotaUser}
         onOpenChange={(open) => {
-          if (!open && !quota.isPending) setQuotaUser(null)
+          if (!open && !quota.isPending) {
+            quotaTargetId.current = null
+            setQuotaUser(null)
+          }
         }}
       >
         <DialogContent>
@@ -379,7 +390,15 @@ export function UsersPage() {
               </p>
             )}
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setQuotaUser(null)}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={quota.isPending}
+                onClick={() => {
+                  quotaTargetId.current = null
+                  setQuotaUser(null)
+                }}
+              >
                 {t('Cancel')}
               </Button>
               <Button type="submit" disabled={quota.isPending || !adjustment}>

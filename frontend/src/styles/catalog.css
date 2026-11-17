@@ -1783,3 +1783,7 @@
     display: none;
   }
 }
+.catalog-card-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 220px;
+}

@@ -1,6 +1,15 @@
 export function safeInternalPath(value?: string | null): string | undefined {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) return undefined
-  return value
+  // Reject controls before URL parsing can silently remove them.
+  // eslint-disable-next-line no-control-regex
+  if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\x00-\x1f\x7f]/.test(value)) return undefined
+  try {
+    const url = new URL(value, 'http://localhost')
+    // Normalizing dot segments can itself produce a protocol-relative path.
+    if (url.origin !== 'http://localhost' || url.pathname.startsWith('//')) return undefined
+    return url.pathname + url.search + url.hash
+  } catch {
+    return undefined
+  }
 }
 
 /** Keep the route selection needed by the key-creation flow without forwarding unrelated query values. */

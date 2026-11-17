@@ -48,11 +48,11 @@ it('shows Creem quota in the same unit as the account balance at confirmation', 
   const i18n = createInstance()
   await i18n.init({ lng: 'en', resources: { en: { translation: {} } } })
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  client.setQueryData(['status'], { quota_per_unit: 500000, quota_display_type: 'USD' })
+  client.setQueryData(['status'], { quota_per_unit: 500000, quota_display_type: 'CNY', usd_exchange_rate: 7 })
   const info = {
     payment_compliance_confirmed: true,
     enable_creem_topup: true,
-    creem_products: [{ productId: 'one', name: 'Credits', price: 5, quota: 500000, currency: 'USD' }],
+    creem_products: [{ productId: 'one', name: 'Credits', price: 5, quota: 500000, currency: 'EUR' }],
     pay_methods: [],
     amount_options: [],
     discount: {},
@@ -69,5 +69,6 @@ it('shows Creem quota in the same unit as the account balance at confirmation', 
     </I18nextProvider>
   )
   fireEvent.click(screen.getByRole('button', { name: /Credits/ }))
-  await waitFor(() => expect(screen.getByText('Topup Amount').nextElementSibling?.textContent).toBe('$1'))
+  await waitFor(() => expect(screen.getByText('Topup Amount').nextElementSibling?.textContent).toBe('¥7'))
+  expect(screen.getByText('You Pay').nextElementSibling?.textContent).toBe('€5.00 EUR')
 })

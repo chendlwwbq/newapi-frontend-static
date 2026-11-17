@@ -1,11 +1,12 @@
 'use client'
 import { catalogGroupLabel } from './group-label'
-import { useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Check, Copy } from 'lucide-react'
+import { toast } from 'sonner'
 import { toIntlLocale } from '@/i18n/languages'
-import { formatPrice, quoteUnitLabel } from './price-format'
+import { formatPrice, quoteUnitLabel, componentLabels } from './price-format'
 import { formatCompactNumber } from '@/lib/format'
 import type { CatalogModel, Quote } from '@/lib/api/types'
 import { catalogQuoteSummary, modelDetailHref } from './catalog-state'
@@ -26,7 +27,17 @@ export function modelHref(model: CatalogDisplayModel, groups: string[] = [], cur
     model.offerings.find((offering) => groups.includes(offering.name))
   return modelDetailHref(model.configured_model_id, model.model_key, route?.name, currency, model.videoBillingMode, route?.offering_key)
 }
-export function PriceDisplay({ quote, groupRatio, exchangeRate }: { quote?: Quote; groupRatio?: number; exchangeRate?: number }) {
+export function PriceDisplay({
+  quote,
+  groupRatio,
+  exchangeRate,
+  layout = 'inline',
+}: {
+  quote?: Quote
+  groupRatio?: number
+  exchangeRate?: number
+  layout?: 'inline' | 'columns'
+}) {
   const { t, i18n } = useTranslation()
   if (quote?.status === 'unconfigured') return <span className="muted">{t('Unconfigured')}</span>
   if (quote?.pricing_source === 'channel' && quote.billing_expr && groupRatio !== undefined && Number.isFinite(groupRatio) && groupRatio >= 0) {
@@ -86,9 +97,18 @@ export function PriceDisplay({ quote, groupRatio, exchangeRate }: { quote?: Quot
         const money = (value: string, ratio: number) => formatPrice(Number(value) * ratio * fx, quote.currency, toIntlLocale(i18n.language))
         return (
           <span className="price-display">
-            <span>
-              {t('Input')} {money(input.value, groupRatio)} / {t('Output')} {money(output.value, groupRatio)} · {t('Per million tokens')}
-            </span>
+            {layout === 'columns' ? (
+              <span className="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-xs">
+                <span className="text-muted-foreground">{t('Input')}</span>
+                <span className="font-mono tabular-nums font-medium text-foreground">{money(input.value, groupRatio)}</span>
+                <span className="text-muted-foreground">{t('Output')}</span>
+                <span className="font-mono tabular-nums font-medium text-foreground">{money(output.value, groupRatio)}</span>
+              </span>
+            ) : (
+              <span>
+                {t('Input')} {money(input.value, groupRatio)} / {t('Output')} {money(output.value, groupRatio)} · {t('Per million tokens')}
+              </span>
+            )}
             <small className="small-note">
               {t('Base prices before group ratio')}: {money(input.value, 1)} / {money(output.value, 1)}
             </small>
@@ -130,6 +150,13 @@ export function PriceDisplay({ quote, groupRatio, exchangeRate }: { quote?: Quot
               <span>
                 {money(amount[0])} · {unit}
               </span>
+            ) : layout === 'columns' ? (
+              <span className="grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-xs">
+                <span className="text-muted-foreground">{t('Input')}</span>
+                <span className="font-mono tabular-nums font-medium text-foreground">{money(amount[0])}</span>
+                <span className="text-muted-foreground">{t('Output')}</span>
+                <span className="font-mono tabular-nums font-medium text-foreground">{money(amount[1])}</span>
+              </span>
             ) : (
               <span>
                 {t('Input')} {money(amount[0])} / {t('Output')} {money(amount[1])} · {t('Per million tokens')}
@@ -145,14 +172,28 @@ export function PriceDisplay({ quote, groupRatio, exchangeRate }: { quote?: Quot
   if (!quote || !quote.components.length) return <span className="muted">{t('Dynamic pricing')}</span>
   const components = quote.components.filter((c) => ['input', 'output', 'request'].includes(c.kind))
   if (!components.length) return <span className="muted">{t('See price details')}</span>
+  const inputPart = components.find((c) => c.kind === 'input')
+  const outputPart = components.find((c) => c.kind === 'output')
+  if (layout === 'columns' && inputPart && outputPart) {
+    const locale = toIntlLocale(i18n.language)
+    return (
+      <span className="price-display grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-0.5 text-xs">
+        <span className="text-muted-foreground">{t('Input')}</span>
+        <span className="font-mono tabular-nums font-medium text-foreground">{formatPrice(Number(inputPart.amount), quote.currency, locale)}</span>
+        <span className="text-muted-foreground">{t('Output')}</span>
+        <span className="font-mono tabular-nums font-medium text-foreground">{formatPrice(Number(outputPart.amount), quote.currency, locale)}</span>
+      </span>
+    )
+  }
   return (
     <span className="price-display">
       {components.map((part, index) => (
         <span key={part.kind}>
           {index > 0 && <span className="price-separator"> / </span>}
-          {formatPrice(Number(part.amount), quote.currency, toIntlLocale(i18n.language))}
+          {t(componentLabels[part.kind] || part.kind)} {formatPrice(Number(part.amount), quote.currency, toIntlLocale(i18n.language))}
         </span>
       ))}
+      <span className="small-note"> · {t(quoteUnitLabel(quote))}</span>
     </span>
   )
 }
@@ -239,18 +280,44 @@ export function ProviderIcon({ provider, modelName, icon, size = 30 }: { provide
 }
 export function ModelCard({ model }: { model: CatalogModel }) {
   const { t, i18n } = useTranslation()
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) return
+    const timer = window.setTimeout(() => setCopied(false), 1600)
+    return () => window.clearTimeout(timer)
+  }, [copied])
+  function copyModelId(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    event.stopPropagation()
+    void navigator.clipboard
+      ?.writeText(model.configured_model_id)
+      .then(() => {
+        setCopied(true)
+        toast.success(t('Copied'))
+      })
+      .catch(() => toast.error(t('Copy failed')))
+  }
   const summary = catalogQuoteSummary(model, []),
     route = model.offerings.find((item) => item.offering_key === summary?.offering_key)
   return (
-    <Link href={modelHref(model)} className="model-card flex flex-col">
+    <Link href={modelHref(model)} className="model-card catalog-card-item flex flex-col">
       <div className="model-card-title">
         <ProviderIcon provider={model.provider} modelName={model.configured_model_id} icon={model.icon} />
         <ArrowUpRight size={16} />
       </div>
       <h3 className="line-clamp-1">{model.name}</h3>
-      <code className="truncate">{model.configured_model_id}</code>
-      <div className="model-card-price line-clamp-2 min-h-[2.5rem] flex-1">
-        <PriceDisplay quote={summary?.quote} />
+      <button
+        type="button"
+        onClick={copyModelId}
+        title={t('Copy')}
+        aria-label={`${t('Copy')} ${model.configured_model_id}`}
+        className="mt-1.5 inline-flex w-fit max-w-full cursor-pointer items-center gap-1.5 rounded bg-muted/50 px-2 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-primary/15 hover:text-foreground"
+      >
+        <code className="truncate">{model.configured_model_id}</code>
+        {copied ? <Check size={12} className="shrink-0 text-emerald-500" /> : <Copy size={12} className="shrink-0 opacity-70" />}
+      </button>
+      <div className="model-card-price min-h-[2.75rem] flex-1">
+        <PriceDisplay quote={summary?.quote} layout="columns" />
         <small>
           {t(quoteUnitLabel(summary?.quote))}
           {route && (
